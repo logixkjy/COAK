@@ -127,7 +127,7 @@ struct SettingsView: View {
                     .navigationTitle("설정")
                     .onAppear {
                         viewStore.send(.onAppear)
-                        loadUserProfile()
+                        loadUserProfile(userProfile: appViewStore.userProfile)
                     }
                     .confirmationDialog("프로필 이미지 선택", isPresented: $showImageSourceSheet) {
                         if UIImagePickerController.isSourceTypeAvailable(.camera) {
@@ -185,7 +185,7 @@ struct SettingsView: View {
     func loadUserProfile(userProfile: UserProfile?) {
         if let userProfile = userProfile {
             if let urlString = userProfile.profileImageURL {
-                let url = URL(string: urlString) {
+                if let url = URL(string: urlString) {
                     Task {
                         if let imageData = try? Data(contentsOf: url),
                            let image = UIImage(data: imageData) {
@@ -194,9 +194,9 @@ struct SettingsView: View {
                     }
                 }
             }
-            self.name = userProfile.name as? String ?? ""
-            self.email = userProfile.email as? String ?? ""
-            self.isPremium = userProfile.isPremium
+            self.name = userProfile.name ?? ""
+            self.email = userProfile.email ?? ""
+            self.isPremium = userProfile.isPremium ?? false
         }
     }
 
@@ -220,8 +220,9 @@ struct SettingsView: View {
             var userData: [String: Any] = [:]
             if let imageURL {
                 userData["profileImageURL"] = imageURL.absoluteString
+//                self.appStore.userProfile?.profileImageURL = imageURL.absoluteString
             }
-            self.appStore.userProfile?.profileImageURL = imageURL.absoluteString
+            
             do {
                 try await Firestore.firestore()
                     .collection("users")
