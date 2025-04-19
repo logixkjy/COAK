@@ -1,0 +1,57 @@
+//
+//  MainTabView.swift
+//  PlayListApp
+//
+//  Created by JooYoung Kim on 4/5/25.
+//
+
+import SwiftUI
+import ComposableArchitecture
+
+struct MainTabView: View {
+    let store: StoreOf<MainTabFeature>
+    let appStore: StoreOf<AppFeature>
+
+    var body: some View {
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            TabView(selection: viewStore.binding(get: \.selectedTab, send: MainTabFeature.Action.tabSelected)) {
+
+                MainHomeView(
+                    store: store.scope(state: \.playlistState, action: MainTabFeature.Action.playlistAction),
+                    appStore: appStore
+                )
+                .tabItem {
+                    Label("홈", systemImage: "house")
+                }
+                .tag(Tab.playlist)
+
+                FavoritesView(
+                    appStore: appStore
+                )
+                .tabItem {
+                    Label("즐겨찾기", systemImage: "star")
+                }
+                .tag(Tab.favorites)
+                
+                NoticesListView(
+                    store: store.scope(state: \.noticesState, action: MainTabFeature.Action.noticesAction),
+                    appStore: appStore
+                )
+                .tabItem {
+                    Label("공지사항", systemImage: "megaphone")
+                }
+                .tag(Tab.notices)
+
+                SettingsView(
+                    store: store.scope(state: \.settingsState, action: MainTabFeature.Action.settingsAction),
+                    appStore: appStore,
+                    noticesStore: store.scope(state: \.noticesState, action: MainTabFeature.Action.noticesAction)
+                )
+                .tabItem {
+                    Label("설정", systemImage: "gear")
+                }
+                .tag(Tab.settings)
+            }
+        }
+    }
+}
