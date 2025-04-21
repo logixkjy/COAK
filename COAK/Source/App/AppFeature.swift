@@ -15,9 +15,11 @@ enum LogoutError: Error, Equatable {
 }
 
 struct AppFeature: Reducer {
+    @ObservableState
     struct State: Equatable {
         var mainTab = MainTabFeature.State()
         var auth = AuthFeature.State()
+        var playlistEdit = PlaylistEditFeature.State()
         
         var isLoading: Bool = true
         var isSignedIn: Bool = false
@@ -35,6 +37,7 @@ struct AppFeature: Reducer {
     enum Action: Equatable {
         case mainTab(MainTabFeature.Action)
         case auth(AuthFeature.Action)
+        case playlistEdit(PlaylistEditFeature.Action)
         
         case checkProfileCompleteness
         case profileCheckResult(Bool)
@@ -60,6 +63,7 @@ struct AppFeature: Reducer {
     var body: some Reducer<State, Action> {
         Scope(state: \.mainTab, action: /Action.mainTab) { MainTabFeature() }
         Scope(state: \.auth, action: /Action.auth) { AuthFeature() }
+        Scope(state: \.playlistEdit, action: /Action.playlistEdit) { PlaylistEditFeature() }
         
         Reduce { state, action in
             switch action {

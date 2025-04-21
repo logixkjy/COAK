@@ -9,6 +9,7 @@ import Foundation
 
 struct PlaylistGroup: Identifiable, Codable, Equatable {
     var id: String { title }
-    let title: String
+    var title: String
     var playlists: [PlaylistItem]
+    var order: Int
 }

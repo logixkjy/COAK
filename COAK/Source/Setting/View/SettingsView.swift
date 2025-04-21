@@ -118,9 +118,9 @@ struct SettingsView: View {
                                 NavigationLink("전체 사용자 보기") {
                                     UserListView()
                                 }
-//                                Button("재생목록 등록") {
-//                                    isShowingPlaylistEditor = true
-//                                }
+                                Button("재생목록 등록") {
+                                    isShowingPlaylistEditor = true
+                                }
                             }
                         }
                     }
@@ -146,7 +146,7 @@ struct SettingsView: View {
                         NoticeEditorView(notice: $notice, isNew: true, store: noticesStore)
                     }
                     .sheet(isPresented: $isShowingPlaylistEditor) {
-                        PlaylistEditorView()
+                        PlaylistEditGtoupsView(store: appStore.scope(state: \.playlistEdit, action: AppFeature.Action.playlistEdit))
                     }
                     .sheet(isPresented: $isShowingPolicy) {
                         SafariWebView(url: URL(string: "https://logixkjy.github.io/privacy.html")!)
