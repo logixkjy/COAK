@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PlaylistItemEdit: Identifiable, Codable, Equatable {
+struct PlaylistItemEdit: Identifiable, Codable, Equatable, Hashable {
     var id: String         // YouTube Playlist ID
     var title: String
     var order: Int

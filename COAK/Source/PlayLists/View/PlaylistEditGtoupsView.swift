@@ -7,9 +7,10 @@
 
 import SwiftUI
 import ComposableArchitecture
-
+    
 struct PlaylistEditGtoupsView: View {
     let store: StoreOf<PlaylistEditFeature>
+    @State private var path = NavigationPath()
     @State private var isShowingAddAlert = false
     @State private var newGroupTitle = ""
     @State private var editingGroup: PlaylistGroupEdit? = nil
@@ -17,38 +18,41 @@ struct PlaylistEditGtoupsView: View {
     
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            NavigationStack {
+            NavigationStack(path: $path) {
                 List {
                     ForEach(viewStore.groups.sorted(by: { $0.order < $1.order })) { group in
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Text(group.title)
-                                    .font(.title2)
-                                    .foregroundColor(.primary)
-                                Spacer()
-                                Button(action: {
-                                    editingGroup = group
-                                    editedGroupTitle = group.title
-                                }) {
-                                    Image(systemName: "pencil")
-                                        .foregroundColor(.blue)
+                        Button {
+                            path.append(group)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Text(group.title)
+                                        .font(.title2)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    Button(action: {
+                                        editingGroup = group
+                                        editedGroupTitle = group.title
+                                    }) {
+                                        Image(systemName: "pencil")
+                                            .foregroundColor(.blue)
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
+                                
+                                Divider()
+                                
+                                Text("Order: \(group.order)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
-                            
-                            Divider()
-                            
-                            Text("Order: \(group.order)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(.systemBackground))
+                                    .shadow(color: .gray.opacity(0.2), radius: 4, x: 0, y: 2)
+                            )
                         }
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color(.systemBackground))
-                                .shadow(color: .gray.opacity(0.2), radius: 4, x: 0, y: 2)
-                        )
-                        .padding(.horizontal)
                     }
                     .onDelete { indexSet in
                         viewStore.send(.delete(indexSet))
@@ -105,6 +109,10 @@ struct PlaylistEditGtoupsView: View {
                         editingGroup = nil
                     }
                 })
+                
+                .navigationDestination(for: PlaylistGroupEdit.self) { group in
+                    PlaylistEditItemsView(group: group)
+                }
             }
         }
     }
