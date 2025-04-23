@@ -7,6 +7,10 @@
 
 import Foundation
 
+struct PlaylistContainer: Codable {
+    var groups: [PlaylistGroupEdit]
+}
+
 struct PlaylistGroupEdit: Identifiable, Codable, Equatable, Hashable {
     var title: String
     var playlists: [PlaylistItemEdit]

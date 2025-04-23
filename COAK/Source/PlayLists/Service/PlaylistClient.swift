@@ -12,7 +12,7 @@ import Foundation
 struct PlaylistClient {
     var loadPlaylists: @Sendable () async throws -> [PlaylistGroup]
     var loadPlaylistsEdit: @Sendable () async throws -> [PlaylistGroupEdit]
-    var savePlaylists: @Sendable ([PlaylistGroup]) async throws -> Void
+    var savePlaylists: @Sendable ([PlaylistGroupEdit]) async throws -> Void
 }
 
 extension PlaylistClient: DependencyKey {
@@ -34,7 +34,8 @@ extension PlaylistClient: DependencyKey {
         savePlaylists: { groups in
             let ref = Storage.storage().reference(withPath: "playlist/playlist.json")
             let encoder = JSONEncoder()
-            let data = try encoder.encode(groups)
+            let container = PlaylistContainer(groups: groups)
+            let data = try encoder.encode(container)
             _ = try await ref.putDataAsync(data, metadata: nil)
         }
     )

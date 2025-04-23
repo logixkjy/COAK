@@ -146,7 +146,7 @@ struct SettingsView: View {
                         NoticeEditorView(notice: $notice, isNew: true, store: noticesStore)
                     }
                     .sheet(isPresented: $isShowingPlaylistEditor) {
-                        PlaylistEditGtoupsView(store: appStore.scope(state: \.playlistEdit, action: AppFeature.Action.playlistEdit))
+                        PlaylistEditGroupsView(store: appStore.scope(state: \.playlistEdit, action: AppFeature.Action.playlistEdit))
                     }
                     .sheet(isPresented: $isShowingPolicy) {
                         SafariWebView(url: URL(string: "https://logixkjy.github.io/privacy.html")!)

@@ -1,5 +1,5 @@
 //
-//  PlaylistEditGtoupsView.swift
+//  PlaylistEditGroupsView.swift
 //  PlayListApp
 //
 //  Created by JooYoung Kim on 4/5/25.
@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
     
-struct PlaylistEditGtoupsView: View {
+struct PlaylistEditGroupsView: View {
     let store: StoreOf<PlaylistEditFeature>
     @State private var path = NavigationPath()
     @State private var isShowingAddAlert = false
@@ -22,6 +22,8 @@ struct PlaylistEditGtoupsView: View {
                 List {
                     ForEach(viewStore.groups.sorted(by: { $0.order < $1.order })) { group in
                         Button {
+                            // 선택된 그룹 ID 설정
+                            viewStore.send(.selectGroup(group.id))
                             path.append(group)
                         } label: {
                             VStack(alignment: .leading, spacing: 8) {
@@ -55,10 +57,10 @@ struct PlaylistEditGtoupsView: View {
                         }
                     }
                     .onDelete { indexSet in
-                        viewStore.send(.delete(indexSet))
+                        viewStore.send(.deleteGroup(indexSet))
                     }
                     .onMove { indices, destination in
-                        viewStore.send(.move(indices, destination))
+                        viewStore.send(.moveGroup(indices, destination))
                     }
                 }
                 .listStyle(.plain)
@@ -75,6 +77,11 @@ struct PlaylistEditGtoupsView: View {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         EditButton()
                             .foregroundColor(.blue)
+                    }
+                    ToolbarItem(placement: .bottomBar) {
+                        Button("저장") {
+                            viewStore.send(.saveTapped)
+                        }
                     }
                 }
                 .onAppear {
@@ -111,8 +118,9 @@ struct PlaylistEditGtoupsView: View {
                 })
                 
                 .navigationDestination(for: PlaylistGroupEdit.self) { group in
-                    PlaylistEditItemsView(group: group)
+                    PlaylistEditItemsView(store: store)
                 }
+
             }
         }
     }

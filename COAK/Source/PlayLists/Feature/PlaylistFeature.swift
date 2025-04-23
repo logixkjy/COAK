@@ -9,9 +9,7 @@ import ComposableArchitecture
 import Foundation
 import FirebaseFirestore
 
-enum SaveError: Error, Equatable {
-    case unknown
-}
+
 // MARK: - PlaylistFeature
 struct PlaylistFeature: Reducer {
     struct State: Equatable {
@@ -24,12 +22,6 @@ struct PlaylistFeature: Reducer {
         case onAppear
         case playlistsLoaded(TaskResult<[PlaylistGroup]>)
         case youTubeMetadataLoaded(TaskResult<[PlaylistGroup]>)
-        case saveTapped
-        case saveResultSuccess
-        case saveResultFailure(SaveError)
-        case updateGroups([PlaylistGroup])
-        case addItem(toGroupIndex: Int)
-        case moveItem(groupIndex: Int, source: IndexSet, destination: Int)
     }
     
     @Dependency(\.playlistClient) var playlistClient
@@ -79,48 +71,7 @@ struct PlaylistFeature: Reducer {
             state.isLoading = false
             return .none
             
-            
-        case .saveTapped:
-            return .run { [groups = state.groups] send in
-                do {
-                    try await playlistClient.savePlaylists(groups)
-                    await send(.saveResultSuccess)
-                } catch {
-                    await send(.saveResultFailure(error as! SaveError))
-                }
-            }
 
-        case let .saveResultFailure(error):
-            state.error = "저장 실패: \(error.localizedDescription)"
-            return .none
-
-        case .saveResultSuccess:
-            return .none
-
-        case let .updateGroups(groups):
-            state.groups = groups
-            return .none
-            
-        case let .addItem(toGroupIndex):
-            let currentItems = state.groups[toGroupIndex].playlists
-            let maxOrder = currentItems.map { $0.order }.max() ?? 0
-            let newItem = PlaylistItem(
-                id: "",
-                title: "",
-                description: nil,
-                thumbnailURL: nil,
-                order: maxOrder + 1,
-                isPremiumRequired: "false"
-            )
-            state.groups[toGroupIndex].playlists.append(newItem)
-            return .none
-            
-        case let .moveItem(groupIndex, source, destination):
-            state.groups[groupIndex].playlists.move(fromOffsets: source, toOffset: destination)
-            for (index, _) in state.groups[groupIndex].playlists.enumerated() {
-                state.groups[groupIndex].playlists[index].order = index + 1
-            }
-            return .none
         }
     }
 }
