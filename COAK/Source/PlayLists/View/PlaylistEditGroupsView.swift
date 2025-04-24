@@ -37,14 +37,13 @@ struct PlaylistEditGroupsView: View {
                                         editedGroupTitle = group.title
                                     }) {
                                         Image(systemName: "pencil")
-                                            .foregroundColor(.blue)
                                     }
                                     .buttonStyle(.plain)
                                 }
                                 
                                 Divider()
                                 
-                                Text("Order: \(group.order)")
+                                Text("playlit Count: \(group.playlists.count)")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }

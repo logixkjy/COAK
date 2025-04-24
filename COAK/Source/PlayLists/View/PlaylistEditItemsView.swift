@@ -21,6 +21,11 @@ struct PlaylistEditItemsView: View {
             List {
                 ForEach(items) { item in
                     HStack {
+                        Image(systemName: item.isPremiumRequired == "true" ? "lock.fill" : "lock.open")
+                            .foregroundColor(item.isPremiumRequired == "true" ? .green : .gray)
+                        
+                        Spacer()
+                        
                         VStack(alignment: .leading, spacing: 4) {
                             Text(item.title)
                                 .font(.headline)
@@ -30,18 +35,6 @@ struct PlaylistEditItemsView: View {
                         }
                         
                         Spacer()
-                        
-                        Toggle(isOn: Binding(
-                            get: { item.isPremiumRequired == "true" },
-                            set: { newValue in
-                                viewStore.send(.setPremium(item.id, newValue))
-                            }
-                        )) {
-                            Text("유료")
-                        }
-                        .toggleStyle(.switch)
-                        .labelsHidden()
-                        
                         Button(action: {
                             editingItem = item
                         }) {
@@ -52,6 +45,9 @@ struct PlaylistEditItemsView: View {
                     .padding()
                     .background(Color(.systemBackground))
                     .cornerRadius(8)
+                    .onTapGesture {
+                        editingItem = item
+                    }
                 }
                 .onDelete { indexSet in
                     viewStore.send(.deleteItem(indexSet))
@@ -61,7 +57,7 @@ struct PlaylistEditItemsView: View {
                 }
             }
             .listStyle(.plain)
-            .navigationTitle("그룹: \(selectedGroup?.title ?? "알 수 없음")")
+            .navigationTitle("\(selectedGroup?.title ?? "알 수 없음")")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()

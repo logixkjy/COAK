@@ -100,10 +100,23 @@ struct AppFeature: Reducer {
                     let doc = try? await Firestore.firestore().collection("users").document(uid).getDocument()
                     let data = doc?.data()
                     let name = data?["name"] as? String
+                    let email = data?["email"] as? String
                     let phone = data?["phone"] as? String
                     let birth = data?["birthdate"] as? Timestamp
+                    let profileImageURL = data?["profileImageURL"] as? String
                     let incomplete = (name?.isEmpty ?? true) || (phone?.isEmpty ?? true) || (birth == nil)
-                    await send(.profileCheckResult(incomplete))
+                    let userProfile = UserProfile(
+                        uid: uid,
+                        name: name ?? "",
+                        email: email ?? "",
+                        birthdate: birth?.dateValue(),
+                        phone: phone ?? "",
+                        profileImageURL: profileImageURL ?? "",
+                        createdAt: nil,
+                        allowNotifications: incomplete,
+                        isPremium: false
+                    )
+                    await send(.userProfileLoaded(userProfile))
                 }
                 
             case let .userProfileLoaded(userProfile):
