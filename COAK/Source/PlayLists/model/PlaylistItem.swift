@@ -13,5 +13,5 @@ struct PlaylistItem: Identifiable, Codable, Equatable {
     var description: String?
     var thumbnailURL: String?
     var order: Int
-    var isPremiumRequired: String
+    var isPremiumRequired: Bool
 }

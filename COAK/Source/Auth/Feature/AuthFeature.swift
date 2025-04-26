@@ -28,28 +28,31 @@ struct UserProfile: Codable, Equatable {
 
 struct AuthFeature: Reducer {
     struct State: Equatable {
-        var email: String = ""
-        var password: String = ""
-        var confirmPassword: String = ""
-        var name: String = ""
-        var birthdate: Date = Calendar.current.date(byAdding: .year, value: -20, to: Date()) ?? Date()
-        var phone: String = ""
+        @BindingState var email: String = ""
+        @BindingState var password: String = ""
+        @BindingState var confirmPassword: String = ""
+        @BindingState var name: String = ""
+        @BindingState var birthdate: Date = Calendar.current.date(byAdding: .year, value: -20, to: Date()) ?? Date()
+        @BindingState var phone: String = ""
         var agreeToTerms = false
         
+        var successMessage: String?
         var errorMessage: String? = nil
         var isLoading: Bool = false
         var showPrivacyPolicy: Bool = false
         var isSignUpMode: Bool = false
+        
+        @BindingState var findName: String = ""
+        @BindingState var findPhone: String = ""
+        var foundEmail: String? = nil
+        
+        @BindingState var findEmail: String = ""
     }
 
-    enum Action: Equatable {
+    enum Action: BindableAction, Equatable {
+        case binding(BindingAction<State>)
+        
         case setEmail(String)
-        case setPassword(String)
-        case setConfirmPassword(String)
-        case setName(String)
-        case setBirthdate(Date)
-        case setPhone(String)
-        case setInviteCode(String)
         case setAgreeToTerms(Bool)
         
         case toggleSignUpMode
@@ -61,33 +64,25 @@ struct AuthFeature: Reducer {
         
         case setLoading(Bool)
         case setError(String?)
+        
+        case findEmailButtonTapped
+        case findEmailResponse(Result<String, FindEmailError>)
+
+        case resetPasswordButtonTapped
+        case resetPasswordResponseSuccess
+        case resetPasswordResponseFailure(ResetPasswordError)
     }
 
     var body: some Reducer<State, Action> {
+        BindingReducer()
+        
         Reduce { state, action in
             switch action {
-            case let .setEmail(email):
-                state.email = email
+            case .binding(_):
                 return .none
                 
-            case let .setPassword(pw):
-                state.password = pw
-                return .none
-                
-            case let .setConfirmPassword(pw):
-                state.confirmPassword = pw
-                return .none
-                
-            case let .setName(name):
-                state.name = name
-                return .none
-                
-            case let .setBirthdate(date):
-                state.birthdate = date
-                return .none
-                
-            case let .setPhone(phone):
-                state.phone = phone
+            case let .setEmail(value):
+                state.email = value
                 return .none
                 
             case let .setAgreeToTerms(value):
@@ -175,9 +170,91 @@ struct AuthFeature: Reducer {
             case .loginSucceeded:
                 state.isLoading = false
                 return .none
+                
+            case .findEmailButtonTapped:
+                state.isLoading = true
+                state.errorMessage = nil
+                state.foundEmail = nil
+                return .run { [name = state.findName, phone = state.findPhone] send in
+                    let db = Firestore.firestore()
+                    do {
+                        let snapshot = try await db.collection("users")
+                            .whereField("name", isEqualTo: name)
+                            .whereField("phone", isEqualTo: phone)
+                            .getDocuments()
+
+                        guard let document = snapshot.documents.first,
+                              let email = document.data()["email"] as? String else {
+                            await send(.findEmailResponse(.failure(.notFound)))
+                            return
+                        }
+
+                        await send(.findEmailResponse(.success(email)))
+                    } catch {
+                        await send(.findEmailResponse(.failure(.firebaseError(error.localizedDescription))))
+                    }
+                }
+
+            case let .findEmailResponse(result):
+                state.isLoading = false
+                switch result {
+                case .success(let email):
+                    state.foundEmail = email
+                case .failure(let error):
+                    state.errorMessage = error.localizedDescription
+                }
+                return .none
+                
+                
+            case .resetPasswordButtonTapped:
+                state.isLoading = true
+                state.errorMessage = nil
+                state.successMessage = nil
+                return .run { [email = state.findEmail] send in
+                    do {
+                        try await Auth.auth().sendPasswordReset(withEmail: email)
+                        await send(.resetPasswordResponseSuccess)
+                    } catch {
+                        await send(.resetPasswordResponseFailure(.firebaseError(error.localizedDescription)))
+                    }
+                }
+
+            case .resetPasswordResponseSuccess:
+                state.isLoading = false
+                state.successMessage = "비밀번호 재설정 메일을 발송했습니다."
+                return .none
+                
+            case let .resetPasswordResponseFailure(result):
+                state.errorMessage = result.localizedDescription
+                return .none
 
             default:
                 return .none
+            }
+        }
+    }
+    
+    enum FindEmailError: Error, Equatable {
+        case notFound
+        case firebaseError(String)
+
+        var localizedDescription: String {
+            switch self {
+            case .notFound:
+                return "일치하는 사용자를 찾을 수 없습니다."
+            case .firebaseError(let message):
+                return "에러 발생: \(message)"
+            }
+        }
+    }
+    
+    enum ResetPasswordError: Error, Equatable {
+        case firebaseError(String)
+
+        var localizedDescription: String {
+            switch self {
+            case .firebaseError(let message):
+                return "에러 발생: \(message)"
             }
         }
     }

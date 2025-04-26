@@ -30,8 +30,8 @@ struct PlaylistEditFeature: Reducer {
         case deleteGroup(IndexSet)
         
         case selectGroup(String)
-        case addItem(String, String, String)
-        case editItem(String, String, String, String)
+        case addItem(String, String, Bool)
+        case editItem(String, String, String, Bool)
         case deleteItem(IndexSet)
         case moveItem(IndexSet, Int)
         case setPremium(String, Bool)
@@ -131,7 +131,7 @@ struct PlaylistEditFeature: Reducer {
         case let .setPremium(id, isPremium):
             guard let groupIdx = state.groups.firstIndex(where: { $0.id == state.selectedGroupId }) else { return .none }
             if let index = state.groups[groupIdx].playlists.firstIndex(where: { $0.id == id }) {
-                state.groups[groupIdx].playlists[index].isPremiumRequired = isPremium ? "true" : "false"
+                state.groups[groupIdx].playlists[index].isPremiumRequired = isPremium
             }
             return .none
             

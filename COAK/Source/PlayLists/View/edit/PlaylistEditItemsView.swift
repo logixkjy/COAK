@@ -21,8 +21,8 @@ struct PlaylistEditItemsView: View {
             List {
                 ForEach(items) { item in
                     HStack {
-                        Image(systemName: item.isPremiumRequired == "true" ? "lock.fill" : "lock.open")
-                            .foregroundColor(item.isPremiumRequired == "true" ? .green : .gray)
+                        Image(systemName: item.isPremiumRequired ? "lock.fill" : "lock.open")
+                            .foregroundColor(item.isPremiumRequired ? .green : .gray)
                         
                         Spacer()
                         
@@ -85,7 +85,7 @@ struct PlaylistEditItemsView: View {
                             }
                             return playlistIdUrl
                         }()
-                        viewStore.send(.addItem(title, playlistId, isPremium ? "true" : "false" ))
+                        viewStore.send(.addItem(title, playlistId, isPremium))
                         isPresentingAddSheet = false
                     },
                     onCancel: { isPresentingAddSheet = false }
@@ -95,7 +95,7 @@ struct PlaylistEditItemsView: View {
                 PlaylistItemEditFormView(
                     title: item.title,
                     playlistId: item.id,
-                    isPremium: item.isPremiumRequired == "true",
+                    isPremium: item.isPremiumRequired,
                     onSave: { newTitle, newId, newIsPremium in
                         let playlistId: String = {
                             if newId.hasPrefix("http") {
@@ -106,7 +106,7 @@ struct PlaylistEditItemsView: View {
                             }
                             return newId
                         }()
-                        viewStore.send(.editItem(item.id, newTitle, playlistId, newIsPremium ? "true" : "false"))
+                        viewStore.send(.editItem(item.id, newTitle, playlistId, newIsPremium))
                         editingItem = nil
                     },
                     onCancel: { editingItem = nil }

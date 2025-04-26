@@ -12,6 +12,8 @@ struct AuthView: View {
     let store: StoreOf<AuthFeature>
     @FocusState private var focusedField: Field?
     @State private var showPrivacyPolicy = false
+    @State private var isPresentingFineEmailSheet = false
+    @State private var isPresentingResetPasswordSheet = false
 
     enum Field: Hashable {
         case email, password, confirmPassword, name, phone, authcode
@@ -20,7 +22,7 @@ struct AuthView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             ScrollView {
-                VStack(spacing: 24) {
+                VStack(spacing: 0) {
                     Image(.logo)
                         .resizable()
                         .scaledToFit()
@@ -30,36 +32,71 @@ struct AuthView: View {
                     Text(viewStore.isSignUpMode ? "회원가입" : "로그인")
                         .font(.title.bold())
                         .foregroundColor(.white)
+                        .padding(.top, 24)
 
                     Group {
-                        TextField("이메일 주소", text: viewStore.binding(get: \.email, send: AuthFeature.Action.setEmail))
+                        Text("이메일 아이디")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.top, 16)
+                        
+                        TextField("이메일 주소", text: viewStore.$email)
                             .textFieldStyleCustom()
                             .focused($focusedField, equals: .email)
                             .foregroundColor(.black)
-
-                        SecureField("비밀번호", text: viewStore.binding(get: \.password, send: AuthFeature.Action.setPassword))
+                        
+                        Text("비밀번호")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.top, 16)
+                        
+                        SecureField("비밀번호", text: viewStore.$password)
                             .textFieldStyleCustom()
                             .focused($focusedField, equals: .password)
                             .foregroundColor(.black)
 
                         if viewStore.isSignUpMode {
-                            SecureField("비밀번호 확인", text: viewStore.binding(get: \.confirmPassword, send: AuthFeature.Action.setConfirmPassword))
+                            Text("비밀번호 확인")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.top, 16)
+                            
+                            SecureField("비밀번호 확인", text: viewStore.$confirmPassword)
                                 .textFieldStyleCustom()
                                 .focused($focusedField, equals: .confirmPassword)
                                 .foregroundColor(.black)
-
-                            TextField("이름", text: viewStore.binding(get: \.name, send: AuthFeature.Action.setName))
+                            
+                            
+                            Text("이름")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.top, 16)
+                                
+                            TextField("이름", text: viewStore.$name)
                                 .textFieldStyleCustom()
                                 .focused($focusedField, equals: .name)
                                 .foregroundColor(.black)
-
-                            DatePicker("생년월일", selection: viewStore.binding(get: \.birthdate, send: AuthFeature.Action.setBirthdate), displayedComponents: .date)
-
-                            TextField("전화번호", text: viewStore.binding(get: \.phone, send: AuthFeature.Action.setPhone))
+                            
+                            DatePicker("생년월일", selection: viewStore.$birthdate, displayedComponents: .date)
+                                .padding(.top, 16)
+                            
+                            
+                            Text("전화번호")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.top, 16)
+                                
+                            TextField("전화번호", text: viewStore.$phone)
                                 .keyboardType(.phonePad)
                                 .textFieldStyleCustom()
                                 .focused($focusedField, equals: .phone)
                                 .foregroundColor(.black)
+                            
 
                             HStack {
                                 Button(action: {
@@ -70,11 +107,12 @@ struct AuthView: View {
 
                                 Spacer()
 
-                                Toggle("동의함", isOn: viewStore.binding(get: \.agreeToTerms, send: AuthFeature.Action.setAgreeToTerms))
+                                Toggle("동의여부", isOn: viewStore.binding(get: \.agreeToTerms, send: AuthFeature.Action.setAgreeToTerms))
                                     .disabled(true)
                             }
-                            .font(.caption)
-                            .foregroundColor(.black)
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.top, 16)
 
                         }
                     }
@@ -97,13 +135,35 @@ struct AuthView: View {
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
-                    .padding(.top)
+                    .padding(.top, 24)
 
                     Button(viewStore.isSignUpMode ? "이미 계정이 있어요" : "회원가입하기") {
                         viewStore.send(.toggleSignUpMode)
                     }
                     .font(.headline)
                     .foregroundColor(.white)
+                    .padding(.top, 24)
+                    
+                    if !viewStore.isSignUpMode {
+                        HStack() {
+                            Button("아이디 찾기") {
+                                isPresentingFineEmailSheet.toggle()
+                            }
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            
+                            Text("|")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            Button("비밀번호 찾기") {
+                                isPresentingResetPasswordSheet.toggle()
+                            }
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        }
+                        .padding(.top, 24)
+                    }
 
                     if viewStore.isLoading {
                         ProgressView()
@@ -119,6 +179,17 @@ struct AuthView: View {
                         }
                     )
                 }
+                .sheet(isPresented: $isPresentingFineEmailSheet) {
+                    FindEmailView(
+                        store: store
+                    )
+                }
+                .sheet(isPresented: $isPresentingResetPasswordSheet) {
+                    ResetPasswordView(
+                        store: store
+                    )
+                }
+                
             }
             .background(Color.blue01.ignoresSafeArea())
             .toolbar {
