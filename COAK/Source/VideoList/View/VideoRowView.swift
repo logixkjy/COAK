@@ -44,11 +44,11 @@ struct VideoRowView: View {
                     .font(.headline)
                     .lineLimit(2)
 
-                if let published = video.publishedAt {
-                    Text(published.relativeTimeString())
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
+//                if let published = video.publishedAt {
+//                    Text(published.relativeTimeString())
+//                        .font(.caption)
+//                        .foregroundColor(.gray)
+//                }
             }
 
             Spacer()

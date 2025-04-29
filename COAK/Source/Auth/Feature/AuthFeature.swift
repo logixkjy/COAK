@@ -53,6 +53,10 @@ struct AuthFeature: Reducer {
         case binding(BindingAction<State>)
         
         case setEmail(String)
+        case setPassword(String)
+        case setConfirmPassword(String)
+        case setName(String)
+        case setPhone(String)
         case setAgreeToTerms(Bool)
         
         case toggleSignUpMode
@@ -84,6 +88,23 @@ struct AuthFeature: Reducer {
             case let .setEmail(value):
                 state.email = value
                 return .none
+                
+            case let .setPassword(value):
+                state.password = value
+                return .none
+                
+            case let .setConfirmPassword(value):
+                state.confirmPassword = value
+                return .none
+                
+            case let .setName(value):
+                state.name = value
+                return .none
+                
+            case let .setPhone(value):
+                state.phone = value
+                return .none
+                
                 
             case let .setAgreeToTerms(value):
                 state.agreeToTerms = value
@@ -125,6 +146,14 @@ struct AuthFeature: Reducer {
                 }
                 guard state.agreeToTerms else {
                     state.errorMessage = "개인정보 처리방침에 동의해주세요."
+                    return .none
+                }
+                guard !state.name.isEmpty else {
+                    state.errorMessage = "이름을 입력해주세요"
+                    return .none
+                }
+                guard state.phone.count >= 8, state.phone.count <= 11 else {
+                    state.errorMessage = "류대 전화번호 자리 수를 확인해주세요"
                     return .none
                 }
                 

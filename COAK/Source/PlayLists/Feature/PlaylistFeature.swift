@@ -16,12 +16,16 @@ struct PlaylistFeature: Reducer {
         var groups: [PlaylistGroup] = []
         var isLoading = false
         var error: String?
+        
+        var selectedGroupId: String? = nil
     }
     
     enum Action: Equatable {
         case onAppear
         case playlistsLoaded(TaskResult<[PlaylistGroup]>)
         case youTubeMetadataLoaded(TaskResult<[PlaylistGroup]>)
+        
+        case selectGroup(String)
     }
     
     @Dependency(\.playlistClient) var playlistClient
@@ -71,6 +75,10 @@ struct PlaylistFeature: Reducer {
             state.isLoading = false
             return .none
             
+            
+        case let .selectGroup(id):
+            state.selectedGroupId = id
+            return .none
 
         }
     }

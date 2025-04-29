@@ -10,8 +10,7 @@ import Foundation
 
 struct VideoListFeature: Reducer {
     struct State: Equatable {
-        let playlistId: String
-        var playlistTitle: String?
+        let playlistItem: PlaylistItem?
         var videos: [YouTubeVideo] = []
         var isLoading: Bool = false
         var errorMessage: String?
@@ -29,9 +28,9 @@ struct VideoListFeature: Reducer {
 
         case .onAppear:
             state.isLoading = true
-            return .run { [playlistId = state.playlistId] send in
+            return .run { [playlistId = state.playlistItem?.id] send in
                 do {
-                    let videos = try await youTubeClient.fetchPlaylistVideos(playlistId)
+                    let videos = try await youTubeClient.fetchPlaylistVideos(playlistId ?? "")
                     let durations = try await youTubeClient.fetchVideoDurations(videos.map(\.id))
 
                     let enriched = videos.map { video in
