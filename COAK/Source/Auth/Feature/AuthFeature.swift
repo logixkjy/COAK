@@ -75,6 +75,8 @@ struct AuthFeature: Reducer {
         case resetPasswordButtonTapped
         case resetPasswordResponseSuccess
         case resetPasswordResponseFailure(ResetPasswordError)
+        
+        case clear
     }
 
     var body: some Reducer<State, Action> {
@@ -257,6 +259,16 @@ struct AuthFeature: Reducer {
                 state.errorMessage = result.localizedDescription
                 return .none
 
+            case .clear:
+                state.isSignUpMode = false
+                state.email = ""
+                state.password = ""
+                state.confirmPassword = ""
+                state.name = ""
+                state.phone = ""
+                state.agreeToTerms = false
+                return .none
+                
             default:
                 return .none
             }

@@ -30,35 +30,36 @@ struct FavoriteVideo: Identifiable, Codable, Equatable {
 }
 
 struct FavoritesClient {
-    var loadFavorites: (String) async throws -> [FavoriteVideo]
-    var removeFavorite: (String, String) async throws -> Void
-    var isFavorite: (String) async throws -> Bool
+    var fetchFavorites: @Sendable (_ userId: String) async throws -> [FavoriteVideo]
+    var addFavorite: @Sendable (_ userId: String, _ video: FavoriteVideo) async throws -> Void
+    var removeFavorite: @Sendable (_ userId: String, _ videoId: String) async throws -> Void
 }
 
 extension FavoritesClient: DependencyKey {
     static let liveValue = FavoritesClient(
-        loadFavorites: { userId in
+        fetchFavorites: { userId in
             let snapshot = try await Firestore.firestore()
                 .collection("favorites")
                 .whereField("userId", isEqualTo: userId)
                 .getDocuments()
-
-            return snapshot.documents.compactMap {
-                try? $0.data(as: FavoriteVideo.self)
+            
+            return snapshot.documents.compactMap { document in
+                try? document.data(as: FavoriteVideo.self)
             }
         },
-        removeFavorite: { videoId, userId in
+        
+        addFavorite: { userId, video in
+            try Firestore.firestore()
+                .collection("favorites")
+                .document("\(userId)_\(video.id)")
+                .setData(from: video)
+        },
+        
+        removeFavorite: { userId, videoId in
             try await Firestore.firestore()
                 .collection("favorites")
                 .document("\(userId)_\(videoId)")
                 .delete()
-        },
-        isFavorite: { videoId in
-            guard let uid = Auth.auth().currentUser?.uid else { return false }
-            let doc = try await Firestore.firestore()
-                .collection("users").document(uid)
-                .collection("favorites").document(videoId).getDocument()
-            return doc.exists
         }
     )
 }

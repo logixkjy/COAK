@@ -18,6 +18,7 @@ struct PlaylistFeature: Reducer {
         var error: String?
         
         var selectedGroupId: String? = nil
+        var selectedPlaylist: PlaylistItem? = nil
     }
     
     enum Action: Equatable {
@@ -26,6 +27,7 @@ struct PlaylistFeature: Reducer {
         case youTubeMetadataLoaded(TaskResult<[PlaylistGroup]>)
         
         case selectGroup(String)
+        case selectPlaylist(PlaylistItem)
     }
     
     @Dependency(\.playlistClient) var playlistClient
@@ -78,6 +80,10 @@ struct PlaylistFeature: Reducer {
             
         case let .selectGroup(id):
             state.selectedGroupId = id
+            return .none
+            
+        case let .selectPlaylist(item):
+            state.selectedPlaylist = item
             return .none
 
         }

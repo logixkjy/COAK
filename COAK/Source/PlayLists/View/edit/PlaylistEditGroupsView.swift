@@ -16,6 +16,11 @@ struct PlaylistEditGroupsView: View {
     @State private var editingGroup: PlaylistGroupEdit? = nil
     @State private var editedGroupTitle = ""
     
+    @FocusState private var focusedField: Field?
+    enum Field: Hashable {
+        case name
+    }
+    
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationStack(path: $path) {
@@ -89,6 +94,7 @@ struct PlaylistEditGroupsView: View {
                 // 그룹 추가 Alert
                 .alert("새 그룹 추가", isPresented: $isShowingAddAlert, actions: {
                     TextField("그룹명", text: $newGroupTitle)
+                        .focused($focusedField, equals: .name)
                     Button("추가", action: {
                         guard !newGroupTitle.isEmpty else { return }
                         viewStore.send(.addGroup(newGroupTitle))
@@ -105,6 +111,7 @@ struct PlaylistEditGroupsView: View {
                     set: { if !$0 { editingGroup = nil }}
                 ), actions: {
                     TextField("그룹명", text: $editedGroupTitle)
+                        .focused($focusedField, equals: .name)
                     Button("저장", action: {
                         if let group = editingGroup {
                             viewStore.send(.editGroup(group.id, editedGroupTitle))
@@ -119,7 +126,14 @@ struct PlaylistEditGroupsView: View {
                 .navigationDestination(for: PlaylistGroupEdit.self) { group in
                     PlaylistEditItemsView(store: store)
                 }
-
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("완료") {
+                            focusedField = nil
+                        }
+                    }
+                }
             }
         }
     }

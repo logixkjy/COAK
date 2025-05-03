@@ -10,7 +10,7 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 
-enum LogoutError: Error, Equatable {
+enum CustomError: Error, Equatable {
     case unknown
 }
 
@@ -49,13 +49,17 @@ struct AppFeature: Reducer {
         case loadUserProfile
         case userProfileLoaded(UserProfile)
         
-        case favoritesLoaded(Set<String>, [FavoriteVideo])
+        case loadFavorites
+        case loadFavoritesResponse(Result<[FavoriteVideo], CustomError>)
+        
         case addToFavorites(YouTubeVideo)
         case removeFromFavorites(String)
+        case addFavoritesResponse(Result<FavoriteVideo, CustomError>)
+        case removeFavoritesResponse(Result<String, CustomError>)
         
         case logoutTapped
         case logoutSucceeded
-        case logoutFailed(LogoutError)
+        case logoutFailed(CustomError)
     }
     
     @Dependency(\.favoritesClient) var favoritesClient
@@ -83,14 +87,12 @@ struct AppFeature: Reducer {
                 }
 
                 return .run { send in
-                    let favorites = try await favoritesClient.loadFavorites(user.uid)
                     async let isAdmin = checkIfAdmin(user.uid)
                     
-                    let (favs, admin) = await (favorites, isAdmin)
+                    let admin = await isAdmin
                     
-                    let ids = Set(favs.map { $0.id })
                     await send(.loadUserProfile)
-                    await send(.favoritesLoaded(ids, favs))
+                    await send(.loadFavorites)
                     await send(.adminChecked(admin))
                 }
                 
@@ -146,48 +148,60 @@ struct AppFeature: Reducer {
             case .auth(.loginSucceeded):
                 return .send(.authChecked(true))
                 
-            case let .favoritesLoaded(ids, videos):
-                state.favoriteVideoIDs = ids
-                state.favoriteVideos = videos
+                
+            case .loadFavorites:
+                guard let uid = Auth.auth().currentUser?.uid else { return .none }
+                return .run { send in
+                    let videos = try await favoritesClient.fetchFavorites(uid)
+                    await send(.loadFavoritesResponse(.success(videos)))
+                } catch: { error, send in
+                    await send(.loadFavoritesResponse(.failure(error as! CustomError)))
+                }
+
+            case let .loadFavoritesResponse(.success(videos)):
+                guard let uid = Auth.auth().currentUser?.uid else { return .none }
+                for video in videos {
+                    state.favoriteVideos.append(FavoriteVideo(
+                        id: video.id,
+                        title: video.title,
+                        description: video.description,
+                        thumbnailURL: video.thumbnailURL,
+                        userId: uid,
+                        createdAt: Date()
+                    ))
+                }
+                state.favoriteVideoIDs = Set(videos.map(\ .id))
                 state.hasLoadedFavorites = true
                 return .none
                 
             case let .addToFavorites(video):
-                guard let user = Auth.auth().currentUser else { return .none }
-                state.favoriteVideoIDs.insert(video.id)
-                state.favoriteVideos.append(FavoriteVideo(
-                    id: video.id,
-                    title: video.title,
-                    description: video.description,
-                    thumbnailURL: URL(string: video.thumbnailURL),
-                    userId: user.uid,
-                    createdAt: Date()
-                ))
-                return .run { _ in
-                    let favorite = FavoriteVideo(
-                        id: video.id,
-                        title: video.title,
-                        description: video.description,
-                        thumbnailURL: URL(string: video.thumbnailURL),
-                        userId: user.uid,
-                        createdAt: Date()
-                    )
-                    try Firestore.firestore()
-                        .collection("favorites")
-                        .document("\(user.uid)_\(video.id)")
-                        .setData(from: favorite)
+                guard let uid = Auth.auth().currentUser?.uid else { return .none }
+                let favorite = FavoriteVideo(id: video.id, title: video.title, description: video.description, thumbnailURL: URL(string: video.thumbnailURL), userId: uid, createdAt: Date())
+                return .run { send in
+                    try await favoritesClient.addFavorite(uid, favorite)
+                    await send(.addFavoritesResponse(.success(favorite)))
+                } catch: { error, send in
+                    await send(.addFavoritesResponse(.failure(error as! CustomError)))
                 }
                 
-            case let .removeFromFavorites(videoId):
-                guard let user = Auth.auth().currentUser else { return .none }
-                state.favoriteVideoIDs.remove(videoId)
-                state.favoriteVideos.removeAll { $0.id == videoId }
-                return .run { _ in
-                    try await Firestore.firestore()
-                        .collection("favorites")
-                        .document("\(user.uid)_\(videoId)")
-                        .delete()
+            case let .addFavoritesResponse(.success(video)):
+                state.favoriteVideos.append(video)
+                state.favoriteVideoIDs.insert(video.id)
+                return .none
+                
+            case let .removeFromFavorites(id):
+                guard let uid = Auth.auth().currentUser?.uid else { return .none }
+                return .run { send in
+                    try await favoritesClient.removeFavorite(uid, id)
+                    await send(.removeFavoritesResponse(.success(id)))
+                } catch: { error, send in
+                    await send(.removeFavoritesResponse(.failure(error as! CustomError)))
                 }
+                
+            case let .removeFavoritesResponse(.success(id)):
+                state.favoriteVideos.removeAll { $0.id == id }
+                state.favoriteVideoIDs.remove(id)
+                return .none
                 
             case .logoutTapped:
                 return .run { send in
@@ -195,7 +209,7 @@ struct AppFeature: Reducer {
                         try Auth.auth().signOut()
                         await send(.logoutSucceeded)
                     } catch {
-                        await send(.logoutFailed(error as! LogoutError))
+                        await send(.logoutFailed(error as! CustomError))
                     }
                 }
                 
@@ -210,6 +224,11 @@ struct AppFeature: Reducer {
                 // 로그아웃 실패 처리 (optional)
                 print("로그아웃 실패: \(error)")
                 return .none
+                
+            case .mainTab, .auth, .playlistEdit: return .none
+            case .addFavoritesResponse(.failure), .removeFavoritesResponse(.failure), .loadFavoritesResponse(.failure):
+                return .none // TODO: 에러 핸들링 로깅
+            
                 
             default:
                 return .none

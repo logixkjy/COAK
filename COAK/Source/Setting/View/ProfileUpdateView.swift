@@ -15,11 +15,19 @@ struct ProfileUpdateView: View {
     @State private var isSaving = false
     @State private var errorMessage: String? = nil
 
+    @FocusState private var focusedField: Field?
+
+    enum Field: Hashable {
+        case name
+        case phone
+    }
+    
     var body: some View {
         NavigationStack {
             Form {
                 Section(header: Text("이름")) {
                     TextField("이름을 입력하세요", text: $name)
+                        .focused($focusedField, equals: .name)
                 }
 
                 Section(header: Text("전화번호")) {
@@ -28,6 +36,7 @@ struct ProfileUpdateView: View {
                         .onChange(of: phone) { newValue in
                             self.phone = formatPhoneNumber(newValue)
                         }
+                        .focused($focusedField, equals: .phone)
                 }
 
                 Section(header: Text("생년월일")) {
@@ -51,6 +60,14 @@ struct ProfileUpdateView: View {
             .navigationTitle("내 정보 입력")
             .onAppear {
                 loadUserProfile()
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("완료") {
+                        focusedField = nil
+                    }
+                }
             }
         }
     }

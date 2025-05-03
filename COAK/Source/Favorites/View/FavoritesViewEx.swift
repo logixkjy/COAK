@@ -10,7 +10,6 @@ import SwiftUI
 extension FavoritesView {
     struct FavoriteVideoRow: View {
         let video: FavoriteVideo
-        let onDelete: () -> Void
 
         var body: some View {
             HStack(alignment: .top, spacing: 12) {
@@ -18,14 +17,14 @@ extension FavoritesView {
                     AsyncImage(url: url) { image in
                         image
                             .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 100, height: 60)
-                            .clipped()
-                            .cornerRadius(6)
+                            .aspectRatio(16/9, contentMode: .fill)
                     } placeholder: {
-                        ProgressView()
-                            .frame(width: 100, height: 60)
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.2))
                     }
+                    .frame(width: 160, height: 90)
+                    .clipped()
+                    .cornerRadius(8)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -40,11 +39,11 @@ extension FavoritesView {
 
                 Spacer()
 
-                Button(action: onDelete) {
-                    Image(systemName: "trash")
-                }
-                .buttonStyle(.borderless)
-                .foregroundColor(.red)
+//                Button(action: onDelete) {
+//                    Image(systemName: "trash")
+//                }
+//                .buttonStyle(.borderless)
+//                .foregroundColor(.red)
             }
             .padding(.vertical, 4)
         }

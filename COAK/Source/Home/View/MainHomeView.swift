@@ -13,6 +13,9 @@ struct MainHomeView: View {
     let appStore: StoreOf<AppFeature>
 
     @State private var isPresented = false
+    
+    @State private var isPresentedVideoList = false
+    
     @State private var isGridLayout = false
 
     var body: some View {
@@ -44,7 +47,7 @@ struct MainHomeView: View {
                     ScrollView {
                         LazyVStack(spacing: 32, pinnedViews: [.sectionHeaders]) {
                             ForEach(viewStore.groups) { group in
-                                PlaylistSectionView(group: group, playlists: group.playlists, store: store, appStore: appStore, isPresented: $isPresented, isGridLayout: $isGridLayout)
+                                PlaylistSectionView(group: group, playlists: group.playlists, store: store, appStore: appStore, isPresented: $isPresented, isPresentedVideoList: $isPresentedVideoList, isGridLayout: $isGridLayout)
                             }
                             
                             // Scroll 내부에도 추가 공간 여유
@@ -64,6 +67,17 @@ struct MainHomeView: View {
                 }
                 .fullScreenCover(isPresented: $isPresented) {
                     PlaylistView(store: store, appStore: appStore, isGridLayout: $isGridLayout)
+                }
+                .fullScreenCover(isPresented: $isPresentedVideoList) {
+                    VideoListView(
+                        store: Store(
+                            initialState: VideoListFeature.State(playlistItem: viewStore.selectedPlaylist!),
+                            reducer: { VideoListFeature() }
+                        ),
+                        appStore: appStore,
+                        isGridLayout: $isGridLayout,
+                        isMain: true
+                    )
                 }
             }
         }

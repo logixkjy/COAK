@@ -15,6 +15,9 @@ struct PlaylistView: View {
     @Environment(\.dismiss) private var dismiss
     
     @Binding private var isGridLayout: Bool
+    
+    @State private var isPresented = false
+    
     @State private var selectedPlaylistItem: PlaylistItem? = nil
     
     let columns = [
@@ -43,38 +46,28 @@ struct PlaylistView: View {
                             ScrollView {
                                 LazyVGrid(columns: columns, spacing: 16) {
                                     ForEach(items) { playlist in
-                                        NavigationLink(
-                                            destination:
-                                                VideoListView(
-                                                    store: Store(
-                                                        initialState: VideoListFeature.State(playlistItem: playlist),
-                                                        reducer: {
-                                                            VideoListFeature()
-                                                        }
-                                                    ),
-                                                    appStore: appStore,
-                                                    isGridLayout: $isGridLayout
-                                                )
-                                        ) {
-                                            VStack(alignment: .leading, spacing: 6) {
-                                                if let url = playlist.thumbnailURL {
-                                                    AsyncImage(url: URL(string: url)) { image in
-                                                        image
-                                                            .resizable()
-                                                            .aspectRatio(contentMode: .fill)
-                                                            .frame(height: 100)
-                                                            .clipped()
-                                                            .cornerRadius(6)
-                                                    } placeholder: {
-                                                        ProgressView()
-                                                            .frame(height: 100)
-                                                    }
+                                        VStack(alignment: .leading, spacing: 6) {
+                                            if let url = playlist.thumbnailURL {
+                                                AsyncImage(url: URL(string: url)) { image in
+                                                    image
+                                                        .resizable()
+                                                        .aspectRatio(contentMode: .fill)
+                                                        .frame(height: 100)
+                                                        .clipped()
+                                                        .cornerRadius(6)
+                                                } placeholder: {
+                                                    ProgressView()
+                                                        .frame(height: 100)
                                                 }
-                                                Text(playlist.title)
-                                                    .font(.headline)
-                                                    .lineLimit(2)
-                                                    .foregroundColor(.white)
                                             }
+                                            Text(playlist.title)
+                                                .font(.headline)
+                                                .lineLimit(2)
+                                                .foregroundColor(.white)
+                                        }
+                                        .onTapGesture {
+                                            viewStore.send(.selectPlaylist(playlist))
+                                            isPresented.toggle()
                                         }
                                     }
                                 }
@@ -109,28 +102,12 @@ struct PlaylistView: View {
                                 }
                                 .contentShape(Rectangle())
                                 .onTapGesture {
-                                    selectedPlaylistItem = playlist
+                                    viewStore.send(.selectPlaylist(playlist))
+                                    isPresented.toggle()
                                 }
                             }
                             .listStyle(.plain)
                             .transition(.opacity.combined(with: .scale))
-                            .background(
-                                NavigationLink(
-                                    destination: buildDestination(),
-                                    isActive: Binding(
-                                        get: { selectedPlaylistItem != nil },
-                                        set: { isActive in
-                                            if !isActive {
-                                                selectedPlaylistItem = nil
-                                            }
-                                        }
-                                    ),
-                                    label: {
-                                        EmptyView()
-                                    }
-                                )
-                                .hidden()
-                            )
                         }
                         
                     }
@@ -166,23 +143,16 @@ struct PlaylistView: View {
                         .accessibilityLabel("레이아웃 전환")
                     }
                 }
-            }
-        }
-    }
-    
-    private func buildDestination() -> some View {
-        Group {
-            if let item = selectedPlaylistItem {
-                VideoListView(
-                    store: Store(
-                        initialState: VideoListFeature.State(playlistItem: item),
-                        reducer: { VideoListFeature() }
-                    ),
-                    appStore: appStore,
-                    isGridLayout: $isGridLayout
-                )
-            } else {
-                EmptyView()
+                .fullScreenCover(isPresented: $isPresented) {
+                    VideoListView(
+                        store: Store(
+                            initialState: VideoListFeature.State(playlistItem: viewStore.selectedPlaylist!),
+                            reducer: { VideoListFeature() }
+                        ),
+                        appStore: appStore,
+                        isGridLayout: $isGridLayout
+                    )
+                }
             }
         }
     }

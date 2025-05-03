@@ -9,9 +9,11 @@ import ComposableArchitecture
 import Foundation
 
 struct VideoListFeature: Reducer {
+    @ObservableState
     struct State: Equatable {
         let playlistItem: PlaylistItem?
         var videos: [YouTubeVideo] = []
+        var youTubeVideo: YouTubeVideo?
         var isLoading: Bool = false
         var errorMessage: String?
     }
@@ -19,6 +21,7 @@ struct VideoListFeature: Reducer {
     enum Action: Equatable {
         case onAppear
         case videosLoaded(TaskResult<[YouTubeVideo]>)
+        case setYouTubeVideo(YouTubeVideo)
     }
     
     @Dependency(\.youTubeClient) var youTubeClient
@@ -58,6 +61,10 @@ struct VideoListFeature: Reducer {
         case let .videosLoaded(.failure(error)):
             state.errorMessage = error.localizedDescription
             state.isLoading = false
+            return .none
+            
+        case let .setYouTubeVideo(video):
+            state.youTubeVideo = video
             return .none
         }
     }

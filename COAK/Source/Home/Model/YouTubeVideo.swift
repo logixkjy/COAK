@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct YouTubeVideo: Equatable, Identifiable {
+struct YouTubeVideo: Equatable, Identifiable, Hashable {
     let id: String
     let title: String
     let description: String
