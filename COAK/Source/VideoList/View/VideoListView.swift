@@ -110,7 +110,8 @@ struct VideoListView: View {
                             initialState: VideoCommentFeature.State(
                                 videoId: selected.id,
                                 userId: appStore.userProfile?.uid ?? "",
-                                email: appStore.userProfile?.email ?? ""
+                                email: appStore.userProfile?.email ?? "",
+                                profileImageURL: appStore.userProfile?.profileImageURL ?? ""
                             ),
                             reducer: {
                                 VideoCommentFeature()

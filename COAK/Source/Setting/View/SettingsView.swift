@@ -18,11 +18,11 @@ import WebKit
 struct SettingsView: View {
     let store: StoreOf<SettingsFeature>
     let appStore: StoreOf<AppFeature>
-    let noticesStore: StoreOf<NoticesFeature>
+    let announcementStore: StoreOf<AnnouncementFeature>
 
-    @State private var isShowingNoticeEditor = false
+    @State private var isShowingAnnouncementPost = false
     @State private var isShowingPlaylistEditor = false
-    @State private var notice: Notice = Notice(title: "", content: "", createdAt: Date())
+//    @State private var announcement: Announcement = Announcement(id: "", content: "", imageURLs: [], authorName: "", authorProfileImageURL: nil, createdAt: Date())
     @State private var showDeleteConfirm = false
     @State private var isShowingPolicy = false
 
@@ -113,14 +113,18 @@ struct SettingsView: View {
                         if appViewStore.isAdmin {
                             Section(header: Text("관리자 기능")) {
                                 Button("공지 등록") {
-                                    isShowingNoticeEditor = true
+                                    isShowingAnnouncementPost = true
                                 }
+                                .foregroundColor(.white)
+                                
                                 NavigationLink("전체 사용자 보기") {
                                     UserListView()
                                 }
+                                
                                 Button("재생목록 등록") {
                                     isShowingPlaylistEditor = true
                                 }
+                                .foregroundColor(.white)
                             }
                         }
                     }
@@ -142,8 +146,8 @@ struct SettingsView: View {
                         }
                         Button("취소", role: .cancel) {}
                     }
-                    .sheet(isPresented: $isShowingNoticeEditor) {
-                        NoticeEditorView(notice: $notice, isNew: true, store: noticesStore)
+                    .sheet(isPresented: $isShowingAnnouncementPost) {
+                        AnnouncementPostView(store: announcementStore, appStore: appStore)
                     }
                     .sheet(isPresented: $isShowingPlaylistEditor) {
                         PlaylistEditGroupsView(store: appStore.scope(state: \.playlistEdit, action: AppFeature.Action.playlistEdit))

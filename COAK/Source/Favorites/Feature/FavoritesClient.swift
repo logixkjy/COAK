@@ -15,11 +15,12 @@ struct FavoriteVideo: Identifiable, Codable, Equatable {
     var description: String
     var thumbnailURL: URL?
     var userId: String
+    var videoId: String
     var createdAt: Date
     
     func toYoutubeVideoItem() -> YouTubeVideo {
         YouTubeVideo(
-            id: id,
+            id: videoId,
             title: title,
             description: description,
             thumbnailURL: thumbnailURL?.absoluteString ?? "",

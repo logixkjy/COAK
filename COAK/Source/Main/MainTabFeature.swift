@@ -17,6 +17,7 @@ struct MainTabFeature: Reducer {
         var selectedTab = Tab.playlist
         var playlistState = PlaylistFeature.State()
         var noticesState = NoticesFeature.State()
+        var announcementState = AnnouncementFeature.State()
         var settingsState = SettingsFeature.State()
 
         var isAdmin: Bool = false // Firestore 유저 role에서 판단
@@ -25,6 +26,7 @@ struct MainTabFeature: Reducer {
     enum Action: Equatable {
         case playlistAction(PlaylistFeature.Action)
         case noticesAction(NoticesFeature.Action)
+        case announcementAction(AnnouncementFeature.Action)
         case settingsAction(SettingsFeature.Action)
         case tabSelected(Tab)
     }
@@ -32,6 +34,7 @@ struct MainTabFeature: Reducer {
     var body: some Reducer<State, Action> {
         Scope(state: \.playlistState, action: /Action.playlistAction) { PlaylistFeature() }
         Scope(state: \.noticesState, action: /Action.noticesAction) { NoticesFeature() }
+        Scope(state: \.announcementState, action: /Action.announcementAction) { AnnouncementFeature() }
         Scope(state: \.settingsState, action: /Action.settingsAction) { SettingsFeature() }
         
         Reduce { state, action in

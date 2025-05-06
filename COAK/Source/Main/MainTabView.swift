@@ -33,9 +33,7 @@ struct MainTabView: View {
                 }
                 .tag(Tab.favorites)
                 
-                NoticesListView(
-                    store: store.scope(state: \.noticesState, action: MainTabFeature.Action.noticesAction),
-                    appStore: appStore
+                AnnouncementListView(store: store.scope(state: \.announcementState, action: MainTabFeature.Action.announcementAction)
                 )
                 .tabItem {
                     Label("공지사항", systemImage: "megaphone")
@@ -45,7 +43,7 @@ struct MainTabView: View {
                 SettingsView(
                     store: store.scope(state: \.settingsState, action: MainTabFeature.Action.settingsAction),
                     appStore: appStore,
-                    noticesStore: store.scope(state: \.noticesState, action: MainTabFeature.Action.noticesAction)
+                    announcementStore: store.scope(state: \.announcementState, action: MainTabFeature.Action.announcementAction)
                 )
                 .tabItem {
                     Label("설정", systemImage: "gear")

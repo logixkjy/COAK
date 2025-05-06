@@ -167,6 +167,7 @@ struct AppFeature: Reducer {
                         description: video.description,
                         thumbnailURL: video.thumbnailURL,
                         userId: uid,
+                        videoId: video.id,
                         createdAt: Date()
                     ))
                 }
@@ -176,7 +177,7 @@ struct AppFeature: Reducer {
                 
             case let .addToFavorites(video):
                 guard let uid = Auth.auth().currentUser?.uid else { return .none }
-                let favorite = FavoriteVideo(id: video.id, title: video.title, description: video.description, thumbnailURL: URL(string: video.thumbnailURL), userId: uid, createdAt: Date())
+                let favorite = FavoriteVideo(id: video.id, title: video.title, description: video.description, thumbnailURL: URL(string: video.thumbnailURL), userId: uid, videoId: video.id, createdAt: Date())
                 return .run { send in
                     try await favoritesClient.addFavorite(uid, favorite)
                     await send(.addFavoritesResponse(.success(favorite)))

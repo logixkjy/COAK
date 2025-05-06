@@ -1,5 +1,5 @@
 //
-//  VideoCommentFeature.swift
+//  AnnouncementCommentFeature.swift
 //  COAK
 //
 //  Created by JooYoung Kim on 5/2/25.
@@ -12,7 +12,7 @@ import Foundation
 import FirebaseFirestore
 
 @Reducer
-struct VideoCommentFeature {
+struct AnnouncementCommentFeature {
     @ObservableState
     struct State: Equatable {
         var comments: [Comment] = []
@@ -67,7 +67,7 @@ struct VideoCommentFeature {
         case deleteReply(parentId: String, replyId: String)
     }
 
-    @Dependency(\.commentClient) var commentClient
+    @Dependency(\.announcementCommentClient) var commentClient
 
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {

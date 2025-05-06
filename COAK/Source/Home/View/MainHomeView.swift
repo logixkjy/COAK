@@ -31,9 +31,20 @@ struct MainHomeView: View {
                         Spacer()
                         
                         // 프로필 이미지
-                        Image(systemName: "person.crop.circle.fill")
-                            .resizable()
-                            .frame(width: 36, height: 36)
+                        if let url = URL(string: appStore.userProfile?.profileImageURL ?? "") {
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .success(let image):
+                                    image.resizable().frame(width: 36, height: 36).clipShape(Circle())
+                                default:
+                                    Circle().frame(width: 36, height: 36).foregroundColor(.gray)
+                                }
+                            }
+                        } else {
+                            Image(systemName: "person.crop.circle.fill")
+                                .resizable()
+                                .frame(width: 36, height: 36)
+                        }
                     }
                     .padding(.horizontal)
                     .padding(.top, 16)

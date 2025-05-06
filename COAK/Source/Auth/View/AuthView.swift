@@ -10,11 +10,11 @@ import ComposableArchitecture
 
 struct AuthView: View {
     let store: StoreOf<AuthFeature>
-    @FocusState private var focusedField: Field?
     @State private var showPrivacyPolicy = false
     @State private var isPresentingFineEmailSheet = false
     @State private var isPresentingResetPasswordSheet = false
     @State private var toastMessage: String? = nil
+    @FocusState private var focusedField: Field?
     
     enum Field: Hashable {
         case email, password, confirmPassword, name, phone, authcode

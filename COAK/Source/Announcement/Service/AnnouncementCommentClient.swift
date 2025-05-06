@@ -1,15 +1,15 @@
 //
-//  CommentClient.swift
+//  AnnouncementCommentClient.swift
 //  COAK
 //
-//  Created by JooYoung Kim on 5/2/25.
+//  Created by JooYoung Kim on 5/5/25.
 //
 
 import ComposableArchitecture
 import FirebaseFirestore
 import Foundation
 
-struct CommentClient {
+struct AnnouncementCommentClient {
     var fetchComments: @Sendable (_ videoId: String, _ after: DocumentSnapshot?) async throws -> ([Comment], DocumentSnapshot?)
     var postComment: @Sendable (_ videoId: String, _ content: String, _ userId: String, _ email: String, _ profileImageURL: String) async throws -> Comment
     var editComment: @Sendable (_ videoId: String, _ commentId: String, _ newContent: String) async throws -> Void
@@ -21,13 +21,14 @@ struct CommentClient {
     var deleteReply: @Sendable (_ videoId: String, _ commentId: String, _ replyId: String) async throws -> Void
 }
 
-extension CommentClient: DependencyKey {
-    static let liveValue: CommentClient = .init(
-        fetchComments: { videoId, after in
+extension AnnouncementCommentClient: DependencyKey {
+    static let liveValue: AnnouncementCommentClient = .init(
+        fetchComments: { announcementId, after in
             let query = Firestore.firestore()
-                .collection("videos").document(videoId)
+                .collection("announcement_comments")
+                .document(announcementId)
                 .collection("comments")
-                .order(by: "createdAt", descending: true)
+                .order(by: "createdAt", descending: false)
                 .limit(to: 10)
 
             let snapshot = try await (after != nil ? query.start(afterDocument: after!).getDocuments() : query.getDocuments())
@@ -35,10 +36,12 @@ extension CommentClient: DependencyKey {
             return (comments, snapshot.documents.last)
         },
 
-        postComment: { videoId, content, userId, email, profileImageURL in
+        postComment: { announcementId, content, userId, email, profileImageURL in
             let docRef = Firestore.firestore()
-                .collection("videos").document(videoId)
-                .collection("comments").document()
+                .collection("announcement_comments")
+                .document(announcementId)
+                .collection("comments")
+                .document()
 
             let comment = Comment(
                 id: docRef.documentID,
@@ -53,30 +56,30 @@ extension CommentClient: DependencyKey {
             return comment
         },
 
-        editComment: { videoId, commentId, newContent in
-            let doc = Firestore.firestore().collection("videos").document(videoId).collection("comments").document(commentId)
+        editComment: { announcementId, commentId, newContent in
+            let doc = Firestore.firestore().collection("announcement_comments")
+                .document(announcementId).collection("comments").document(commentId)
             try await doc.updateData(["content": newContent])
         },
 
-        deleteComment: { videoId, commentId in
-            let doc = Firestore.firestore().collection("videos").document(videoId).collection("comments").document(commentId)
+        deleteComment: { announcementId, commentId in
+            let doc = Firestore.firestore().collection("announcement_comments")
+                .document(announcementId).collection("comments").document(commentId)
             try await doc.delete()
         },
 
-        fetchReplies: { videoId, parentId in
-            let query = Firestore.firestore()
-                .collection("videos").document(videoId)
-                .collection("comments").document(parentId)
+        fetchReplies: { announcementId, parentId in
+            let query = Firestore.firestore().collection("announcement_comments")
+                .document(announcementId).collection("comments").document(parentId)
                 .collection("replies")
                 .order(by: "createdAt")
             let snapshot = try await query.getDocuments()
             return snapshot.documents.compactMap { try? $0.data(as: Reply.self) }
         },
 
-        postReply: { videoId, parentId, content, userId, email, profileImageURL in
-            let docRef = Firestore.firestore()
-                .collection("videos").document(videoId)
-                .collection("comments").document(parentId)
+        postReply: { announcementId, parentId, content, userId, email, profileImageURL in
+            let docRef = Firestore.firestore().collection("announcement_comments")
+                .document(announcementId).collection("comments").document(parentId)
                 .collection("replies").document()
 
             let reply = Reply(
@@ -92,31 +95,35 @@ extension CommentClient: DependencyKey {
 
             // replyCount 증가
             let parentRef = Firestore.firestore()
-                .collection("videos").document(videoId)
+                .collection("announcement_comments")
+                .document(announcementId)
                 .collection("comments").document(parentId)
             try await parentRef.updateData(["replyCount": FieldValue.increment(Int64(1))])
 
             return reply
         },
 
-        editReply: { videoId, parentId, replyId, newContent in
+        editReply: { announcementId, parentId, replyId, newContent in
             let ref = Firestore.firestore()
-                .collection("videos").document(videoId)
+                .collection("announcement_comments")
+                .document(announcementId)
                 .collection("comments").document(parentId)
                 .collection("replies").document(replyId)
             try await ref.updateData(["content": newContent])
         },
 
-        deleteReply: { videoId, parentId, replyId in
+        deleteReply: { announcementId, parentId, replyId in
             let ref = Firestore.firestore()
-                .collection("videos").document(videoId)
+                .collection("announcement_comments")
+                .document(announcementId)
                 .collection("comments").document(parentId)
                 .collection("replies").document(replyId)
             try await ref.delete()
 
             // replyCount 감소
             let parentRef = Firestore.firestore()
-                .collection("videos").document(videoId)
+                .collection("announcement_comments")
+                .document(announcementId)
                 .collection("comments").document(parentId)
             try await parentRef.updateData(["replyCount": FieldValue.increment(Int64(-1))])
         }
@@ -124,30 +131,9 @@ extension CommentClient: DependencyKey {
 }
 
 extension DependencyValues {
-    var commentClient: CommentClient {
-        get { self[CommentClient.self] }
-        set { self[CommentClient.self] = newValue }
+    var announcementCommentClient: AnnouncementCommentClient {
+        get { self[AnnouncementCommentClient.self] }
+        set { self[AnnouncementCommentClient.self] = newValue }
     }
 }
 
-// MARK: - Model (여기만 정의)
-
-struct Comment: Identifiable, Codable, Equatable {
-    var id: String
-    var content: String
-    var createdAt: Date
-    var userId: String
-    var email: String
-    var profileImageURL: String?
-    var replyCount: Int
-}
-
-struct Reply: Identifiable, Codable, Equatable {
-    var id: String
-    var content: String
-    var createdAt: Date
-    var userId: String
-    var email: String
-    var profileImageURL: String?
-    var parentId: String
-}
