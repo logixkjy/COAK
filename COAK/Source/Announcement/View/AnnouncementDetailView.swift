@@ -9,9 +9,14 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AnnouncementDetailView: View {
+    let store: StoreOf<AnnouncementFeature>
+    let appStore: StoreOf<AppFeature>
     @Environment(\.dismiss) private var dismiss
-    let announcement: Announcement
+    @State var announcement: Announcement
+    @Binding var isEdited: Bool
     var isAdmin: Bool = false
+    
+    @State private var isEditing: Bool = false
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -94,7 +99,7 @@ struct AnnouncementDetailView: View {
                     
                     if isAdmin {
                         Button(action: {
-                            // 편집
+                            isEditing.toggle()
                         }) {
                             Image(systemName: "square.and.pencil")
                                 .font(.title2)
@@ -113,5 +118,9 @@ struct AnnouncementDetailView: View {
         }
         .ignoresSafeArea(.all, edges: .bottom)
         .navigationBarHidden(true)
+        
+        .sheet(isPresented: $isEditing, content: {
+            AnnouncementEditView(store: self.store, appStore: self.appStore, announcement: $announcement, isEdited: $isEdited)
+        })
     }
 }

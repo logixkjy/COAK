@@ -33,7 +33,8 @@ struct MainTabView: View {
                 }
                 .tag(Tab.favorites)
                 
-                AnnouncementListView(store: store.scope(state: \.announcementState, action: MainTabFeature.Action.announcementAction)
+                AnnouncementListView(store: store.scope(state: \.announcementState, action: MainTabFeature.Action.announcementAction),
+                                     appStore: appStore
                 )
                 .tabItem {
                     Label("공지사항", systemImage: "megaphone")

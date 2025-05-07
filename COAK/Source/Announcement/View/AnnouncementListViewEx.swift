@@ -57,9 +57,10 @@ extension AnnouncementListView {
                             case .success(let image):
                                 image
                                     .resizable()
-                                    .aspectRatio(1, contentMode: .fill)
-                                    .frame(width: geometry.size.width, height: geometry.size.width)
-                                    .clipped()
+                                    .aspectRatio(contentMode: .fill) // 중앙을 기준으로 채움
+                                    .frame(width: geometry.size.width, height: geometry.size.width) // 정사각형으로 크롭
+                                    .clipped() // 넘치는 부분 자름
+                                    .position(x: geometry.size.width / 2, y: geometry.size.width / 2) // 중앙 정렬
                             default:
                                 Color.gray.frame(height: geometry.size.width)
                             }

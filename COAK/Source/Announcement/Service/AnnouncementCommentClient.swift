@@ -10,22 +10,22 @@ import FirebaseFirestore
 import Foundation
 
 struct AnnouncementCommentClient {
-    var fetchComments: @Sendable (_ videoId: String, _ after: DocumentSnapshot?) async throws -> ([Comment], DocumentSnapshot?)
-    var postComment: @Sendable (_ videoId: String, _ content: String, _ userId: String, _ email: String, _ profileImageURL: String) async throws -> Comment
-    var editComment: @Sendable (_ videoId: String, _ commentId: String, _ newContent: String) async throws -> Void
-    var deleteComment: @Sendable (_ videoId: String, _ commentId: String) async throws -> Void
+    var fetchComments: @Sendable (_ noticeId: String, _ after: DocumentSnapshot?) async throws -> ([Comment], DocumentSnapshot?)
+    var postComment: @Sendable (_ noticeId: String, _ content: String, _ userId: String, _ email: String, _ profileImageURL: String) async throws -> Comment
+    var editComment: @Sendable (_ noticeId: String, _ commentId: String, _ newContent: String) async throws -> Void
+    var deleteComment: @Sendable (_ noticeId: String, _ commentId: String) async throws -> Void
 
-    var fetchReplies: @Sendable (_ videoId: String, _ commentId: String) async throws -> [Reply]
-    var postReply: @Sendable (_ videoId: String, _ commentId: String, _ content: String, _ userId: String, _ email: String, _ profileImageURL: String) async throws -> Reply
-    var editReply: @Sendable (_ videoId: String, _ commentId: String, _ replyId: String, _ newContent: String) async throws -> Void
-    var deleteReply: @Sendable (_ videoId: String, _ commentId: String, _ replyId: String) async throws -> Void
+    var fetchReplies: @Sendable (_ noticeId: String, _ commentId: String) async throws -> [Reply]
+    var postReply: @Sendable (_ noticeId: String, _ commentId: String, _ content: String, _ userId: String, _ email: String, _ profileImageURL: String) async throws -> Reply
+    var editReply: @Sendable (_ noticeId: String, _ commentId: String, _ replyId: String, _ newContent: String) async throws -> Void
+    var deleteReply: @Sendable (_ noticeId: String, _ commentId: String, _ replyId: String) async throws -> Void
 }
 
 extension AnnouncementCommentClient: DependencyKey {
     static let liveValue: AnnouncementCommentClient = .init(
         fetchComments: { announcementId, after in
             let query = Firestore.firestore()
-                .collection("announcement_comments")
+                .collection("notice_comments")
                 .document(announcementId)
                 .collection("comments")
                 .order(by: "createdAt", descending: false)
@@ -38,7 +38,7 @@ extension AnnouncementCommentClient: DependencyKey {
 
         postComment: { announcementId, content, userId, email, profileImageURL in
             let docRef = Firestore.firestore()
-                .collection("announcement_comments")
+                .collection("notice_comments")
                 .document(announcementId)
                 .collection("comments")
                 .document()
@@ -57,19 +57,19 @@ extension AnnouncementCommentClient: DependencyKey {
         },
 
         editComment: { announcementId, commentId, newContent in
-            let doc = Firestore.firestore().collection("announcement_comments")
+            let doc = Firestore.firestore().collection("notice_comments")
                 .document(announcementId).collection("comments").document(commentId)
             try await doc.updateData(["content": newContent])
         },
 
         deleteComment: { announcementId, commentId in
-            let doc = Firestore.firestore().collection("announcement_comments")
+            let doc = Firestore.firestore().collection("notice_comments")
                 .document(announcementId).collection("comments").document(commentId)
             try await doc.delete()
         },
 
         fetchReplies: { announcementId, parentId in
-            let query = Firestore.firestore().collection("announcement_comments")
+            let query = Firestore.firestore().collection("notice_comments")
                 .document(announcementId).collection("comments").document(parentId)
                 .collection("replies")
                 .order(by: "createdAt")
@@ -78,7 +78,7 @@ extension AnnouncementCommentClient: DependencyKey {
         },
 
         postReply: { announcementId, parentId, content, userId, email, profileImageURL in
-            let docRef = Firestore.firestore().collection("announcement_comments")
+            let docRef = Firestore.firestore().collection("notice_comments")
                 .document(announcementId).collection("comments").document(parentId)
                 .collection("replies").document()
 
@@ -95,7 +95,7 @@ extension AnnouncementCommentClient: DependencyKey {
 
             // replyCount 증가
             let parentRef = Firestore.firestore()
-                .collection("announcement_comments")
+                .collection("notice_comments")
                 .document(announcementId)
                 .collection("comments").document(parentId)
             try await parentRef.updateData(["replyCount": FieldValue.increment(Int64(1))])
@@ -105,7 +105,7 @@ extension AnnouncementCommentClient: DependencyKey {
 
         editReply: { announcementId, parentId, replyId, newContent in
             let ref = Firestore.firestore()
-                .collection("announcement_comments")
+                .collection("notice_comments")
                 .document(announcementId)
                 .collection("comments").document(parentId)
                 .collection("replies").document(replyId)
@@ -114,7 +114,7 @@ extension AnnouncementCommentClient: DependencyKey {
 
         deleteReply: { announcementId, parentId, replyId in
             let ref = Firestore.firestore()
-                .collection("announcement_comments")
+                .collection("notice_comments")
                 .document(announcementId)
                 .collection("comments").document(parentId)
                 .collection("replies").document(replyId)
@@ -122,7 +122,7 @@ extension AnnouncementCommentClient: DependencyKey {
 
             // replyCount 감소
             let parentRef = Firestore.firestore()
-                .collection("announcement_comments")
+                .collection("notice_comments")
                 .document(announcementId)
                 .collection("comments").document(parentId)
             try await parentRef.updateData(["replyCount": FieldValue.increment(Int64(-1))])

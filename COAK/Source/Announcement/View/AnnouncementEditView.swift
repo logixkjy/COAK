@@ -1,5 +1,5 @@
 //
-//  AnnouncementPostView.swift
+//  AnnouncementEditView.swift
 //  COAK
 //
 //  Created by JooYoung Kim on 5/5/25.
@@ -10,17 +10,21 @@ import PhotosUI
 import ComposableArchitecture
 import FirebaseStorage
 
-
-struct AnnouncementPostView: View {
+struct AnnouncementEditView: View {
     let store: StoreOf<AnnouncementFeature>
     let appStore: StoreOf<AppFeature>
-    
+    @Binding var announcement: Announcement
+    @Binding var isEdited: Bool
+
     @Environment(\.dismiss) private var dismiss
     @State private var content: String = ""
     @State private var selectedImages: [UIImage] = []
     @State private var selectedItems: [PhotosPickerItem] = []
     @State private var isUploading = false
     @State private var toastMessage: String? = nil
+    @State private var deleteImageIndexes: [Int] = []
+//    @State private var updatedImages: [Int: UIImage] = [:]
+
     
     @FocusState private var focusedField: Field?
     
@@ -34,17 +38,16 @@ struct AnnouncementPostView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text("내용")
                         .font(.headline)
-
+                    
                     TextEditor(text: $content)
                         .frame(height: 150)
                         .padding(8)
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.3)))
                         .focused($focusedField, equals: .content)
-
+                    
                     Text("사진")
                         .font(.headline)
-                    // 차후 3장 정도 까지 확장 가능
-                    if selectedImages.count < 1 {
+                    if announcement.imageURLs.count - deleteImageIndexes.count + selectedImages.count < 1 {
                         PhotosPicker(selection: $selectedItems,
                                      maxSelectionCount: 1,
                                      matching: .images) {
@@ -70,23 +73,21 @@ struct AnnouncementPostView: View {
                                          }
                                      }
                     }
-
-                    if !selectedImages.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                ForEach(selectedImages, id: \.self) { image in
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(Array(announcement.imageURLs.enumerated()), id: \.offset) { index, urlString in
+                                if !deleteImageIndexes.contains(index) {
                                     ZStack(alignment: .topTrailing) {
-                                        Image(uiImage: image)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 100, height: 100)
-                                            .clipped()
-                                            .cornerRadius(8)
-                                        
+                                        AsyncImage(url: URL(string: urlString)) { image in
+                                            image.resizable().scaledToFill().frame(width: 100, height: 100).clipped().cornerRadius(8)
+                                        } placeholder: {
+                                            Color.gray.frame(width: 100, height: 100)
+                                        }
+
                                         Button(action: {
-                                            if let index = selectedImages.firstIndex(of: image) {
-                                                selectedImages.remove(at: index)
-                                            }
+                                            deleteImageIndexes.append(index)
+                                            focusedField = nil
                                         }) {
                                             Image(systemName: "xmark.circle.fill")
                                                 .foregroundColor(.red)
@@ -97,16 +98,38 @@ struct AnnouncementPostView: View {
                                     }
                                 }
                             }
+                            // 이미지를 삭제하고 추가하는 경우에도 정상 표시
+                            ForEach(selectedImages, id: \.self) { image in
+                                ZStack(alignment: .topTrailing) {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 100, height: 100)
+                                        .clipped()
+                                        .cornerRadius(8)
+                                    Button(action: {
+                                        if let index = selectedImages.firstIndex(of: image) {
+                                            selectedImages.remove(at: index)
+                                        }
+                                    }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundColor(.red)
+                                            .background(Color.white)
+                                            .clipShape(Circle())
+                                            .padding(4)
+                                    }
+                                }
+                            }
                         }
                     }
-
-                    Button(action: uploadAnnouncement) {
+                    
+                    Button(action: updateAnnouncement) {
                         HStack {
                             if isUploading {
                                 ProgressView()
                             } else {
                                 Image(systemName: "paperplane")
-                                Text("공지 등록")
+                                Text("공지 수정")
                             }
                         }
                         .frame(maxWidth: .infinity)
@@ -119,7 +142,10 @@ struct AnnouncementPostView: View {
                 }
                 .padding()
             }
-            .navigationTitle("공지 등록")
+            .navigationTitle("공지 수정")
+            .onAppear {
+                self.content = announcement.content
+            }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
@@ -147,42 +173,48 @@ struct AnnouncementPostView: View {
             )
         }
     }
-
-    private func uploadAnnouncement() {
+    
+    private func updateAnnouncement() {
         Task {
             isUploading = true
             do {
-                var uploadedURLs: [String] = []
-                var uploadedFileNames: [String] = []
-
+                var uploadedURLs: [String] = announcement.imageURLs
+                var uploadedFileNames: [String] = announcement.imageFileNames
+                
+                // 삭제 처리
+                for index in deleteImageIndexes {
+                    let fileName = uploadedFileNames[index]
+                    let ref = Storage.storage().reference().child("notices/\(fileName)")
+                    try await ref.delete()
+                    uploadedURLs.remove(at: index)
+                    uploadedFileNames.remove(at: index)
+                }
+                
+                // 수정 처리
                 for image in selectedImages {
                     let resizedImage = resizeImage(image, toMinLength: 500)
-                    let imageData = resizedImage.jpegData(compressionQuality: 0.8)!
                     let fileName = UUID().uuidString + ".jpg"
                     let ref = Storage.storage().reference().child("notices/\(fileName)")
+                    let imageData = resizedImage.jpegData(compressionQuality: 0.8)!
                     let _ = try await ref.putDataAsync(imageData, metadata: nil)
                     let url = try await ref.downloadURL()
                     uploadedURLs.append(url.absoluteString)
                     uploadedFileNames.append(fileName)
                 }
-
-                let announcement = Announcement(
-                    id: "",
-                    content: content,
-                    imageURLs: uploadedURLs,
-                    imageFileNames: uploadedFileNames,
-                    authorName: appStore.userProfile?.name ?? "관리자",
-                    authorProfileImageURL: appStore.userProfile?.profileImageURL ?? nil,
-                    createdAt: Date()
-                )
+               
+                announcement.content = content
+                announcement.imageURLs = uploadedURLs
+                announcement.imageFileNames = uploadedFileNames
                 
-                store.send(.create(announcement))
+                store.send(.update(announcement))
                 content = ""
                 selectedImages = []
                 selectedItems = []
+                showToast(message: "공지 수정 완료")
+                isEdited.toggle()
                 dismiss()
             } catch {
-                showToast(message: "공지사항 등록에 실패했습니다.")
+                showToast(message: "공지 수정 실패")
             }
             isUploading = false
         }

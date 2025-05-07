@@ -11,7 +11,9 @@ import ComposableArchitecture
 
 struct AnnouncementListView: View {
     let store: StoreOf<AnnouncementFeature>
+    let appStore: StoreOf<AppFeature>
     @State var selectedAnnouncement: Announcement? = nil
+    @State var isEdited: Bool = false
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -38,9 +40,16 @@ struct AnnouncementListView: View {
                 .onAppear {
                     viewStore.send(.loadAnnouncements)
                 }
-                .fullScreenCover(item: $selectedAnnouncement) { announcement in
-                    AnnouncementDetailView(announcement: announcement, isAdmin: true)
-                }
+                .fullScreenCover(item: $selectedAnnouncement,
+                                 onDismiss: {
+                    // 공지 내용이 수정 되었다면 다시 로드
+                    if isEdited {
+                        isEdited.toggle()
+                        viewStore.send(.loadAnnouncements)
+                    }
+                }, content: { announcement in
+                    AnnouncementDetailView(store: self.store, appStore: self.appStore, announcement: announcement, isEdited: $isEdited, isAdmin: self.appStore.isAdmin)
+                })
             }
         }
     }

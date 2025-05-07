@@ -20,7 +20,7 @@ extension AnnouncementClient: DependencyKey {
     static let liveValue: AnnouncementClient = .init(
         fetchAll: {
             let snapshot = try await Firestore.firestore()
-                .collection("announcements")
+                .collection("notices")
                 .order(by: "createdAt", descending: true)
                 .getDocuments()
             return snapshot.documents.compactMap {
@@ -28,20 +28,20 @@ extension AnnouncementClient: DependencyKey {
             }
         },
         create: { announcement in
-            let ref = Firestore.firestore().collection("announcements").document()
+            let ref = Firestore.firestore().collection("notices").document()
             var newAnnouncement = announcement
             newAnnouncement.id = ref.documentID
             try ref.setData(from: newAnnouncement)
         },
         update: { announcement in
             try Firestore.firestore()
-                .collection("announcements")
+                .collection("notices")
                 .document(announcement.id)
                 .setData(from: announcement)
         },
         delete: { id in
             try await Firestore.firestore()
-                .collection("announcements")
+                .collection("notices")
                 .document(id)
                 .delete()
         }
