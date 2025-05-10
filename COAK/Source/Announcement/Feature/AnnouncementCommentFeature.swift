@@ -20,7 +20,7 @@ struct AnnouncementCommentFeature {
         var isLoading: Bool = false
         var hasMore: Bool = true
         var lastDocument: DocumentSnapshot? = nil
-        var videoId: String = ""
+        var announcemetId: String = ""
         var userId: String = ""
         var email: String = ""
         var profileImageURL: String = ""
@@ -52,10 +52,12 @@ struct AnnouncementCommentFeature {
         case postCommentResponse(Result<Comment, CustomError>)
 
         case startEdit(Comment)
+        case cancelEdit
         case confirmEdit
         case deleteComment(String)
 
         case setReplyTarget(String?)
+        case clearReplyTarget
         case postReply(parentId: String)
         case postReplyResponse(Result<Reply, CustomError>)
 
@@ -63,6 +65,7 @@ struct AnnouncementCommentFeature {
         case loadRepliesResponse(parentId: String, Result<[Reply], CustomError>)
 
         case startEditReply(parentId: String, reply: Reply)
+        case cancelEditReply
         case confirmEditReply
         case deleteReply(parentId: String, replyId: String)
     }
@@ -77,8 +80,8 @@ struct AnnouncementCommentFeature {
 
         case .loadInitialComments:
             state.isLoading = true
-            return .run { [videoId = state.videoId] send in
-                let (comments, last) = try await commentClient.fetchComments(videoId, nil)
+            return .run { [announcemetId = state.announcemetId] send in
+                let (comments, last) = try await commentClient.fetchComments(announcemetId, nil)
                 await send(.loadInitialCommentsResponse(.success(comments)))
                 await send(.setLastDocument(last))
             } catch: { error, send in
@@ -97,8 +100,8 @@ struct AnnouncementCommentFeature {
 
         case .loadMoreComments:
             guard state.hasMore, let last = state.lastDocument else { return .none }
-            return .run { [videoId = state.videoId] send in
-                let (newComments, newLast) = try await commentClient.fetchComments(videoId, last)
+            return .run { [announcemetId = state.announcemetId] send in
+                let (newComments, newLast) = try await commentClient.fetchComments(announcemetId, last)
                 await send(.loadMoreCommentsResponse(.success(newComments)))
                 await send(.appendLastDocument(newLast))
             } catch: { error, send in
@@ -123,8 +126,8 @@ struct AnnouncementCommentFeature {
 
             let text = state.newCommentText
             state.newCommentText = ""
-            return .run { [videoId = state.videoId, userId = state.userId, email = state.email, profileImageURL = state.profileImageURL] send in
-                let comment = try await commentClient.postComment(videoId, text, userId, email, profileImageURL)
+            return .run { [announcemetId = state.announcemetId, userId = state.userId, email = state.email, profileImageURL = state.profileImageURL] send in
+                let comment = try await commentClient.postComment(announcemetId, text, userId, email, profileImageURL)
                 await send(.postCommentResponse(.success(comment)))
             } catch: { error, send in
                 await send(.postCommentResponse(.failure(error as! CustomError)))
@@ -139,6 +142,12 @@ struct AnnouncementCommentFeature {
             state.editingCommentId = comment.id
             state.newCommentText = comment.content
             return .none
+            
+        case .cancelEdit:
+            state.isEditing = false
+            state.editingCommentId = nil
+            state.newCommentText = ""
+            return .none
 
         case .confirmEdit:
             guard let editingId = state.editingCommentId else { return .none }
@@ -146,14 +155,14 @@ struct AnnouncementCommentFeature {
             state.isEditing = false
             state.editingCommentId = nil
             state.newCommentText = ""
-            return .run { [videoId = state.videoId] send in
-                try await commentClient.editComment(videoId, editingId, newText)
+            return .run { [announcemetId = state.announcemetId] send in
+                try await commentClient.editComment(announcemetId, editingId, newText)
                 await send(.loadInitialComments)
             } catch: { _, send in }
 
         case let .deleteComment(commentId):
-            return .run { [videoId = state.videoId] send in
-                try await commentClient.deleteComment(videoId, commentId)
+            return .run { [announcemetId = state.announcemetId] send in
+                try await commentClient.deleteComment(announcemetId, commentId)
                 await send(.loadInitialComments)
             } catch: { _, send in }
 
@@ -161,13 +170,18 @@ struct AnnouncementCommentFeature {
             state.replyTarget = commentId
             state.newCommentText = ""
             return .none
+            
+        case .clearReplyTarget:
+            state.replyTarget = nil
+            state.newCommentText = ""
+            return .none
 
         case let .postReply(parentId):
             let text = state.newCommentText
             state.newCommentText = ""
             state.replyTarget = nil
-            return .run { [videoId = state.videoId, userId = state.userId, email = state.email, profileImageURL = state.profileImageURL] send in
-                let reply = try await commentClient.postReply(videoId, parentId, text, userId, email, profileImageURL)
+            return .run { [announcemetId = state.announcemetId, userId = state.userId, email = state.email, profileImageURL = state.profileImageURL] send in
+                let reply = try await commentClient.postReply(announcemetId, parentId, text, userId, email, profileImageURL)
                 await send(.postReplyResponse(.success(reply)))
             } catch: { error, send in
                 await send(.postReplyResponse(.failure(error as! CustomError)))
@@ -179,8 +193,8 @@ struct AnnouncementCommentFeature {
 
         case let .loadReplies(parentId):
             state.isReplyLoadingMap[parentId] = true
-            return .run { [videoId = state.videoId] send in
-                let replies = try await commentClient.fetchReplies(videoId, parentId)
+            return .run { [announcemetId = state.announcemetId] send in
+                let replies = try await commentClient.fetchReplies(announcemetId, parentId)
                 await send(.loadRepliesResponse(parentId: parentId, .success(replies)))
             } catch: { error, send in
                 await send(.loadRepliesResponse(parentId: parentId, .failure(error as! CustomError)))
@@ -197,6 +211,13 @@ struct AnnouncementCommentFeature {
             state.editingReplyId = reply.id
             state.newCommentText = reply.content
             return .none
+            
+        case .cancelEditReply:
+            state.isEditingReply = false
+            state.editingReplyParentId = nil
+            state.editingReplyId = nil
+            state.newCommentText = ""
+            return .none
 
         case .confirmEditReply:
             guard let parentId = state.editingReplyParentId, let replyId = state.editingReplyId else { return .none }
@@ -204,14 +225,14 @@ struct AnnouncementCommentFeature {
             state.newCommentText = ""
             state.isEditingReply = false
             state.editingReplyId = nil
-            return .run { [videoId = state.videoId] send in
-                try await commentClient.editReply(videoId, parentId, replyId, text)
+            return .run { [announcemetId = state.announcemetId] send in
+                try await commentClient.editReply(announcemetId, parentId, replyId, text)
                 await send(.loadReplies(parentId: parentId))
             } catch: { _, send in }
 
         case let .deleteReply(parentId, replyId):
-            return .run { [videoId = state.videoId] send in
-                try await commentClient.deleteReply(videoId, parentId, replyId)
+            return .run { [announcemetId = state.announcemetId] send in
+                try await commentClient.deleteReply(announcemetId, parentId, replyId)
                 await send(.loadReplies(parentId: parentId))
             } catch: { _, send in }
 

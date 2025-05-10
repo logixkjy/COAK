@@ -48,7 +48,19 @@ struct AnnouncementListView: View {
                         viewStore.send(.loadAnnouncements)
                     }
                 }, content: { announcement in
-                    AnnouncementDetailView(store: self.store, appStore: self.appStore, announcement: announcement, isEdited: $isEdited, isAdmin: self.appStore.isAdmin)
+                    let commentStore = Store(
+                        initialState: AnnouncementCommentFeature.State(
+                            announcemetId: announcement.id,
+                            userId: appStore.userProfile?.uid ?? "",
+                            email: appStore.userProfile?.email ?? "",
+                            profileImageURL: appStore.userProfile?.profileImageURL ?? ""
+                        ),
+                        reducer: {
+                            AnnouncementCommentFeature()
+                        }
+                    )
+                    
+                    AnnouncementDetailView(store: self.store, appStore: self.appStore, commentStore: commentStore, announcement: announcement, isEdited: $isEdited, isAdmin: self.appStore.isAdmin)
                 })
             }
         }

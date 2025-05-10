@@ -52,10 +52,12 @@ struct VideoCommentFeature {
         case postCommentResponse(Result<Comment, CustomError>)
 
         case startEdit(Comment)
+        case cancelEdit
         case confirmEdit
         case deleteComment(String)
 
         case setReplyTarget(String?)
+        case clearReplyTarget
         case postReply(parentId: String)
         case postReplyResponse(Result<Reply, CustomError>)
 
@@ -63,6 +65,7 @@ struct VideoCommentFeature {
         case loadRepliesResponse(parentId: String, Result<[Reply], CustomError>)
 
         case startEditReply(parentId: String, reply: Reply)
+        case cancelEditReply
         case confirmEditReply
         case deleteReply(parentId: String, replyId: String)
     }
@@ -139,6 +142,12 @@ struct VideoCommentFeature {
             state.editingCommentId = comment.id
             state.newCommentText = comment.content
             return .none
+            
+        case .cancelEdit:
+            state.isEditing = false
+            state.editingCommentId = nil
+            state.newCommentText = ""
+            return .none
 
         case .confirmEdit:
             guard let editingId = state.editingCommentId else { return .none }
@@ -159,6 +168,11 @@ struct VideoCommentFeature {
 
         case let .setReplyTarget(commentId):
             state.replyTarget = commentId
+            state.newCommentText = ""
+            return .none
+            
+        case .clearReplyTarget:
+            state.replyTarget = nil
             state.newCommentText = ""
             return .none
 
@@ -196,6 +210,13 @@ struct VideoCommentFeature {
             state.editingReplyParentId = parentId
             state.editingReplyId = reply.id
             state.newCommentText = reply.content
+            return .none
+            
+        case .cancelEditReply:
+            state.isEditingReply = false
+            state.editingReplyParentId = nil
+            state.editingReplyId = nil
+            state.newCommentText = ""
             return .none
 
         case .confirmEditReply:
