@@ -8,11 +8,16 @@
 import SwiftUI
 import Firebase
 import FirebaseFirestore
+import ComposableArchitecture
 
 struct TopNoticeBannerPlaceholderView: View {
+    let store: StoreOf<AnnouncementFeature>
+    let appStore: StoreOf<AppFeature>
     @State private var latestNotice: Announcement?
+    @State var selectedAnnouncement: Announcement? = nil
     @State private var image: UIImage? = nil
     @State private var isLoading = true
+    @State var isEdited: Bool = false
 
     var body: some View {
         ZStack {
@@ -74,6 +79,24 @@ struct TopNoticeBannerPlaceholderView: View {
         .cornerRadius(10)
         .onAppear {
             fetchLatestNotice()
+        }
+        .onTapGesture {
+            selectedAnnouncement = latestNotice
+        }
+        .fullScreenCover(item: $selectedAnnouncement) { announcement in
+            let commentStore = Store(
+                initialState: AnnouncementCommentFeature.State(
+                    announcemetId: announcement.id,
+                    userId: appStore.userProfile?.uid ?? "",
+                    email: appStore.userProfile?.email ?? "",
+                    profileImageURL: appStore.userProfile?.profileImageURL ?? ""
+                ),
+                reducer: {
+                    AnnouncementCommentFeature()
+                }
+            )
+            
+            AnnouncementDetailView(store: self.store, appStore: self.appStore, commentStore: commentStore, announcement: announcement, isEdited: $isEdited, isAdmin: false)
         }
     }
 

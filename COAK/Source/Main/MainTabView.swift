@@ -18,7 +18,8 @@ struct MainTabView: View {
 
                 MainHomeView(
                     store: store.scope(state: \.playlistState, action: MainTabFeature.Action.playlistAction),
-                    appStore: appStore
+                    appStore: appStore,
+                    annoucementStore: store.scope(state: \.announcementState, action: MainTabFeature.Action.announcementAction)
                 )
                 .tabItem {
                     Label("홈", systemImage: "house")

@@ -11,6 +11,7 @@ import ComposableArchitecture
 struct MainHomeView: View {
     let store: StoreOf<PlaylistFeature>
     let appStore: StoreOf<AppFeature>
+    let annoucementStore: StoreOf<AnnouncementFeature>
 
     @State private var isPresented = false
     
@@ -50,7 +51,7 @@ struct MainHomeView: View {
                     .padding(.top, 16)
                     
                     // 상단 공지 배너
-                    TopNoticeBannerPlaceholderView()
+                    TopNoticeBannerPlaceholderView(store: annoucementStore, appStore: appStore)
                         .frame(height: 120)
                         .background(Color.orange.opacity(0.3))
                         .padding(.top, 8)
