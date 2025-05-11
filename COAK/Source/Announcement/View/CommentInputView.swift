@@ -32,10 +32,7 @@ struct CommentInputView: View {
                         if (isReply || isEdit) && (isEdit ? tempText != text : !text.isEmpty) {
                             showDiscardAlert = true
                         } else {
-                            isFocused = false
-                            isFocusedExternal = false
-                            isReply = false
-                            isEdit = false
+                            text = ""
                             dismissKeyboard()
                         }
                     }
