@@ -31,7 +31,7 @@ struct ProfileUpdateView: View {
                 }
 
                 Section(header: Text("전화번호")) {
-                    TextField("010-1234-5678", text: $phone)
+                    TextField("01012345678", text: $phone)
                         .keyboardType(.numberPad)
                         .onChange(of: phone) { newValue in
                             self.phone = formatPhoneNumber(newValue)
@@ -114,7 +114,7 @@ struct ProfileUpdateView: View {
 
         let data: [String: Any] = [
             "name": name,
-            "phone": phone,
+            "phone": phone.replacingOccurrences(of: "-", with: ""),
             "birthdate": birthdate,
             "email": email
         ]

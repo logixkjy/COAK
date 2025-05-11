@@ -22,6 +22,7 @@ struct SettingsView: View {
 
     @State private var isShowingAnnouncementPost = false
     @State private var isShowingPlaylistEditor = false
+    @State private var isShowingUserList = false
 //    @State private var announcement: Announcement = Announcement(id: "", content: "", imageURLs: [], authorName: "", authorProfileImageURL: nil, createdAt: Date())
     @State private var showDeleteConfirm = false
     @State private var isShowingPolicy = false
@@ -117,9 +118,10 @@ struct SettingsView: View {
                                 }
                                 .foregroundColor(.white)
                                 
-                                NavigationLink("전체 사용자 보기") {
-                                    UserListView()
+                                Button("전체 사용자 보기") {
+                                    isShowingUserList = true
                                 }
+                                .foregroundColor(.white)
                                 
                                 Button("재생목록 등록") {
                                     isShowingPlaylistEditor = true
@@ -151,6 +153,9 @@ struct SettingsView: View {
                     }
                     .sheet(isPresented: $isShowingPlaylistEditor) {
                         PlaylistEditGroupsView(store: appStore.scope(state: \.playlistEdit, action: AppFeature.Action.playlistEdit))
+                    }
+                    .sheet(isPresented: $isShowingUserList) {
+                        UserListView()
                     }
                     .sheet(isPresented: $isShowingPolicy) {
                         SafariWebView(url: URL(string: "https://logixkjy.github.io/privacy.html")!)

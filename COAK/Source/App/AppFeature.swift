@@ -106,6 +106,7 @@ struct AppFeature: Reducer {
                     let phone = data?["phone"] as? String
                     let birth = data?["birthdate"] as? Timestamp
                     let profileImageURL = data?["profileImageURL"] as? String
+                    let isPremium = data?["isPremium"] as? Bool
                     let incomplete = (name?.isEmpty ?? true) || (phone?.isEmpty ?? true) || (birth == nil)
                     let userProfile = UserProfile(
                         uid: uid,
@@ -116,7 +117,7 @@ struct AppFeature: Reducer {
                         profileImageURL: profileImageURL ?? "",
                         createdAt: nil,
                         allowNotifications: incomplete,
-                        isPremium: false
+                        isPremium: isPremium
                     )
                     await send(.userProfileLoaded(userProfile))
                 }

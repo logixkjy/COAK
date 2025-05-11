@@ -5,8 +5,6 @@
 //  Created by JooYoung Kim on 4/14/25.
 //
 
-// UserListView.swift - 관리자 전용 유저 목록 뷰
-
 import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
@@ -17,8 +15,9 @@ struct UserInfo: Identifiable, Decodable {
     let name: String
     let phone: String
     let email: String
-    let birthdate: Date
+    let birthdate: Date?
     let profileImageURL: String?
+    var isPremium: Bool
 }
 
 struct UserListView: View {
@@ -27,8 +26,11 @@ struct UserListView: View {
 
     var body: some View {
         NavigationStack {
-            List(users) { user in
+            List(users.indices, id: \.self) { index in
+                let user = users[index]
+
                 HStack(alignment: .top, spacing: 12) {
+                    // 프로필 이미지
                     if let urlString = user.profileImageURL,
                        let url = URL(string: urlString) {
                         AsyncImage(url: url) { image in
@@ -45,16 +47,35 @@ struct UserListView: View {
                             .foregroundColor(.gray)
                     }
 
+                    // 사용자 정보와 프리미엄 여부 체크박스
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(user.name)
-                            .font(.headline) +
-                        Text(" (\(calculateAge(from: user.birthdate))세)")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                        HStack {
+                            Text(user.name.isEmpty ? "이름 없음" : user.name)
+                                .font(.headline)
 
-                        Text(user.phone)
+                            Text(user.birthdate?.formatted(date: .numeric, time: .omitted) ?? "생일 없음")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+
+                            Spacer()
+
+                            // 프리미엄 체크박스
+                            Toggle(isOn: Binding(
+                                get: { user.isPremium },
+                                set: { newValue in
+                                    updatePremiumStatus(for: user.uid, isPremium: newValue)
+                                    users[index].isPremium = newValue
+                                }
+                            )) {
+                                Image(systemName: user.isPremium ? "star.fill" : "star")
+                                    .foregroundColor(user.isPremium ? .yellow : .gray)
+                            }
+                            .toggleStyle(.switch)
+                        }
+
+                        Text(user.phone.isEmpty ? "연락처 없음" : user.phone)
                             .font(.caption)
-                        Text(user.email)
+                        Text(user.email.isEmpty ? "이메일 없음" : user.email)
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
@@ -66,14 +87,15 @@ struct UserListView: View {
                 loadUsers()
             }
         }
+        .overlay {
+            if isLoading {
+                ProgressView("로딩 중...")
+                    .progressViewStyle(CircularProgressViewStyle())
+            }
+        }
     }
 
-    func calculateAge(from birthdate: Date) -> Int {
-        let calendar = Calendar.current
-        let ageComponents = calendar.dateComponents([.year], from: birthdate, to: Date())
-        return ageComponents.year ?? 0
-    }
-
+    // Firestore에서 전체 사용자 불러오기
     func loadUsers() {
         isLoading = true
         Firestore.firestore().collection("users").getDocuments { snapshot, error in
@@ -83,20 +105,39 @@ struct UserListView: View {
             self.users = documents.compactMap { doc in
                 let data = doc.data()
 
-                guard
-                    let name = data["name"] as? String,
-                    let phone = data["phone"] as? String,
-                    let email = data["email"] as? String,
-                    let birthTS = data["birthdate"] as? Timestamp
-                else {
-                    return nil
-                }
+                // 비어있을 가능성이 있는 필드들을 안전하게 파싱
+                let name = data["name"] as? String ?? "이름 없음"
+                let phone = data["phone"] as? String ?? "연락처 없음"
+                let email = data["email"] as? String ?? "이메일 없음"
+                let birthTS = data["birthdate"] as? Timestamp
+                let birthdate = birthTS?.dateValue()
+                let profileImageURL = data["profileImageURL"] as? String
+                let isPremium = data["isPremium"] as? Bool ?? false
 
                 let uid = doc.documentID
-                let birthdate = birthTS.dateValue()
-                let profileImageURL = data["profileImageURL"] as? String
 
-                return UserInfo(uid: uid, name: name, phone: phone, email: email, birthdate: birthdate, profileImageURL: profileImageURL)
+                return UserInfo(
+                    uid: uid,
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    birthdate: birthdate,
+                    profileImageURL: profileImageURL,
+                    isPremium: isPremium
+                )
+            }
+        }
+    }
+
+    // Firestore에서 프리미엄 상태 업데이트
+    func updatePremiumStatus(for uid: String, isPremium: Bool) {
+        Firestore.firestore().collection("users").document(uid).updateData([
+            "isPremium": isPremium
+        ]) { error in
+            if let error = error {
+                print("Error updating premium status: \(error.localizedDescription)")
+            } else {
+                print("Premium status updated for user: \(uid)")
             }
         }
     }
