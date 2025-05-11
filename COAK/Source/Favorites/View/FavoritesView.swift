@@ -27,13 +27,9 @@ struct FavoritesView: View {
                                 .onTapGesture {
                                     selectedVideoId = StringID(id: video.id)
                                 }
-                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                    Button(role: .destructive) {
-                                        appViewStore.send(.removeFromFavorites(video.id))
-                                    } label: {
-                                        Label("삭제", systemImage: "trash")
-                                    }
-                                }
+                                .onLongPressGesture(perform: {
+                                    appViewStore.send(.removeFromFavorites(video.id))
+                                })
                         }
                         .listStyle(.plain)
                     }

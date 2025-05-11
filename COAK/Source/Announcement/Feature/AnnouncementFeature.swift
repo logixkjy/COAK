@@ -12,6 +12,7 @@ import ComposableArchitecture
 struct AnnouncementFeature {
     struct State: Equatable {
         var announcements: [Announcement] = []
+        var errorMessage: String = ""
     }
 
     enum Action: Equatable {
@@ -21,6 +22,8 @@ struct AnnouncementFeature {
         case create(Announcement)
         case update(Announcement)
         case delete(String)
+        case deleteSuccess(String)
+        case deleteFailure(String)
     }
 
     @Dependency(\.announcementClient) var announcementClient
@@ -49,9 +52,30 @@ struct AnnouncementFeature {
                 }
 
             case let .delete(id):
-                return .run { _ in
-                    try await announcementClient.delete(id)
+                return .run { send in
+                    do {
+                        let result = try await announcementClient.delete(id)
+                        if result {
+                            await send(.deleteSuccess(id))
+                        } else {
+                            await send(.deleteFailure("Failed to delete announcement."))
+                        }
+                    } catch {
+                        await send(.deleteFailure(error.localizedDescription))
+                    }
                 }
+                
+            case let .deleteSuccess(id):
+                // 삭제 성공 시 상태에서 제거
+                state.announcements.removeAll { $0.id == id }
+                return .none
+                
+            case let .deleteFailure(errorMessage):
+                // 삭제 실패 시 에러 처리 (예: 알림 표시)
+                state.errorMessage = errorMessage
+                return .none
+                
+                
             }
         }
     }

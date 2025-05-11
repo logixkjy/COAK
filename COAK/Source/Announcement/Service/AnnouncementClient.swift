@@ -13,7 +13,7 @@ struct AnnouncementClient {
     var fetchAll: @Sendable () async throws -> [Announcement]
     var create: @Sendable (_ announcement: Announcement) async throws -> Void
     var update: @Sendable (_ announcement: Announcement) async throws -> Void
-    var delete: @Sendable (_ id: String) async throws -> Void
+    var delete: @Sendable (_ id: String) async throws -> Bool
 }
 
 extension AnnouncementClient: DependencyKey {
@@ -44,6 +44,7 @@ extension AnnouncementClient: DependencyKey {
                 .collection("notices")
                 .document(id)
                 .delete()
+            return true
         }
     )
 }

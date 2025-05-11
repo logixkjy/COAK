@@ -13,6 +13,7 @@ struct AnnouncementListView: View {
     let store: StoreOf<AnnouncementFeature>
     let appStore: StoreOf<AppFeature>
     @State var selectedAnnouncement: Announcement? = nil
+    @State var deleteAnnouncement: Announcement? = nil
     @State var isEdited: Bool = false
 
     var body: some View {
@@ -31,6 +32,11 @@ struct AnnouncementListView: View {
                                         .onTapGesture {
                                             selectedAnnouncement = item
                                         }
+                                        .onLongPressGesture {
+                                            if appStore.isAdmin {
+                                                deleteAnnouncement = item
+                                            }
+                                        }
                                 }
                             }
                         }
@@ -39,6 +45,18 @@ struct AnnouncementListView: View {
                 .navigationTitle("공지사항")
                 .onAppear {
                     viewStore.send(.loadAnnouncements)
+                }
+                .alert(
+                    item: $deleteAnnouncement
+                ) { announcement in
+                    Alert(
+                        title: Text("공지 삭제"),
+                        message: Text("공지사항을 삭제하시겠습니까?"),
+                        primaryButton: .destructive(Text("삭제")) {
+                            viewStore.send(.delete(announcement.id))
+                        },
+                        secondaryButton: .cancel(Text("취소"))
+                    )
                 }
                 .fullScreenCover(item: $selectedAnnouncement,
                                  onDismiss: {
