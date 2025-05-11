@@ -171,8 +171,8 @@ struct AnnouncementPostView: View {
                     content: content,
                     imageURLs: uploadedURLs,
                     imageFileNames: uploadedFileNames,
-                    authorName: appStore.userProfile?.name ?? "관리자",
-                    authorProfileImageURL: appStore.userProfile?.profileImageURL ?? nil,
+                    email: appStore.userProfile?.email ?? "",
+                    userId: appStore.userProfile?.uid ?? "",
                     createdAt: Date()
                 )
                 

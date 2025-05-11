@@ -76,24 +76,24 @@ struct AnnouncementDetailView: View {
                             VStack(alignment: .leading, spacing: 16) {
                                 // 작성자 정보
                                 HStack {
-                                    if let url = URL(string: announcement.authorProfileImageURL ?? "") {
-                                        AsyncImage(url: url) { phase in
-                                            switch phase {
-                                            case .success(let image):
-                                                image.resizable().frame(width: 40, height: 40).clipShape(Circle())
-                                            default:
-                                                Circle().frame(width: 40, height: 40).foregroundColor(.gray)
-                                                    .foregroundColor(.white)
-                                            }
-                                        }
-                                    } else {
-                                        Image(systemName: "person.crop.circle.fill")
-                                            .resizable()
-                                            .frame(width: 40, height: 40)
-                                            .foregroundColor(.white)
-                                    }
+//                                    if let url = URL(string: announcement.authorProfileImageURL ?? "") {
+//                                        AsyncImage(url: url) { phase in
+//                                            switch phase {
+//                                            case .success(let image):
+//                                                image.resizable().frame(width: 40, height: 40).clipShape(Circle())
+//                                            default:
+//                                                Circle().frame(width: 40, height: 40).foregroundColor(.gray)
+//                                                    .foregroundColor(.white)
+//                                            }
+//                                        }
+//                                    } else {
+//                                        Image(systemName: "person.crop.circle.fill")
+//                                            .resizable()
+//                                            .frame(width: 40, height: 40)
+//                                            .foregroundColor(.white)
+//                                    }
                                     
-                                    Text(announcement.authorName).bold()
+                                    Text(announcement.email).bold()
                                         .foregroundColor(.white)
                                     
                                     Text(announcement.createdAt, style: .date)
@@ -133,20 +133,20 @@ struct AnnouncementDetailView: View {
                                     ForEach(viewStore.comments) { comment in
                                         VStack(alignment: .leading, spacing: 6) {
                                             HStack {
-                                                if let url = URL(string: comment.profileImageURL ?? "") {
-                                                    AsyncImage(url: url) { phase in
-                                                        switch phase {
-                                                        case .success(let image):
-                                                            image.resizable().frame(width: 24, height: 24).clipShape(Circle())
-                                                        default:
-                                                            Circle().frame(width: 24, height: 24).foregroundColor(.gray)
-                                                        }
-                                                    }
-                                                } else {
-                                                    Image(systemName: "person.crop.circle.fill")
-                                                        .resizable()
-                                                        .frame(width: 24, height: 24)
-                                                }
+//                                                if let url = URL(string: comment.profileImageURL ?? "") {
+//                                                    AsyncImage(url: url) { phase in
+//                                                        switch phase {
+//                                                        case .success(let image):
+//                                                            image.resizable().frame(width: 24, height: 24).clipShape(Circle())
+//                                                        default:
+//                                                            Circle().frame(width: 24, height: 24).foregroundColor(.gray)
+//                                                        }
+//                                                    }
+//                                                } else {
+//                                                    Image(systemName: "person.crop.circle.fill")
+//                                                        .resizable()
+//                                                        .frame(width: 24, height: 24)
+//                                                }
                                                 
                                                 Text(comment.email)
                                                     .font(.caption)

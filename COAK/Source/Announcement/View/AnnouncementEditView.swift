@@ -205,6 +205,7 @@ struct AnnouncementEditView: View {
                 announcement.content = content
                 announcement.imageURLs = uploadedURLs
                 announcement.imageFileNames = uploadedFileNames
+                announcement.email = appStore.userProfile?.email ?? ""
                 
                 store.send(.update(announcement))
                 content = ""

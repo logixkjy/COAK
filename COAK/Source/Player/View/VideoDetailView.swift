@@ -100,20 +100,20 @@ struct VideoDetailView: View {
                                             ForEach(viewStore.comments) { comment in
                                                 VStack(alignment: .leading, spacing: 6) {
                                                     HStack {
-                                                        if let url = URL(string: comment.profileImageURL ?? "") {
-                                                            AsyncImage(url: url) { phase in
-                                                                switch phase {
-                                                                case .success(let image):
-                                                                    image.resizable().frame(width: 24, height: 24).clipShape(Circle())
-                                                                default:
-                                                                    Circle().frame(width: 24, height: 24).foregroundColor(.gray)
-                                                                }
-                                                            }
-                                                        } else {
-                                                            Image(systemName: "person.crop.circle.fill")
-                                                                .resizable()
-                                                                .frame(width: 24, height: 24)
-                                                        }
+//                                                        if let url = URL(string: comment.profileImageURL ?? "") {
+//                                                            AsyncImage(url: url) { phase in
+//                                                                switch phase {
+//                                                                case .success(let image):
+//                                                                    image.resizable().frame(width: 24, height: 24).clipShape(Circle())
+//                                                                default:
+//                                                                    Circle().frame(width: 24, height: 24).foregroundColor(.gray)
+//                                                                }
+//                                                            }
+//                                                        } else {
+//                                                            Image(systemName: "person.crop.circle.fill")
+//                                                                .resizable()
+//                                                                .frame(width: 24, height: 24)
+//                                                        }
                                                         
                                                         Text(comment.email)
                                                             .font(.caption)

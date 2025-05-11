@@ -12,7 +12,7 @@ struct Announcement: Identifiable, Codable, Equatable {
     var content: String
     var imageURLs: [String] = []
     var imageFileNames: [String] = [] // 삭제를 위해 추가
-    var authorName: String
-    var authorProfileImageURL: String?
+    var email: String
+    var userId: String
     var createdAt: Date
 }

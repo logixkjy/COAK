@@ -46,7 +46,6 @@ extension CommentClient: DependencyKey {
                 createdAt: Date(),
                 userId: userId,
                 email: email,
-                profileImageURL: profileImageURL,
                 replyCount: 0
             )
             try docRef.setData(from: comment)
@@ -85,7 +84,6 @@ extension CommentClient: DependencyKey {
                 createdAt: Date(),
                 userId: userId,
                 email: email,
-                profileImageURL: profileImageURL,
                 parentId: parentId
             )
             try docRef.setData(from: reply)
@@ -138,7 +136,6 @@ struct Comment: Identifiable, Codable, Equatable {
     var createdAt: Date
     var userId: String
     var email: String
-    var profileImageURL: String?
     var replyCount: Int
 }
 
@@ -148,6 +145,5 @@ struct Reply: Identifiable, Codable, Equatable {
     var createdAt: Date
     var userId: String
     var email: String
-    var profileImageURL: String?
     var parentId: String
 }

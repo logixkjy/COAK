@@ -25,7 +25,7 @@ extension AnnouncementCommentClient: DependencyKey {
     static let liveValue: AnnouncementCommentClient = .init(
         fetchComments: { announcementId, after in
             let query = Firestore.firestore()
-                .collection("notice_comments")
+                .collection("notices_comments")
                 .document(announcementId)
                 .collection("comments")
                 .order(by: "createdAt", descending: false)
@@ -38,7 +38,7 @@ extension AnnouncementCommentClient: DependencyKey {
 
         postComment: { announcementId, content, userId, email, profileImageURL in
             let docRef = Firestore.firestore()
-                .collection("notice_comments")
+                .collection("notices_comments")
                 .document(announcementId)
                 .collection("comments")
                 .document()
@@ -49,7 +49,6 @@ extension AnnouncementCommentClient: DependencyKey {
                 createdAt: Date(),
                 userId: userId,
                 email: email,
-                profileImageURL: profileImageURL,
                 replyCount: 0
             )
             try docRef.setData(from: comment)
@@ -57,19 +56,19 @@ extension AnnouncementCommentClient: DependencyKey {
         },
 
         editComment: { announcementId, commentId, newContent in
-            let doc = Firestore.firestore().collection("notice_comments")
+            let doc = Firestore.firestore().collection("notices_comments")
                 .document(announcementId).collection("comments").document(commentId)
             try await doc.updateData(["content": newContent])
         },
 
         deleteComment: { announcementId, commentId in
-            let doc = Firestore.firestore().collection("notice_comments")
+            let doc = Firestore.firestore().collection("notices_comments")
                 .document(announcementId).collection("comments").document(commentId)
             try await doc.delete()
         },
 
         fetchReplies: { announcementId, parentId in
-            let query = Firestore.firestore().collection("notice_comments")
+            let query = Firestore.firestore().collection("notices_comments")
                 .document(announcementId).collection("comments").document(parentId)
                 .collection("replies")
                 .order(by: "createdAt")
@@ -78,7 +77,7 @@ extension AnnouncementCommentClient: DependencyKey {
         },
 
         postReply: { announcementId, parentId, content, userId, email, profileImageURL in
-            let docRef = Firestore.firestore().collection("notice_comments")
+            let docRef = Firestore.firestore().collection("notices_comments")
                 .document(announcementId).collection("comments").document(parentId)
                 .collection("replies").document()
 
@@ -88,14 +87,13 @@ extension AnnouncementCommentClient: DependencyKey {
                 createdAt: Date(),
                 userId: userId,
                 email: email,
-                profileImageURL: profileImageURL,
                 parentId: parentId
             )
             try docRef.setData(from: reply)
 
             // replyCount 증가
             let parentRef = Firestore.firestore()
-                .collection("notice_comments")
+                .collection("notices_comments")
                 .document(announcementId)
                 .collection("comments").document(parentId)
             try await parentRef.updateData(["replyCount": FieldValue.increment(Int64(1))])
@@ -105,7 +103,7 @@ extension AnnouncementCommentClient: DependencyKey {
 
         editReply: { announcementId, parentId, replyId, newContent in
             let ref = Firestore.firestore()
-                .collection("notice_comments")
+                .collection("notices_comments")
                 .document(announcementId)
                 .collection("comments").document(parentId)
                 .collection("replies").document(replyId)
@@ -114,7 +112,7 @@ extension AnnouncementCommentClient: DependencyKey {
 
         deleteReply: { announcementId, parentId, replyId in
             let ref = Firestore.firestore()
-                .collection("notice_comments")
+                .collection("notices_comments")
                 .document(announcementId)
                 .collection("comments").document(parentId)
                 .collection("replies").document(replyId)
@@ -122,7 +120,7 @@ extension AnnouncementCommentClient: DependencyKey {
 
             // replyCount 감소
             let parentRef = Firestore.firestore()
-                .collection("notice_comments")
+                .collection("notices_comments")
                 .document(announcementId)
                 .collection("comments").document(parentId)
             try await parentRef.updateData(["replyCount": FieldValue.increment(Int64(-1))])

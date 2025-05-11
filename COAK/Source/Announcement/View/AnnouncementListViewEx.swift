@@ -16,24 +16,24 @@ extension AnnouncementListView {
         var body: some View {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 12) {
-                    if let url = URL(string: announcement.authorProfileImageURL ?? "") {
-                        AsyncImage(url: url) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image.resizable().frame(width: 36, height: 36).clipShape(Circle())
-                            default:
-                                Circle().frame(width: 36, height: 36).foregroundColor(.gray)
-                                    .foregroundColor(.white)
-                            }
-                        }
-                    } else {
-                        Image(systemName: "person.crop.circle.fill")
-                            .resizable()
-                            .frame(width: 36, height: 36)
-                            .foregroundColor(.white)
-                    }
+//                    if let url = URL(string: announcement.authorProfileImageURL ?? "") {
+//                        AsyncImage(url: url) { phase in
+//                            switch phase {
+//                            case .success(let image):
+//                                image.resizable().frame(width: 36, height: 36).clipShape(Circle())
+//                            default:
+//                                Circle().frame(width: 36, height: 36).foregroundColor(.gray)
+//                                    .foregroundColor(.white)
+//                            }
+//                        }
+//                    } else {
+//                        Image(systemName: "person.crop.circle.fill")
+//                            .resizable()
+//                            .frame(width: 36, height: 36)
+//                            .foregroundColor(.white)
+//                    }
                     
-                    Text(announcement.authorName).bold()
+                    Text(announcement.email).bold()
                         .foregroundColor(.white)
                     
                     Text(announcement.createdAt, style: .date)
