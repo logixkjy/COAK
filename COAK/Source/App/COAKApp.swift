@@ -11,9 +11,15 @@ import ComposableArchitecture
 
 @main
 struct COAKApp: App {
+    // AppDelegate를 SwiftUI에서 사용하기 위한 설정
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     init() {
-        FirebaseApp.configure()
+        // Firebase 중복 초기화 방지
+        if FirebaseApp.app() == nil {
+            FirebaseApp.configure()
+            print("✅ Firebase initialized in COAKApp")
+        }
     }
     
     var body: some Scene {

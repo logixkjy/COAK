@@ -12,6 +12,7 @@
 		7C79E33A2DB2C02A007828BC /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7C79E3392DB2C02A007828BC /* FirebaseCore */; };
 		7C79E33C2DB2C02A007828BC /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 7C79E33B2DB2C02A007828BC /* FirebaseFirestore */; };
 		7C79E33E2DB2C02A007828BC /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 7C79E33D2DB2C02A007828BC /* FirebaseStorage */; };
+		7CC850552DD2458B00B6D2BF /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 7CC850542DD2458B00B6D2BF /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7CC850552DD2458B00B6D2BF /* FirebaseMessaging in Frameworks */,
 				7C79E2A02DB29CC1007828BC /* ComposableArchitecture in Frameworks */,
 				7C79E33C2DB2C02A007828BC /* FirebaseFirestore in Frameworks */,
 				7C79E33A2DB2C02A007828BC /* FirebaseCore in Frameworks */,
@@ -96,6 +98,7 @@
 				7C79E3392DB2C02A007828BC /* FirebaseCore */,
 				7C79E33B2DB2C02A007828BC /* FirebaseFirestore */,
 				7C79E33D2DB2C02A007828BC /* FirebaseStorage */,
+				7CC850542DD2458B00B6D2BF /* FirebaseMessaging */,
 			);
 			productName = COAK;
 			productReference = 7C79E2662DB29847007828BC /* COAK.app */;
@@ -290,8 +293,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = COAK/COAK.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_ASSET_PATHS = "\"COAK/Preview Content\"";
 				DEVELOPMENT_TEAM = E9X7ZUYDPK;
 				ENABLE_PREVIEWS = YES;
@@ -332,8 +336,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = COAK/COAK.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_ASSET_PATHS = "\"COAK/Preview Content\"";
 				DEVELOPMENT_TEAM = E9X7ZUYDPK;
 				ENABLE_PREVIEWS = YES;
@@ -434,6 +439,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7C79E3362DB2C02A007828BC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
+		};
+		7CC850542DD2458B00B6D2BF /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7C79E3362DB2C02A007828BC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

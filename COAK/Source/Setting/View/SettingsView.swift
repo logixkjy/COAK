@@ -22,6 +22,7 @@ struct SettingsView: View {
 
     @State private var isShowingAnnouncementPost = false
     @State private var isShowingPlaylistEditor = false
+    @State private var isShowingAdminPush = false
     @State private var isShowingUserList = false
 //    @State private var announcement: Announcement = Announcement(id: "", content: "", imageURLs: [], authorName: "", authorProfileImageURL: nil, createdAt: Date())
     @State private var showDeleteConfirm = false
@@ -127,6 +128,11 @@ struct SettingsView: View {
                                     isShowingPlaylistEditor = true
                                 }
                                 .foregroundColor(.white)
+                                
+                                Button("푸시 발송") {
+                                    isShowingAdminPush = true
+                                }
+                                .foregroundColor(.white)
                             }
                         }
                     }
@@ -153,6 +159,9 @@ struct SettingsView: View {
                     }
                     .sheet(isPresented: $isShowingPlaylistEditor) {
                         PlaylistEditGroupsView(store: appStore.scope(state: \.playlistEdit, action: AppFeature.Action.playlistEdit))
+                    }
+                    .sheet(isPresented: $isShowingAdminPush) {
+                        AdminPushView(store: appStore.scope(state: \.adminPush, action: AppFeature.Action.adminPush))
                     }
                     .sheet(isPresented: $isShowingUserList) {
                         UserListView()

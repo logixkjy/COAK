@@ -9,9 +9,23 @@ import ComposableArchitecture
 import Foundation
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseMessaging
 
 enum CustomError: Error, Equatable {
     case unknown
+    case notFound
+    case firebaseError(String)
+
+    var localizedDescription: String {
+        switch self {
+        case .unknown:
+            return "오류가 발생"
+        case .notFound:
+            return "오류가 발생"
+        case .firebaseError(let message):
+            return "에러 발생: \(message)"
+        }
+    }
 }
 
 struct AppFeature: Reducer {
@@ -20,6 +34,7 @@ struct AppFeature: Reducer {
         var mainTab = MainTabFeature.State()
         var auth = AuthFeature.State()
         var playlistEdit = PlaylistEditFeature.State()
+        var adminPush = AdminPushFeature.State()
         
         var isLoading: Bool = true
         var isSignedIn: Bool = false
@@ -38,6 +53,7 @@ struct AppFeature: Reducer {
         case mainTab(MainTabFeature.Action)
         case auth(AuthFeature.Action)
         case playlistEdit(PlaylistEditFeature.Action)
+        case adminPush(AdminPushFeature.Action)
         
         case checkProfileCompleteness
         case profileCheckResult(Bool)
@@ -68,6 +84,7 @@ struct AppFeature: Reducer {
         Scope(state: \.mainTab, action: /Action.mainTab) { MainTabFeature() }
         Scope(state: \.auth, action: /Action.auth) { AuthFeature() }
         Scope(state: \.playlistEdit, action: /Action.playlistEdit) { PlaylistEditFeature() }
+        Scope(state: \.adminPush, action: /Action.adminPush) { AdminPushFeature() }
         
         Reduce { state, action in
             switch action {
@@ -108,6 +125,7 @@ struct AppFeature: Reducer {
                     let profileImageURL = data?["profileImageURL"] as? String
                     let isPremium = data?["isPremium"] as? Bool
                     let incomplete = (name?.isEmpty ?? true) || (phone?.isEmpty ?? true) || (birth == nil)
+                    let fcmToken = data?["fcmToken"] as? String
                     let userProfile = UserProfile(
                         uid: uid,
                         name: name ?? "",
@@ -119,6 +137,19 @@ struct AppFeature: Reducer {
                         allowNotifications: incomplete,
                         isPremium: isPremium
                     )
+                    if let token = Messaging.messaging().fcmToken {
+                        var isUpdatedFCMToken: Bool = false
+                        if fcmToken == nil && fcmToken == "" {
+                            isUpdatedFCMToken.toggle()
+                        } else if fcmToken != token {
+                            isUpdatedFCMToken.toggle()
+                        }
+                        if isUpdatedFCMToken {
+                            let update: [String: Any] = ["fcmToken": token]
+                            try await Firestore.firestore().collection("users").document(uid).setData(update, merge: true)
+                        }
+                    }
+                    
                     await send(.userProfileLoaded(userProfile))
                 }
                 
@@ -231,9 +262,11 @@ struct AppFeature: Reducer {
             case .addFavoritesResponse(.failure), .removeFavoritesResponse(.failure), .loadFavoritesResponse(.failure):
                 return .none // TODO: 에러 핸들링 로깅
             
-                
             default:
                 return .none
+                
+//            default:
+//                return .none
             }
         }
     }
