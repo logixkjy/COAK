@@ -2,10 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>FirebaseAppDelegateProxyEnabled</key>
-    <false/>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<true/>
 	<key>NSUserNotificationsUsageDescription</key>
-	<string>공자사항 알림을 위해 푸시서비스를 사용합니다.</string>
+	<string>공자 사항 알림을 위해 푸시서비스를 사용합니다.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>

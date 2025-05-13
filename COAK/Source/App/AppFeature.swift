@@ -12,18 +12,34 @@ import FirebaseFirestore
 import FirebaseMessaging
 
 enum CustomError: Error, Equatable {
-    case unknown
-    case notFound
+    case networkError(String)
     case firebaseError(String)
+    case decodingError(String)
+    case unknown(String)
 
-    var localizedDescription: String {
+    var message: String {
         switch self {
-        case .unknown:
-            return "오류가 발생"
-        case .notFound:
-            return "오류가 발생"
-        case .firebaseError(let message):
-            return "에러 발생: \(message)"
+        case .networkError(let msg), .firebaseError(let msg), .decodingError(let msg), .unknown(let msg):
+            return msg
+        }
+    }
+
+    init(error: Error) {
+        // Firebase 관련 에러 처리
+        if let nsError = error as? NSError, nsError.domain == "FIRFirestoreErrorDomain" {
+            self = .firebaseError(nsError.localizedDescription)
+        }
+        // URLSession 관련 에러 처리
+        else if let urlError = error as? URLError {
+            self = .networkError(urlError.localizedDescription)
+        }
+        // CustomError로 변환 가능할 때
+        else if let customError = error as? CustomError {
+            self = customError
+        }
+        // 알 수 없는 에러 처리
+        else {
+            self = .unknown(error.localizedDescription)
         }
     }
 }

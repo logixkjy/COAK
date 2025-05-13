@@ -184,7 +184,7 @@ struct VideoCommentFeature {
                 let reply = try await commentClient.postReply(videoId, parentId, text, userId, email, profileImageURL)
                 await send(.postReplyResponse(.success(reply)))
             } catch: { error, send in
-                await send(.postReplyResponse(.failure(error as! CustomError)))
+                await send(.postReplyResponse(.failure(CustomError(error: error))))
             }
 
         case let .postReplyResponse(.success(reply)):
@@ -197,7 +197,7 @@ struct VideoCommentFeature {
                 let replies = try await commentClient.fetchReplies(videoId, parentId)
                 await send(.loadRepliesResponse(parentId: parentId, .success(replies)))
             } catch: { error, send in
-                await send(.loadRepliesResponse(parentId: parentId, .failure(error as! CustomError)))
+                await send(.loadRepliesResponse(parentId: parentId, .failure(CustomError(error: error))))
             }
 
         case let .loadRepliesResponse(parentId, .success(replies)):
