@@ -85,7 +85,7 @@ struct AnnouncementCommentFeature {
                 await send(.loadInitialCommentsResponse(.success(comments)))
                 await send(.setLastDocument(last))
             } catch: { error, send in
-                await send(.loadInitialCommentsResponse(.failure(error as! CustomError)))
+                await send(.loadInitialCommentsResponse(.failure(.firebaseError(error.localizedDescription))))
             }
 
         case let .loadInitialCommentsResponse(.success(comments)):
@@ -105,7 +105,7 @@ struct AnnouncementCommentFeature {
                 await send(.loadMoreCommentsResponse(.success(newComments)))
                 await send(.appendLastDocument(newLast))
             } catch: { error, send in
-                await send(.loadMoreCommentsResponse(.failure(error as! CustomError)))
+                await send(.loadMoreCommentsResponse(.failure(.firebaseError(error.localizedDescription))))
             }
 
         case let .loadMoreCommentsResponse(.success(newComments)):
@@ -130,7 +130,7 @@ struct AnnouncementCommentFeature {
                 let comment = try await commentClient.postComment(announcemetId, text, userId, email, profileImageURL)
                 await send(.postCommentResponse(.success(comment)))
             } catch: { error, send in
-                await send(.postCommentResponse(.failure(error as! CustomError)))
+                await send(.postCommentResponse(.failure(.firebaseError(error.localizedDescription))))
             }
 
         case let .postCommentResponse(.success(comment)):
@@ -184,7 +184,7 @@ struct AnnouncementCommentFeature {
                 let reply = try await commentClient.postReply(announcemetId, parentId, text, userId, email, profileImageURL)
                 await send(.postReplyResponse(.success(reply)))
             } catch: { error, send in
-                await send(.postReplyResponse(.failure(error as! CustomError)))
+                await send(.postReplyResponse(.failure(.firebaseError(error.localizedDescription))))
             }
 
         case let .postReplyResponse(.success(reply)):
@@ -197,7 +197,7 @@ struct AnnouncementCommentFeature {
                 let replies = try await commentClient.fetchReplies(announcemetId, parentId)
                 await send(.loadRepliesResponse(parentId: parentId, .success(replies)))
             } catch: { error, send in
-                await send(.loadRepliesResponse(parentId: parentId, .failure(error as! CustomError)))
+                await send(.loadRepliesResponse(parentId: parentId, .failure(.firebaseError(error.localizedDescription))))
             }
 
         case let .loadRepliesResponse(parentId, .success(replies)):

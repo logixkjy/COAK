@@ -23,11 +23,18 @@ struct VideoListView: View {
     @Binding private var isGridLayout: Bool
     @State private var selectedVideoId: StringID?
     
+    @State private var toastMessage: String? = nil
+    
     let columns = [
         GridItem(.flexible()), GridItem(.flexible())
     ]
     
-    init(store: StoreOf<VideoListFeature>, appStore: StoreOf<AppFeature>, isGridLayout: Binding<Bool>, isMain: Bool = false) {
+    init(
+        store: StoreOf<VideoListFeature>,
+        appStore: StoreOf<AppFeature>,
+        isGridLayout: Binding<Bool>,
+        isMain: Bool = false
+    ) {
         _store = StateObject(wrappedValue: store)
         self.appStore = appStore
         self._isGridLayout = isGridLayout
@@ -129,6 +136,23 @@ struct VideoListView: View {
                         Text("영상 정보를 불러올 수 없습니다.")
                     }
                 }
+                .overlay(
+                    Group {
+                        if let message = toastMessage {
+                            VStack {
+                                Spacer()
+                                Text(message)
+                                    .padding()
+                                    .background(Color.black.opacity(0.8))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                                    .padding(.bottom, 40)
+                            }
+                            .animation(.easeInOut, value: toastMessage)
+                            .transition(.move(edge: .bottom))
+                        }
+                    }
+                )
             }
         }
     }

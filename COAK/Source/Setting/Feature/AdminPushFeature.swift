@@ -37,7 +37,7 @@ struct AdminPushFeature: Reducer {
                     try await adminPushClient.sendPush(title, body)
                     await send(.pushResult(.success("Push sent successfully.")))
                 } catch {
-                    await send(.pushResult(.failure(error as! CustomError)))
+                    await send(.pushResult(.failure(.firebaseError(error.localizedDescription))))
                 }
             }
             

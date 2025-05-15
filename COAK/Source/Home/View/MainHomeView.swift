@@ -18,6 +18,10 @@ struct MainHomeView: View {
     @State private var isPresentedVideoList = false
     
     @State private var isGridLayout = false
+    
+    @State private var isShowToast: Bool = false
+    @State private var toastMessage: String = ""
+    @State private var toastMessageTemp: String? = nil
 
     var body: some View {
         NavigationStack {
@@ -59,7 +63,7 @@ struct MainHomeView: View {
                     ScrollView {
                         LazyVStack(spacing: 32, pinnedViews: [.sectionHeaders]) {
                             ForEach(viewStore.groups) { group in
-                                PlaylistSectionView(group: group, playlists: group.playlists, store: store, appStore: appStore, isPresented: $isPresented, isPresentedVideoList: $isPresentedVideoList, isGridLayout: $isGridLayout)
+                                PlaylistSectionView(group: group, playlists: group.playlists, store: store, appStore: appStore, isPresented: $isPresented, isPresentedVideoList: $isPresentedVideoList, isGridLayout: $isGridLayout, isShowToast: $isShowToast, toastMessage: $toastMessage)
                             }
                             
                             // Scroll 내부에도 추가 공간 여유
@@ -91,7 +95,37 @@ struct MainHomeView: View {
                         isMain: true
                     )
                 }
+                .onChange(of: isShowToast) { newValue in
+                    if newValue {
+                        showToast()
+                    }
+                }
+                .overlay(
+                    Group {
+                        if let message = toastMessageTemp, !message.isEmpty {
+                            VStack {
+                                Spacer()
+                                Text(message)
+                                    .padding()
+                                    .background(Color.black.opacity(0.8))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                                    .padding(.bottom, 40)
+                            }
+                            .animation(.easeInOut, value: toastMessage)
+                            .transition(.move(edge: .bottom))
+                        }
+                    }
+                )
             }
+        }
+    }
+    
+    private func showToast() {
+        toastMessageTemp = toastMessage
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            toastMessageTemp = nil
+            isShowToast = false
         }
     }
 }

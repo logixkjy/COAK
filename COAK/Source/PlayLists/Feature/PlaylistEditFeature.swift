@@ -8,10 +8,6 @@
 import ComposableArchitecture
 import Foundation
 
-enum SaveError: Error, Equatable {
-    case unknown
-}
-
 struct PlaylistEditFeature: Reducer {
     struct State: Equatable {
         var isLoading = false
@@ -38,7 +34,7 @@ struct PlaylistEditFeature: Reducer {
         
         case saveTapped
         case saveResultSuccess
-        case saveResultFailure(SaveError)
+        case saveResultFailure(CustomError)
     }
     
     @Dependency(\.playlistClient) var playlistClient
@@ -141,7 +137,7 @@ struct PlaylistEditFeature: Reducer {
                     try await playlistClient.savePlaylists(groups)
                     await send(.saveResultSuccess)
                 } catch {
-                    await send(.saveResultFailure(error as! SaveError))
+                    await send(.saveResultFailure(.firebaseError(error.localizedDescription)))
                 }
             }
 

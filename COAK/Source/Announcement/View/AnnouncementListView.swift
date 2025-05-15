@@ -33,7 +33,7 @@ struct AnnouncementListView: View {
                                             selectedAnnouncement = item
                                         }
                                         .onLongPressGesture {
-                                            if appStore.isAdmin {
+                                            if (appStore.userProfile?.isAdmin ?? false) {
                                                 deleteAnnouncement = item
                                             }
                                         }
@@ -78,7 +78,7 @@ struct AnnouncementListView: View {
                         }
                     )
                     
-                    AnnouncementDetailView(store: self.store, appStore: self.appStore, commentStore: commentStore, announcement: announcement, isEdited: $isEdited, isAdmin: self.appStore.isAdmin)
+                    AnnouncementDetailView(store: self.store, appStore: self.appStore, commentStore: commentStore, announcement: announcement, isEdited: $isEdited, isAdmin: self.appStore.userProfile?.isAdmin ?? false)
                 })
             }
         }

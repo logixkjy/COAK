@@ -18,7 +18,8 @@ struct PlaylistSectionView: View {
     @Binding private var isPresentedVideoList: Bool
     @Binding private var isGridLayout: Bool
     
-    @State private var isShowPopup: Bool = false
+    @Binding private var isShowToast: Bool
+    @Binding private var toastMessage: String
     
     init(
         group: PlaylistGroup,
@@ -27,7 +28,9 @@ struct PlaylistSectionView: View {
         appStore: StoreOf<AppFeature>,
         isPresented: Binding<Bool>,
         isPresentedVideoList: Binding<Bool>,
-        isGridLayout: Binding<Bool>
+        isGridLayout: Binding<Bool>,
+        isShowToast: Binding<Bool>,
+        toastMessage: Binding<String>
     ) {
         self.group = group
         self.playlists = playlists
@@ -36,6 +39,8 @@ struct PlaylistSectionView: View {
         self._isPresented = isPresented
         self._isPresentedVideoList = isPresentedVideoList
         self._isGridLayout = isGridLayout
+        self._isShowToast = isShowToast
+        self._toastMessage = toastMessage
     }
 
     var body: some View {
@@ -73,10 +78,11 @@ struct PlaylistSectionView: View {
                                 //                                    isGridLayout: $isGridLayout
                                 //                                )
                                 //                            ) {
-                                PlaylistCardView(item: item, isPremium: (appViewStore.userProfile?.isPremium ?? false), isAdmin: appViewStore.isAdmin)
+                                PlaylistCardView(item: item, isPremium: (appViewStore.userProfile?.isPremium ?? false), isAdmin: appViewStore.userProfile?.isAdmin ?? false)
                                     .onTapGesture {
-                                        if item.isPremiumRequired && (appViewStore.userProfile?.isPremium ?? false) == false && appViewStore.isAdmin == false {
-                                            isShowPopup.toggle()
+                                        if item.isPremiumRequired && (appViewStore.userProfile?.isPremium ?? false) == false && (appViewStore.userProfile?.isAdmin ?? false) == false {
+                                            toastMessage = "유료 컨텐츠 입니다."
+                                            isShowToast = true
                                         } else {
                                             viewStore.send(.selectPlaylist(item))
                                             self.isPresentedVideoList.toggle()
@@ -89,9 +95,9 @@ struct PlaylistSectionView: View {
                         .padding(.horizontal, 4)
                     }
                 }
-                .alert("해당 컨텐츠는 유료 켄텐츠입니다. \n맴버쉽 가입 후 이용이 가능합니다.", isPresented: $isShowPopup) {
-                    Button("확인", role: .cancel) {}
-                }
+//                .alert("해당 컨텐츠는 유료 켄텐츠입니다. \n맴버쉽 가입 후 이용이 가능합니다.", isPresented: $isShowPopup) {
+//                    Button("확인", role: .cancel) {}
+//                }
             }
         }
     }

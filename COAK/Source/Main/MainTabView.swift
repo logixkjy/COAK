@@ -52,6 +52,9 @@ struct MainTabView: View {
                 }
                 .tag(Tab.settings)
             }
+            .onAppear {
+                viewStore.send(.loginStatusChanged(true))
+            }
         }
     }
 }

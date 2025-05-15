@@ -85,7 +85,7 @@ struct VideoCommentFeature {
                 await send(.loadInitialCommentsResponse(.success(comments)))
                 await send(.setLastDocument(last))
             } catch: { error, send in
-                await send(.loadInitialCommentsResponse(.failure(error as! CustomError)))
+                await send(.loadInitialCommentsResponse(.failure(.firebaseError(error.localizedDescription))))
             }
 
         case let .loadInitialCommentsResponse(.success(comments)):
@@ -105,7 +105,7 @@ struct VideoCommentFeature {
                 await send(.loadMoreCommentsResponse(.success(newComments)))
                 await send(.appendLastDocument(newLast))
             } catch: { error, send in
-                await send(.loadMoreCommentsResponse(.failure(error as! CustomError)))
+                await send(.loadMoreCommentsResponse(.failure(.firebaseError(error.localizedDescription))))
             }
 
         case let .loadMoreCommentsResponse(.success(newComments)):
@@ -130,7 +130,7 @@ struct VideoCommentFeature {
                 let comment = try await commentClient.postComment(videoId, text, userId, email, profileImageURL)
                 await send(.postCommentResponse(.success(comment)))
             } catch: { error, send in
-                await send(.postCommentResponse(.failure(error as! CustomError)))
+                await send(.postCommentResponse(.failure(.firebaseError(error.localizedDescription))))
             }
 
         case let .postCommentResponse(.success(comment)):
@@ -184,7 +184,7 @@ struct VideoCommentFeature {
                 let reply = try await commentClient.postReply(videoId, parentId, text, userId, email, profileImageURL)
                 await send(.postReplyResponse(.success(reply)))
             } catch: { error, send in
-                await send(.postReplyResponse(.failure(CustomError(error: error))))
+                await send(.postReplyResponse(.failure(.firebaseError(error.localizedDescription))))
             }
 
         case let .postReplyResponse(.success(reply)):
@@ -197,7 +197,7 @@ struct VideoCommentFeature {
                 let replies = try await commentClient.fetchReplies(videoId, parentId)
                 await send(.loadRepliesResponse(parentId: parentId, .success(replies)))
             } catch: { error, send in
-                await send(.loadRepliesResponse(parentId: parentId, .failure(CustomError(error: error))))
+                await send(.loadRepliesResponse(parentId: parentId, .failure(.firebaseError(error.localizedDescription))))
             }
 
         case let .loadRepliesResponse(parentId, .success(replies)):

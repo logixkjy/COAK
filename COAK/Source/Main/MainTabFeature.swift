@@ -19,8 +19,8 @@ struct MainTabFeature: Reducer {
         var announcementState = AnnouncementFeature.State()
         var announcementCommentState = AnnouncementCommentFeature.State()
         var settingsState = SettingsFeature.State()
-
-        var isAdmin: Bool = false // Firestore 유저 role에서 판단
+        
+        var isLoggedIn: Bool = false
     }
 
     enum Action: Equatable {
@@ -29,6 +29,7 @@ struct MainTabFeature: Reducer {
         case announcementCommentAction(AnnouncementCommentFeature.Action)
         case settingsAction(SettingsFeature.Action)
         case tabSelected(Tab)
+        case loginStatusChanged(Bool)
     }
 
     var body: some Reducer<State, Action> {
@@ -42,6 +43,12 @@ struct MainTabFeature: Reducer {
             case let .tabSelected(tab):
                 state.selectedTab = tab
                 return .none
+                
+            case .loginStatusChanged(let status):
+                state.isLoggedIn = status
+                state.selectedTab = Tab.playlist
+                return .none
+                
             default:
                 return .none
             }

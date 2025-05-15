@@ -112,7 +112,7 @@ struct SettingsView: View {
                             .foregroundColor(.red)
                         }
 
-                        if appViewStore.isAdmin {
+                        if let isAdmin = appViewStore.userProfile?.isAdmin, isAdmin == true {
                             Section(header: Text("관리자 기능")) {
                                 Button("공지 등록") {
                                     isShowingAnnouncementPost = true

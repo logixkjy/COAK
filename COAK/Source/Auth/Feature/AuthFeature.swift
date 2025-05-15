@@ -7,12 +7,7 @@
 
 import ComposableArchitecture
 import FirebaseAuth
-import FirebaseFirestore    
-
-enum AuthError: Error, Equatable {
-    case firebase(String)
-    case unknown
-}
+import FirebaseFirestore
 
 struct UserProfile: Codable, Equatable {
     let uid: String
@@ -24,6 +19,7 @@ struct UserProfile: Codable, Equatable {
     let createdAt: Date?
     let allowNotifications: Bool
     let isPremium: Bool?
+    let isAdmin: Bool?
 }
 
 struct AuthFeature: Reducer {
@@ -62,19 +58,19 @@ struct AuthFeature: Reducer {
         case toggleSignUpMode
         case loginTapped
         case signUpTapped
-        case loginResponse(Result<Bool, AuthError>)
-        case signUpResponse(Result<Bool, AuthError>)
+        case loginResponse(Result<Bool, CustomError>)
+        case signUpResponse(Result<Bool, CustomError>)
         case loginSucceeded
         
         case setLoading(Bool)
         case setError(String?)
         
         case findEmailButtonTapped
-        case findEmailResponse(Result<String, FindEmailError>)
+        case findEmailResponse(Result<String, CustomError>)
 
         case resetPasswordButtonTapped
         case resetPasswordResponseSuccess
-        case resetPasswordResponseFailure(ResetPasswordError)
+        case resetPasswordResponseFailure(CustomError)
         
         case clear
     }
@@ -132,7 +128,7 @@ struct AuthFeature: Reducer {
 
                         await send(.loginSucceeded)
                     } catch {
-                        await send(.loginResponse(.failure(.firebase(error.localizedDescription))))
+                        await send(.loginResponse(.failure(.firebaseError(error.localizedDescription))))
                     }
                 }
 
@@ -181,7 +177,8 @@ struct AuthFeature: Reducer {
                             profileImageURL: "",
                             createdAt: Date(),
                             allowNotifications: true,
-                            isPremium: false
+                            isPremium: false,
+                            isAdmin: false
                         )
 
                         let db = Firestore.firestore()
@@ -189,7 +186,7 @@ struct AuthFeature: Reducer {
 
                         await send(.loginSucceeded)
                     } catch {
-                        await send(.signUpResponse(.failure(.firebase(error.localizedDescription))))
+                        await send(.signUpResponse(.failure(.firebaseError(error.localizedDescription))))
                     }
                 }
 
@@ -271,31 +268,6 @@ struct AuthFeature: Reducer {
                 
             default:
                 return .none
-            }
-        }
-    }
-    
-    enum FindEmailError: Error, Equatable {
-        case notFound
-        case firebaseError(String)
-
-        var localizedDescription: String {
-            switch self {
-            case .notFound:
-                return "일치하는 사용자를 찾을 수 없습니다."
-            case .firebaseError(let message):
-                return "에러 발생: \(message)"
-            }
-        }
-    }
-    
-    enum ResetPasswordError: Error, Equatable {
-        case firebaseError(String)
-
-        var localizedDescription: String {
-            switch self {
-            case .firebaseError(let message):
-                return "에러 발생: \(message)"
             }
         }
     }

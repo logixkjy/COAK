@@ -12,36 +12,11 @@ import FirebaseFirestore
 import FirebaseMessaging
 
 enum CustomError: Error, Equatable {
+    case notFound
     case networkError(String)
     case firebaseError(String)
     case decodingError(String)
     case unknown(String)
-
-    var message: String {
-        switch self {
-        case .networkError(let msg), .firebaseError(let msg), .decodingError(let msg), .unknown(let msg):
-            return msg
-        }
-    }
-
-    init(error: Error) {
-        // Firebase 관련 에러 처리
-        if let nsError = error as? NSError, nsError.domain == "FIRFirestoreErrorDomain" {
-            self = .firebaseError(nsError.localizedDescription)
-        }
-        // URLSession 관련 에러 처리
-        else if let urlError = error as? URLError {
-            self = .networkError(urlError.localizedDescription)
-        }
-        // CustomError로 변환 가능할 때
-        else if let customError = error as? CustomError {
-            self = customError
-        }
-        // 알 수 없는 에러 처리
-        else {
-            self = .unknown(error.localizedDescription)
-        }
-    }
 }
 
 struct AppFeature: Reducer {
@@ -54,7 +29,6 @@ struct AppFeature: Reducer {
         
         var isLoading: Bool = true
         var isSignedIn: Bool = false
-        var isAdmin: Bool = false
         var isProfileIncomplete = false
         
         var userProfile: UserProfile? = nil
@@ -120,13 +94,8 @@ struct AppFeature: Reducer {
                 }
 
                 return .run { send in
-                    async let isAdmin = checkIfAdmin(user.uid)
-                    
-                    let admin = await isAdmin
-                    
                     await send(.loadUserProfile)
                     await send(.loadFavorites)
-                    await send(.adminChecked(admin))
                 }
                 
             case .loadUserProfile:
@@ -140,6 +109,7 @@ struct AppFeature: Reducer {
                     let birth = data?["birthdate"] as? Timestamp
                     let profileImageURL = data?["profileImageURL"] as? String
                     let isPremium = data?["isPremium"] as? Bool
+                    let isAdmin = data?["isAdmin"] as? Bool
                     let incomplete = (name?.isEmpty ?? true) || (phone?.isEmpty ?? true) || (birth == nil)
                     let fcmToken = data?["fcmToken"] as? String
                     let userProfile = UserProfile(
@@ -151,7 +121,8 @@ struct AppFeature: Reducer {
                         profileImageURL: profileImageURL ?? "",
                         createdAt: nil,
                         allowNotifications: incomplete,
-                        isPremium: isPremium
+                        isPremium: isPremium,
+                        isAdmin: isAdmin
                     )
                     if let token = Messaging.messaging().fcmToken {
                         var isUpdatedFCMToken: Bool = false
@@ -189,10 +160,6 @@ struct AppFeature: Reducer {
                 state.isProfileIncomplete = incomplete
                 return .none
                 
-            case let .adminChecked(isAdmin):
-                state.isAdmin = isAdmin
-                return .none
-                
             case .auth(.loginSucceeded):
                 return .send(.authChecked(true))
                 
@@ -203,7 +170,7 @@ struct AppFeature: Reducer {
                     let videos = try await favoritesClient.fetchFavorites(uid)
                     await send(.loadFavoritesResponse(.success(videos)))
                 } catch: { error, send in
-                    await send(.loadFavoritesResponse(.failure(error as! CustomError)))
+                    await send(.loadFavoritesResponse(.failure(.firebaseError(error.localizedDescription))))
                 }
 
             case let .loadFavoritesResponse(.success(videos)):
@@ -230,7 +197,7 @@ struct AppFeature: Reducer {
                     try await favoritesClient.addFavorite(uid, favorite)
                     await send(.addFavoritesResponse(.success(favorite)))
                 } catch: { error, send in
-                    await send(.addFavoritesResponse(.failure(error as! CustomError)))
+                    await send(.addFavoritesResponse(.failure(.firebaseError(error.localizedDescription))))
                 }
                 
             case let .addFavoritesResponse(.success(video)):
@@ -244,7 +211,7 @@ struct AppFeature: Reducer {
                     try await favoritesClient.removeFavorite(uid, id)
                     await send(.removeFavoritesResponse(.success(id)))
                 } catch: { error, send in
-                    await send(.removeFavoritesResponse(.failure(error as! CustomError)))
+                    await send(.removeFavoritesResponse(.failure(.firebaseError(error.localizedDescription))))
                 }
                 
             case let .removeFavoritesResponse(.success(id)):
@@ -258,7 +225,7 @@ struct AppFeature: Reducer {
                         try Auth.auth().signOut()
                         await send(.logoutSucceeded)
                     } catch {
-                        await send(.logoutFailed(error as! CustomError))
+                        await send(.logoutFailed(.firebaseError(error.localizedDescription)))
                     }
                 }
                 
@@ -280,23 +247,7 @@ struct AppFeature: Reducer {
             
             default:
                 return .none
-                
-//            default:
-//                return .none
             }
         }
-    }
-}
-
-// MARK: - 관리자 확인 함수
-
-private func checkIfAdmin(_ uid: String) async -> Bool {
-    let ref = Firestore.firestore().collection("admins").document(uid)
-    do {
-        let snapshot = try await ref.getDocument()
-        return snapshot.exists
-    } catch {
-        print("⚠️ 관리자 확인 실패:", error)
-        return false
     }
 }

@@ -157,7 +157,7 @@ struct AnnouncementDetailView: View {
                                                 
                                                 Spacer()
                                                 
-                                                if comment.userId == appViewStore.userProfile?.uid || appViewStore.isAdmin {
+                                                if comment.userId == appViewStore.userProfile?.uid || isAdmin {
                                                     Menu {
                                                         if comment.userId == appViewStore.userProfile?.uid {
                                                             Button("수정") {
@@ -204,7 +204,7 @@ struct AnnouncementDetailView: View {
                                                             Text(reply.createdAt.formatted(date: .numeric, time: .shortened))
                                                                 .font(.caption2).foregroundColor(.gray)
                                                             Spacer()
-                                                            if reply.userId == appViewStore.userProfile?.uid || appViewStore.isAdmin {
+                                                            if reply.userId == appViewStore.userProfile?.uid || isAdmin {
                                                                 Menu {
                                                                     if reply.userId == appViewStore.userProfile?.uid {
                                                                         Button("수정") {
