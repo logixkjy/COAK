@@ -11,7 +11,9 @@ import ComposableArchitecture
 
 struct CommentInputView: View {
     @Binding var text: String
+    @Binding var isSecret: Bool
     @State var tempText: String = ""
+    @State var isSecretTemp: Bool = false
     @Binding var isReply: Bool
     @Binding var isEdit: Bool
     @Binding var isFocusedExternal: Bool
@@ -19,7 +21,7 @@ struct CommentInputView: View {
     @FocusState private var isFocused: Bool
     @State private var showDiscardAlert = false
 
-    var onSubmit: (String) -> Void
+    var onSubmit: (String, Bool) -> Void
     var onCancel: () -> Void
 
     var body: some View {
@@ -29,10 +31,11 @@ struct CommentInputView: View {
                 Color.black.opacity(0.5)
                     .ignoresSafeArea()
                     .onTapGesture {
-                        if (isReply || isEdit) && (isEdit ? tempText != text : !text.isEmpty) {
+                        if (isReply || isEdit) && (isEdit ? (tempText != text || isSecretTemp != isSecret) : !text.isEmpty) {
                             showDiscardAlert = true
                         } else {
                             text = ""
+                            isSecret = false
                             dismissKeyboard()
                         }
                     }
@@ -40,20 +43,28 @@ struct CommentInputView: View {
 
             VStack {
                 Spacer()
-
+                
                 HStack {
+                    Button(action: {
+                        isSecret.toggle()
+                    }) {
+                        Image(isSecret ? "lock" : "unlock")
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .foregroundColor(isSecret ? .green : .gray)
+                    }
                     TextField("\(isReply ? "답글" : "댓글") \(isEdit ? "수정" : "추가")...", text: $text)
                         .textFieldStyle(PlainTextFieldStyle())
                         .padding(10)
                         .background(Color(.secondarySystemBackground))
                         .cornerRadius(20)
                         .focused($isFocused)
-
+                    
                     Button(action: submitComment) {
                         Image(systemName: "paperplane.fill")
-                            .foregroundColor((isEdit ? tempText == text : text.isEmpty) ? .gray : .blue)
+                            .foregroundColor((isEdit ? (tempText == text && isSecretTemp == isSecret ) : text.isEmpty) ? .gray : .blue)
                     }
-                    .disabled((isEdit ? tempText == text : text.isEmpty))
+                    .disabled((isEdit ? (tempText == text && isSecretTemp == isSecret) : text.isEmpty))
                 }
                 .padding(.horizontal)
                 .frame(maxWidth: .infinity)
@@ -69,6 +80,7 @@ struct CommentInputView: View {
             Button("계속 작성", role: .cancel) {}
             Button("삭제", role: .destructive) {
                 text = ""
+                isSecret = false
                 dismissKeyboard()
             }
         }
@@ -78,8 +90,10 @@ struct CommentInputView: View {
         .onChange(of: isEdit) { newValue in
             if newValue {
                 tempText = text
+                isSecretTemp = isSecret
             } else {
                 tempText = ""
+                isSecret = false
             }
         }
         .onAppear {
@@ -89,8 +103,9 @@ struct CommentInputView: View {
 
     private func submitComment() {
         guard !text.isEmpty else { return }
-        onSubmit(text)
+        onSubmit(text, isSecret)
         text = ""
+        isSecret = false
         dismissKeyboard()
     }
 

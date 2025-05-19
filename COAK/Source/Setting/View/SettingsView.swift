@@ -169,7 +169,9 @@ struct SettingsView: View {
                     .sheet(isPresented: $isShowingPolicy) {
                         SafariWebView(url: URL(string: "https://logixkjy.github.io/privacy.html")!)
                     }
-                    .sheet(isPresented: $showProfileEditor) {
+                    .sheet(isPresented: $showProfileEditor, onDismiss: {
+                        loadUserProfile(userProfile: appViewStore.userProfile)
+                    }) {
                         ProfileUpdateView(store: appStore)
                     }
                     .fullScreenCover(isPresented: $showImageViewer) {

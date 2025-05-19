@@ -111,21 +111,35 @@ struct ProfileUpdateView: View {
 
         isSaving = true
         errorMessage = nil
-
-        let data: [String: Any] = [
+        
+        Firestore.firestore().collection("users").document(uid).updateData([
             "name": name,
             "phone": phone.replacingOccurrences(of: "-", with: ""),
             "birthdate": birthdate,
             "email": email
-        ]
-
-        Firestore.firestore().collection("users").document(uid).setData(data, merge: true) { error in
+        ]) { error in
             isSaving = false
             if let error = error {
                 self.errorMessage = error.localizedDescription
             } else {
                 let viewStore = ViewStore(store, observe: { $0 })
                 viewStore.send(.profileCheckResult(false))
+                
+                if let userProfile = viewStore.userProfile {
+                    var updateUserProfile = UserProfile(
+                        uid: userProfile.uid,
+                        name: self.name,
+                        email: userProfile.email,
+                        birthdate: self.birthdate,
+                        phone: self.phone,
+                        profileImageURL: userProfile.profileImageURL,
+                        createdAt: userProfile.createdAt,
+                        allowNotifications: userProfile.allowNotifications,
+                        isPremium: userProfile.isPremium,
+                        isAdmin: userProfile.isAdmin
+                    )
+                    viewStore.send(.userProfileLoaded(updateUserProfile))
+                }
                 dismiss()
             }
         }

@@ -11,14 +11,14 @@ import Foundation
 
 struct AnnouncementCommentClient {
     var fetchComments: @Sendable (_ noticeId: String, _ after: DocumentSnapshot?) async throws -> ([Comment], DocumentSnapshot?)
-    var postComment: @Sendable (_ noticeId: String, _ content: String, _ userId: String, _ email: String, _ profileImageURL: String) async throws -> Comment
-    var editComment: @Sendable (_ noticeId: String, _ commentId: String, _ newContent: String) async throws -> Void
-    var deleteComment: @Sendable (_ noticeId: String, _ commentId: String) async throws -> Void
+    var postComment: @Sendable (_ videoId: String, _ content: String, _ userId: String, _ email: String, _ isSecret: Bool) async throws -> Comment
+    var editComment: @Sendable (_ videoId: String, _ commentId: String, _ newContent: String, _ isSecret: Bool) async throws -> Void
+    var deleteComment: @Sendable (_ videoId: String, _ commentId: String) async throws -> Void
 
-    var fetchReplies: @Sendable (_ noticeId: String, _ commentId: String) async throws -> [Reply]
-    var postReply: @Sendable (_ noticeId: String, _ commentId: String, _ content: String, _ userId: String, _ email: String, _ profileImageURL: String) async throws -> Reply
-    var editReply: @Sendable (_ noticeId: String, _ commentId: String, _ replyId: String, _ newContent: String) async throws -> Void
-    var deleteReply: @Sendable (_ noticeId: String, _ commentId: String, _ replyId: String) async throws -> Void
+    var fetchReplies: @Sendable (_ videoId: String, _ commentId: String) async throws -> [Reply]
+    var postReply: @Sendable (_ videoId: String, _ commentId: String, _ content: String, _ userId: String, _ email: String, _ isSecret: Bool) async throws -> Reply
+    var editReply: @Sendable (_ videoId: String, _ commentId: String, _ replyId: String, _ newContent: String, _ isSecret: Bool) async throws -> Void
+    var deleteReply: @Sendable (_ videoId: String, _ commentId: String, _ replyId: String) async throws -> Void
 }
 
 extension AnnouncementCommentClient: DependencyKey {
@@ -36,7 +36,7 @@ extension AnnouncementCommentClient: DependencyKey {
             return (comments, snapshot.documents.last)
         },
 
-        postComment: { announcementId, content, userId, email, profileImageURL in
+        postComment: { announcementId, content, userId, email, isSecret in
             let docRef = Firestore.firestore()
                 .collection("notices_comments")
                 .document(announcementId)
@@ -49,16 +49,17 @@ extension AnnouncementCommentClient: DependencyKey {
                 createdAt: Date(),
                 userId: userId,
                 email: email,
-                replyCount: 0
+                replyCount: 0,
+                isSecret: isSecret
             )
             try docRef.setData(from: comment)
             return comment
         },
 
-        editComment: { announcementId, commentId, newContent in
+        editComment: { announcementId, commentId, newContent, isSecret in
             let doc = Firestore.firestore().collection("notices_comments")
                 .document(announcementId).collection("comments").document(commentId)
-            try await doc.updateData(["content": newContent])
+            try await doc.updateData(["content": newContent, "isSecret" : isSecret])
         },
 
         deleteComment: { announcementId, commentId in
@@ -76,7 +77,7 @@ extension AnnouncementCommentClient: DependencyKey {
             return snapshot.documents.compactMap { try? $0.data(as: Reply.self) }
         },
 
-        postReply: { announcementId, parentId, content, userId, email, profileImageURL in
+        postReply: { announcementId, parentId, content, userId, email, isSecret in
             let docRef = Firestore.firestore().collection("notices_comments")
                 .document(announcementId).collection("comments").document(parentId)
                 .collection("replies").document()
@@ -87,7 +88,8 @@ extension AnnouncementCommentClient: DependencyKey {
                 createdAt: Date(),
                 userId: userId,
                 email: email,
-                parentId: parentId
+                parentId: parentId,
+                isSecret: isSecret
             )
             try docRef.setData(from: reply)
 
@@ -101,13 +103,13 @@ extension AnnouncementCommentClient: DependencyKey {
             return reply
         },
 
-        editReply: { announcementId, parentId, replyId, newContent in
+        editReply: { announcementId, parentId, replyId, newContent, isSecret in
             let ref = Firestore.firestore()
                 .collection("notices_comments")
                 .document(announcementId)
                 .collection("comments").document(parentId)
                 .collection("replies").document(replyId)
-            try await ref.updateData(["content": newContent])
+            try await ref.updateData(["content": newContent, "isSecret" : isSecret])
         },
 
         deleteReply: { announcementId, parentId, replyId in

@@ -88,8 +88,7 @@ struct TopNoticeBannerPlaceholderView: View {
                 initialState: AnnouncementCommentFeature.State(
                     announcemetId: announcement.id,
                     userId: appStore.userProfile?.uid ?? "",
-                    email: appStore.userProfile?.email ?? "",
-                    profileImageURL: appStore.userProfile?.profileImageURL ?? ""
+                    email: appStore.userProfile?.email ?? ""
                 ),
                 reducer: {
                     AnnouncementCommentFeature()

@@ -11,13 +11,13 @@ import Foundation
 
 struct CommentClient {
     var fetchComments: @Sendable (_ videoId: String, _ after: DocumentSnapshot?) async throws -> ([Comment], DocumentSnapshot?)
-    var postComment: @Sendable (_ videoId: String, _ content: String, _ userId: String, _ email: String, _ profileImageURL: String) async throws -> Comment
-    var editComment: @Sendable (_ videoId: String, _ commentId: String, _ newContent: String) async throws -> Void
+    var postComment: @Sendable (_ videoId: String, _ content: String, _ userId: String, _ email: String, _ isSecret: Bool) async throws -> Comment
+    var editComment: @Sendable (_ videoId: String, _ commentId: String, _ newContent: String, _ isSecret: Bool) async throws -> Void
     var deleteComment: @Sendable (_ videoId: String, _ commentId: String) async throws -> Void
 
     var fetchReplies: @Sendable (_ videoId: String, _ commentId: String) async throws -> [Reply]
-    var postReply: @Sendable (_ videoId: String, _ commentId: String, _ content: String, _ userId: String, _ email: String, _ profileImageURL: String) async throws -> Reply
-    var editReply: @Sendable (_ videoId: String, _ commentId: String, _ replyId: String, _ newContent: String) async throws -> Void
+    var postReply: @Sendable (_ videoId: String, _ commentId: String, _ content: String, _ userId: String, _ email: String, _ isSecret: Bool) async throws -> Reply
+    var editReply: @Sendable (_ videoId: String, _ commentId: String, _ replyId: String, _ newContent: String, _ isSecret: Bool) async throws -> Void
     var deleteReply: @Sendable (_ videoId: String, _ commentId: String, _ replyId: String) async throws -> Void
 }
 
@@ -35,7 +35,7 @@ extension CommentClient: DependencyKey {
             return (comments, snapshot.documents.last)
         },
 
-        postComment: { videoId, content, userId, email, profileImageURL in
+        postComment: { videoId, content, userId, email, isSecret in
             let docRef = Firestore.firestore()
                 .collection("videos").document(videoId)
                 .collection("comments").document()
@@ -46,15 +46,16 @@ extension CommentClient: DependencyKey {
                 createdAt: Date(),
                 userId: userId,
                 email: email,
-                replyCount: 0
+                replyCount: 0,
+                isSecret: isSecret
             )
             try docRef.setData(from: comment)
             return comment
         },
 
-        editComment: { videoId, commentId, newContent in
+        editComment: { videoId, commentId, newContent, isSecret in
             let doc = Firestore.firestore().collection("videos").document(videoId).collection("comments").document(commentId)
-            try await doc.updateData(["content": newContent])
+            try await doc.updateData(["content": newContent, "isSecret" : isSecret])
         },
 
         deleteComment: { videoId, commentId in
@@ -72,7 +73,7 @@ extension CommentClient: DependencyKey {
             return snapshot.documents.compactMap { try? $0.data(as: Reply.self) }
         },
 
-        postReply: { videoId, parentId, content, userId, email, profileImageURL in
+        postReply: { videoId, parentId, content, userId, email, isSecret in
             let docRef = Firestore.firestore()
                 .collection("videos").document(videoId)
                 .collection("comments").document(parentId)
@@ -84,7 +85,8 @@ extension CommentClient: DependencyKey {
                 createdAt: Date(),
                 userId: userId,
                 email: email,
-                parentId: parentId
+                parentId: parentId,
+                isSecret: isSecret
             )
             try docRef.setData(from: reply)
 
@@ -97,12 +99,12 @@ extension CommentClient: DependencyKey {
             return reply
         },
 
-        editReply: { videoId, parentId, replyId, newContent in
+        editReply: { videoId, parentId, replyId, newContent, isSecret in
             let ref = Firestore.firestore()
                 .collection("videos").document(videoId)
                 .collection("comments").document(parentId)
                 .collection("replies").document(replyId)
-            try await ref.updateData(["content": newContent])
+            try await ref.updateData(["content": newContent, "isSecret" : isSecret])
         },
 
         deleteReply: { videoId, parentId, replyId in
@@ -137,6 +139,11 @@ struct Comment: Identifiable, Codable, Equatable {
     var userId: String
     var email: String
     var replyCount: Int
+    var isSecret: Bool?
+    
+    func isVisible(for uid: String, isAdmin: Bool) -> Bool {
+        return !(isSecret ?? false) || userId == uid || isAdmin
+    }
 }
 
 struct Reply: Identifiable, Codable, Equatable {
@@ -146,4 +153,5 @@ struct Reply: Identifiable, Codable, Equatable {
     var userId: String
     var email: String
     var parentId: String
+    var isSecret: Bool?
 }

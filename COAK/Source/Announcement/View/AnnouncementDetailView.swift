@@ -40,6 +40,7 @@ struct AnnouncementDetailView: View {
     @State private var isReply: Bool = false
     @State private var isEdit: Bool = false
     @State private var localText: String = ""
+    @State private var isSecret: Bool = false
     
     var body: some View {
         WithViewStore(appStore, observe: { $0 }) { appViewStore in
@@ -131,26 +132,14 @@ struct AnnouncementDetailView: View {
                                     Text("댓글")
                                         .font(.headline)
                                     ForEach(viewStore.comments) { comment in
+                                        let commentVisivle = comment.isVisible(for: appViewStore.userProfile?.uid ?? "", isAdmin: appViewStore.userProfile?.isAdmin ?? false)
                                         VStack(alignment: .leading, spacing: 6) {
                                             HStack {
-//                                                if let url = URL(string: comment.profileImageURL ?? "") {
-//                                                    AsyncImage(url: url) { phase in
-//                                                        switch phase {
-//                                                        case .success(let image):
-//                                                            image.resizable().frame(width: 24, height: 24).clipShape(Circle())
-//                                                        default:
-//                                                            Circle().frame(width: 24, height: 24).foregroundColor(.gray)
-//                                                        }
-//                                                    }
-//                                                } else {
-//                                                    Image(systemName: "person.crop.circle.fill")
-//                                                        .resizable()
-//                                                        .frame(width: 24, height: 24)
-//                                                }
-                                                
-                                                Text(comment.email)
-                                                    .font(.caption)
-                                                    .foregroundColor(.white)
+                                                if commentVisivle {
+                                                    Text(comment.email)
+                                                        .font(.caption)
+                                                        .foregroundColor(.white)
+                                                }
                                                 Text(comment.createdAt.formatted(date: .numeric, time: .shortened))
                                                     .font(.caption2)
                                                     .foregroundColor(.gray)
@@ -176,7 +165,7 @@ struct AnnouncementDetailView: View {
                                                     }
                                                 }
                                             }
-                                            Text(comment.content)
+                                            Text(commentVisivle ? comment.content : "비밀 댓글 입니다.")
                                                 .font(.body)
                                                 .foregroundColor(.gray)
                                             
@@ -198,9 +187,12 @@ struct AnnouncementDetailView: View {
                                             
                                             if let replies = viewStore.replyMap[comment.id] {
                                                 ForEach(replies) { reply in
+                                                    let replayVisible = (reply.isSecret ?? false) ? commentVisivle : true
                                                     VStack(alignment: .leading, spacing: 4) {
                                                         HStack {
-                                                            Text(reply.email).font(.caption2).foregroundColor(.white)
+                                                            if replayVisible {
+                                                                Text(reply.email).font(.caption2).foregroundColor(.white)
+                                                            }
                                                             Text(reply.createdAt.formatted(date: .numeric, time: .shortened))
                                                                 .font(.caption2).foregroundColor(.gray)
                                                             Spacer()
@@ -223,7 +215,7 @@ struct AnnouncementDetailView: View {
                                                                 }
                                                             }
                                                         }
-                                                        Text(reply.content).font(.body).foregroundColor(.gray)
+                                                        Text(replayVisible ? reply.content : "비밀 답글 입니다,").font(.body).foregroundColor(.gray)
                                                     }
                                                     .padding(.leading, 16)
                                                 }
@@ -250,12 +242,13 @@ struct AnnouncementDetailView: View {
                 
                     CommentInputView(
                         text: $localText,  // 수정된 부분
+                        isSecret: $isSecret,
                         isReply: $isReply,
                         isEdit: $isEdit,
                         isFocusedExternal: $isCommenting,
-                        onSubmit: { text in
+                        onSubmit: { text, secret in
                             if text.count > 0 {
-                                viewStore.send(.setNewCommentText(text))
+                                viewStore.send(.setNewCommentText(text, secret))
                             }
                             if viewStore.isEditing {
                                 commentStore.send(.confirmEdit)
@@ -266,7 +259,7 @@ struct AnnouncementDetailView: View {
                             } else {
                                 commentStore.send(.postComment)
                             }
-                            viewStore.send(.setNewCommentText(""))
+                            viewStore.send(.setNewCommentText("", false))
                             localText = ""
                             isCommenting = false
                         },

@@ -124,18 +124,22 @@ struct AppFeature: Reducer {
                         isPremium: isPremium,
                         isAdmin: isAdmin
                     )
-                    if let token = Messaging.messaging().fcmToken {
-                        var isUpdatedFCMToken: Bool = false
-                        if fcmToken == nil && fcmToken == "" {
-                            isUpdatedFCMToken.toggle()
-                        } else if fcmToken != token {
-                            isUpdatedFCMToken.toggle()
-                        }
-                        if isUpdatedFCMToken {
-                            let update: [String: Any] = ["fcmToken": token]
-                            try await Firestore.firestore().collection("users").document(uid).setData(update, merge: true)
-                        }
-                    }
+//                    if let token = Messaging.messaging().fcmToken {
+//                        var isUpdatedFCMToken: Bool = false
+//                        if fcmToken == nil && fcmToken == "" {
+//                            isUpdatedFCMToken.toggle()
+//                        } else if fcmToken != token {
+//                            isUpdatedFCMToken.toggle()
+//                        }
+//                        if isUpdatedFCMToken {
+//                            let update: [String: Any] = ["fcmToken": token]
+//                            do {
+//                                try await Firestore.firestore().collection("users").document(uid).setData(update, merge: true)
+//                            } catch {
+//                                print(error.localizedDescription)
+//                            }
+//                        }
+//                    }
                     
                     await send(.userProfileLoaded(userProfile))
                 }

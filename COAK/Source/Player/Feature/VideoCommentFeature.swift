@@ -17,13 +17,13 @@ struct VideoCommentFeature {
     struct State: Equatable {
         var comments: [Comment] = []
         var newCommentText: String = ""
+        var isSecret: Bool = false
         var isLoading: Bool = false
         var hasMore: Bool = true
         var lastDocument: DocumentSnapshot? = nil
         var videoId: String = ""
         var userId: String = ""
         var email: String = ""
-        var profileImageURL: String = ""
         
         var isEditing = false
         var editingCommentId: String? = nil
@@ -47,7 +47,7 @@ struct VideoCommentFeature {
         case loadMoreCommentsResponse(Result<[Comment], CustomError>)
         case appendLastDocument(DocumentSnapshot?)
 
-        case setNewCommentText(String)
+        case setNewCommentText(String, Bool)
         case postComment
         case postCommentResponse(Result<Comment, CustomError>)
 
@@ -117,17 +117,18 @@ struct VideoCommentFeature {
             state.lastDocument = doc
             return .none
 
-        case let .setNewCommentText(text):
+        case let .setNewCommentText(text, isSecret):
             state.newCommentText = text
+            state.isSecret = isSecret
             return .none
 
         case .postComment:
             guard !state.newCommentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return .none }
 
             let text = state.newCommentText
-            state.newCommentText = ""
-            return .run { [videoId = state.videoId, userId = state.userId, email = state.email, profileImageURL = state.profileImageURL] send in
-                let comment = try await commentClient.postComment(videoId, text, userId, email, profileImageURL)
+            let isSecret = state.isSecret
+            return .run { [videoId = state.videoId, userId = state.userId, email = state.email] send in
+                let comment = try await commentClient.postComment(videoId, text, userId, email, isSecret)
                 await send(.postCommentResponse(.success(comment)))
             } catch: { error, send in
                 await send(.postCommentResponse(.failure(.firebaseError(error.localizedDescription))))
@@ -141,22 +142,24 @@ struct VideoCommentFeature {
             state.isEditing = true
             state.editingCommentId = comment.id
             state.newCommentText = comment.content
+            state.isSecret = comment.isSecret ?? false
             return .none
             
         case .cancelEdit:
             state.isEditing = false
             state.editingCommentId = nil
             state.newCommentText = ""
+            state.isSecret = false
             return .none
 
         case .confirmEdit:
             guard let editingId = state.editingCommentId else { return .none }
             let newText = state.newCommentText
+            let isSecret = state.isSecret
             state.isEditing = false
             state.editingCommentId = nil
-            state.newCommentText = ""
             return .run { [videoId = state.videoId] send in
-                try await commentClient.editComment(videoId, editingId, newText)
+                try await commentClient.editComment(videoId, editingId, newText, isSecret)
                 await send(.loadInitialComments)
             } catch: { _, send in }
 
@@ -169,19 +172,21 @@ struct VideoCommentFeature {
         case let .setReplyTarget(commentId):
             state.replyTarget = commentId
             state.newCommentText = ""
+            state.isSecret = false
             return .none
             
         case .clearReplyTarget:
             state.replyTarget = nil
             state.newCommentText = ""
+            state.isSecret = false
             return .none
 
         case let .postReply(parentId):
             let text = state.newCommentText
-            state.newCommentText = ""
+            let isSecret = state.isSecret
             state.replyTarget = nil
-            return .run { [videoId = state.videoId, userId = state.userId, email = state.email, profileImageURL = state.profileImageURL] send in
-                let reply = try await commentClient.postReply(videoId, parentId, text, userId, email, profileImageURL)
+            return .run { [videoId = state.videoId, userId = state.userId, email = state.email] send in
+                let reply = try await commentClient.postReply(videoId, parentId, text, userId, email, isSecret)
                 await send(.postReplyResponse(.success(reply)))
             } catch: { error, send in
                 await send(.postReplyResponse(.failure(.firebaseError(error.localizedDescription))))
@@ -210,6 +215,7 @@ struct VideoCommentFeature {
             state.editingReplyParentId = parentId
             state.editingReplyId = reply.id
             state.newCommentText = reply.content
+            state.isSecret = reply.isSecret ?? false
             return .none
             
         case .cancelEditReply:
@@ -217,16 +223,17 @@ struct VideoCommentFeature {
             state.editingReplyParentId = nil
             state.editingReplyId = nil
             state.newCommentText = ""
+            state.isSecret = false
             return .none
 
         case .confirmEditReply:
             guard let parentId = state.editingReplyParentId, let replyId = state.editingReplyId else { return .none }
             let text = state.newCommentText
-            state.newCommentText = ""
+            let isSecret = state.isSecret
             state.isEditingReply = false
             state.editingReplyId = nil
             return .run { [videoId = state.videoId] send in
-                try await commentClient.editReply(videoId, parentId, replyId, text)
+                try await commentClient.editReply(videoId, parentId, replyId, text, isSecret)
                 await send(.loadReplies(parentId: parentId))
             } catch: { _, send in }
 

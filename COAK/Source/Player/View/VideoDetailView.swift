@@ -26,6 +26,7 @@ struct VideoDetailView: View {
     @State private var isReply: Bool = false
     @State private var isEdit: Bool = false
     @State private var localText: String = ""
+    @State private var isSecret: Bool = false
     @State private var showDiscardAlert = false
     
     var body: some View {
@@ -98,26 +99,14 @@ struct VideoDetailView: View {
                                             Text("댓글")
                                                 .font(.headline)
                                             ForEach(viewStore.comments) { comment in
+                                                let commentVisivle = comment.isVisible(for: appViewStore.userProfile?.uid ?? "", isAdmin: appViewStore.userProfile?.isAdmin ?? false)
                                                 VStack(alignment: .leading, spacing: 6) {
                                                     HStack {
-//                                                        if let url = URL(string: comment.profileImageURL ?? "") {
-//                                                            AsyncImage(url: url) { phase in
-//                                                                switch phase {
-//                                                                case .success(let image):
-//                                                                    image.resizable().frame(width: 24, height: 24).clipShape(Circle())
-//                                                                default:
-//                                                                    Circle().frame(width: 24, height: 24).foregroundColor(.gray)
-//                                                                }
-//                                                            }
-//                                                        } else {
-//                                                            Image(systemName: "person.crop.circle.fill")
-//                                                                .resizable()
-//                                                                .frame(width: 24, height: 24)
-//                                                        }
-                                                        
-                                                        Text(comment.email)
-                                                            .font(.caption)
-                                                            .foregroundColor(.white)
+                                                        if commentVisivle {
+                                                            Text(comment.email)
+                                                                .font(.caption)
+                                                                .foregroundColor(.white)
+                                                        }
                                                         Text(comment.createdAt.formatted(date: .numeric, time: .shortened))
                                                             .font(.caption2)
                                                             .foregroundColor(.gray)
@@ -129,6 +118,7 @@ struct VideoDetailView: View {
                                                                 if comment.userId == appViewStore.userProfile?.uid {
                                                                     Button("수정") {
                                                                         localText = comment.content
+                                                                        isSecret = comment.isSecret ?? false
                                                                         commentStore.send(.startEdit(comment))
                                                                         isCommenting = true
                                                                         isEdit = true
@@ -143,7 +133,7 @@ struct VideoDetailView: View {
                                                             }
                                                         }
                                                     }
-                                                    Text(comment.content)
+                                                    Text(commentVisivle ? comment.content : "비밀 댓글 입니다.")
                                                         .font(.body)
                                                         .foregroundColor(.gray)
                                                     
@@ -152,6 +142,7 @@ struct VideoDetailView: View {
                                                             commentStore.send(.setReplyTarget(comment.id))
                                                             isCommenting = true
                                                             isReply = true
+                                                            isSecret = comment.isSecret ?? false
                                                         } label: {
                                                             Label("답글", systemImage: "arrow.turn.down.right")
                                                         }.font(.caption).foregroundColor(.white)
@@ -162,20 +153,26 @@ struct VideoDetailView: View {
                                                             }.font(.caption2)
                                                         }
                                                     }
-                                                    
+                                                    // 답글이 비밀댓글인경우 댓글 작성자와 관리자만 볼수 있다.
                                                     if let replies = viewStore.replyMap[comment.id] {
                                                         ForEach(replies) { reply in
+                                                            let replayVisible = (reply.isSecret ?? false) ? commentVisivle : true
                                                             VStack(alignment: .leading, spacing: 4) {
                                                                 HStack {
-                                                                    Text(reply.email).font(.caption2).foregroundColor(.white)
+                                                                    if replayVisible {
+                                                                        Text(reply.email).font(.caption2).foregroundColor(.white)
+                                                                    }
                                                                     Text(reply.createdAt.formatted(date: .numeric, time: .shortened))
                                                                         .font(.caption2).foregroundColor(.gray)
+                                                                    
                                                                     Spacer()
+                                                                    
                                                                     if reply.userId == appViewStore.userProfile?.uid || (appViewStore.userProfile?.isAdmin ?? false) {
                                                                         Menu {
                                                                             if reply.userId == appViewStore.userProfile?.uid {
                                                                                 Button("수정") {
                                                                                     localText = reply.content
+                                                                                    isSecret = reply.isSecret ?? false
                                                                                     commentStore.send(.startEditReply(parentId: comment.id, reply: reply))
                                                                                     isCommenting = true
                                                                                     isReply = true
@@ -190,7 +187,7 @@ struct VideoDetailView: View {
                                                                         }
                                                                     }
                                                                 }
-                                                                Text(reply.content).font(.body).foregroundColor(.gray)
+                                                                Text(replayVisible ? reply.content : "비밀 답글 입니다,").font(.body).foregroundColor(.gray)
                                                             }
                                                             .padding(.leading, 16)
                                                         }
@@ -224,12 +221,13 @@ struct VideoDetailView: View {
                         
                         CommentInputView(
                             text: $localText,  // 수정된 부분
+                            isSecret: $isSecret,
                             isReply: $isReply,
                             isEdit: $isEdit,
                             isFocusedExternal: $isCommenting,
-                            onSubmit: { text in
+                            onSubmit: { text, secret in
                                 if text.count > 0 {
-                                    viewStore.send(.setNewCommentText(text))
+                                    viewStore.send(.setNewCommentText(text, secret))
                                 }
                                 if viewStore.isEditing {
                                     commentStore.send(.confirmEdit)
@@ -240,7 +238,7 @@ struct VideoDetailView: View {
                                 } else {
                                     commentStore.send(.postComment)
                                 }
-                                viewStore.send(.setNewCommentText(""))
+                                viewStore.send(.setNewCommentText("", false))
                                 localText = ""
                                 isCommenting = false
                             },
