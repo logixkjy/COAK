@@ -77,7 +77,7 @@ struct VideoListView: View {
                     }
                 }
                 .navigationBarBackButtonHidden(true)
-                .navigationTitle(viewStore.playlistItem?.title ?? "영상 목록")
+                .navigationTitle(viewStore.playlistItem?.title ?? "")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button(action: {
@@ -86,7 +86,7 @@ struct VideoListView: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "chevron.left")
                                     .font(.system(size: 20, weight: .medium))
-                                Text(isMain ? "홈" : "목록")
+                                Text(isMain ? "main_home" : "common_list")
                                     .font(.system(size: 18))
                             }
                             .foregroundColor(.primary)
@@ -132,7 +132,7 @@ struct VideoListView: View {
                             .presentationDetents([.fraction(1.0)])
                             .presentationDragIndicator(.visible) // 위쪽 드래그바 표시
                     } else {
-                        Text("영상 정보를 불러올 수 없습니다.")
+                        Text("video_list_empty")
                     }
                 }
                 .overlay(

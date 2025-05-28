@@ -68,28 +68,16 @@ struct PlaylistSectionView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         LazyHStack(spacing: 12) {
                             ForEach(playlists.sorted(by: { $0.order < $1.order })) { item in
-                                //                            NavigationLink(
-                                //                                destination: VideoListView(
-                                //                                    store: Store(
-                                //                                        initialState: VideoListFeature.State(playlistItem: item),
-                                //                                        reducer: { VideoListFeature() }
-                                //                                    ),
-                                //                                    appStore: appStore,
-                                //                                    isGridLayout: $isGridLayout
-                                //                                )
-                                //                            ) {
                                 PlaylistCardView(item: item, isPremium: (appViewStore.userProfile?.isPremium ?? false), isAdmin: appViewStore.userProfile?.isAdmin ?? false)
                                     .onTapGesture {
                                         if item.isPremiumRequired && (appViewStore.userProfile?.isPremium ?? false) == false && (appViewStore.userProfile?.isAdmin ?? false) == false {
-                                            toastMessage = "유료 컨텐츠 입니다."
+                                            toastMessage = NSLocalizedString("common_paid_toast", comment: "") + "/n facebook.com/sonjinbagsh\n 010-2145-4221"
                                             isShowToast = true
                                         } else {
                                             viewStore.send(.selectPlaylist(item))
                                             self.isPresentedVideoList.toggle()
                                         }
                                     }
-                                //                            }
-                                //                            .buttonStyle(.plain) // 카드 스타일 유지
                             }
                         }
                         .padding(.horizontal, 4)

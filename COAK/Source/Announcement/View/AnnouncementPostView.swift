@@ -32,7 +32,7 @@ struct AnnouncementPostView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("내용")
+                    Text("notice_edit_contents_hint")
                         .font(.headline)
 
                     TextEditor(text: $content)
@@ -41,7 +41,7 @@ struct AnnouncementPostView: View {
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.3)))
                         .focused($focusedField, equals: .content)
 
-                    Text("사진")
+                    Text("notice_edit_image_select")
                         .font(.headline)
                     // 차후 3장 정도 까지 확장 가능
                     if selectedImages.count < 1 {
@@ -50,7 +50,7 @@ struct AnnouncementPostView: View {
                                      matching: .images) {
                             HStack {
                                 Image(systemName: "photo.on.rectangle")
-                                Text("사진 1장 선택")
+                                Text("notice_edit_image_select_count")
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -106,7 +106,7 @@ struct AnnouncementPostView: View {
                                 ProgressView()
                             } else {
                                 Image(systemName: "paperplane")
-                                Text("공지 등록")
+                                Text("notice_add_title")
                             }
                         }
                         .frame(maxWidth: .infinity)
@@ -119,11 +119,11 @@ struct AnnouncementPostView: View {
                 }
                 .padding()
             }
-            .navigationTitle("공지 등록")
+            .navigationTitle("notice_add_title")
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("완료") {
+                    Button("common_close") {
                         focusedField = nil
                     }
                 }

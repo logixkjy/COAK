@@ -68,13 +68,13 @@ struct PlaylistEditGroupsView: View {
                     }
                 }
                 .listStyle(.plain)
-                .navigationTitle("재생목록 그룹 수정")
+                .navigationTitle("play_list_edit_title")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button(action: {
                             isShowingAddAlert = true
                         }) {
-                            Label("그룹 추가", systemImage: "plus")
+                            Label("play_list_edit_popup_add_title", systemImage: "plus")
                         }
                     }
 
@@ -83,7 +83,7 @@ struct PlaylistEditGroupsView: View {
                             .foregroundColor(.blue)
                     }
                     ToolbarItem(placement: .bottomBar) {
-                        Button("저장") {
+                        Button("common_save") {
                             viewStore.send(.saveTapped)
                         }
                     }
@@ -92,33 +92,33 @@ struct PlaylistEditGroupsView: View {
                     viewStore.send(.onAppear)
                 }
                 // 그룹 추가 Alert
-                .alert("새 그룹 추가", isPresented: $isShowingAddAlert, actions: {
-                    TextField("그룹명", text: $newGroupTitle)
+                .alert("play_list_edit_popup_add_title", isPresented: $isShowingAddAlert, actions: {
+                    TextField("play_list_edit_popup_add_hint", text: $newGroupTitle)
                         .focused($focusedField, equals: .name)
-                    Button("추가", action: {
+                    Button("common_add", action: {
                         guard !newGroupTitle.isEmpty else { return }
                         viewStore.send(.addGroup(newGroupTitle))
                         newGroupTitle = ""
                     })
-                    Button("취소", role: .cancel) {
+                    Button("common_cancel", role: .cancel) {
                         newGroupTitle = ""
                     }
                 })
                 
                 // 그룹 이름 수정 Alert
-                .alert("그룹명 수정", isPresented: Binding(
+                .alert("play_list_edit_popup_edit_title", isPresented: Binding(
                     get: { editingGroup != nil },
                     set: { if !$0 { editingGroup = nil }}
                 ), actions: {
-                    TextField("그룹명", text: $editedGroupTitle)
+                    TextField("play_list_edit_popup_add_hint", text: $editedGroupTitle)
                         .focused($focusedField, equals: .name)
-                    Button("저장", action: {
+                    Button("common_add", action: {
                         if let group = editingGroup {
                             viewStore.send(.editGroup(group.id, editedGroupTitle))
                         }
                         editingGroup = nil
                     })
-                    Button("취소", role: .cancel) {
+                    Button("common_cancel", role: .cancel) {
                         editingGroup = nil
                     }
                 })

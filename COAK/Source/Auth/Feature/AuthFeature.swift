@@ -8,6 +8,7 @@
 import ComposableArchitecture
 import FirebaseAuth
 import FirebaseFirestore
+import SwiftUICore
 
 struct UserProfile: Codable, Equatable {
     let uid: String
@@ -134,24 +135,38 @@ struct AuthFeature: Reducer {
 
             case let .loginResponse(.failure(err)):
                 state.isLoading = false
-                state.errorMessage = "로그인 실패: \(err.localizedDescription)"
+                state.errorMessage = NSLocalizedString("login_fail", comment: "") + ": \(err.localizedDescription)"
                 return .none
 
             case .signUpTapped:
+                state.errorMessage = ""
+                
+                guard !state.email.isEmpty else {
+                    state.errorMessage = NSLocalizedString("join_id_error", comment: "")
+                    return .none
+                }
+                guard isValidEmail(state.email) else {
+                    state.errorMessage = NSLocalizedString("join_email_error", comment: "")
+                    return .none
+                }
+                guard !state.password.isEmpty else {
+                    state.errorMessage = NSLocalizedString("login_pw_error", comment: "")
+                    return .none
+                }
                 guard state.password == state.confirmPassword else {
-                    state.errorMessage = "비밀번호가 일치하지 않습니다."
+                    state.errorMessage = NSLocalizedString("login_pw_error2", comment: "")
                     return .none
                 }
                 guard state.agreeToTerms else {
-                    state.errorMessage = "개인정보 처리방침에 동의해주세요."
+                    state.errorMessage = NSLocalizedString("login_policy_error", comment: "")
                     return .none
                 }
                 guard !state.name.isEmpty else {
-                    state.errorMessage = "이름을 입력해주세요"
+                    state.errorMessage = NSLocalizedString("join_name_error", comment: "")
                     return .none
                 }
                 guard state.phone.count >= 8, state.phone.count <= 11 else {
-                    state.errorMessage = "류대 전화번호 자리 수를 확인해주세요"
+                    state.errorMessage = NSLocalizedString("join_phone_error", comment: "")
                     return .none
                 }
                 
@@ -192,7 +207,7 @@ struct AuthFeature: Reducer {
 
             case let .signUpResponse(.failure(err)):
                 state.isLoading = false
-                state.errorMessage = "회원가입 실패: \(err.localizedDescription)"
+                state.errorMessage = NSLocalizedString("join_fail",comment: "") + ": \(err.localizedDescription)"
                 return .none
 
             case .loginSucceeded:
@@ -249,7 +264,7 @@ struct AuthFeature: Reducer {
 
             case .resetPasswordResponseSuccess:
                 state.isLoading = false
-                state.successMessage = "비밀번호 재설정 메일을 발송했습니다."
+                state.successMessage = NSLocalizedString("pw_search_send_message", comment: "")
                 return .none
                 
             case let .resetPasswordResponseFailure(result):
@@ -270,5 +285,11 @@ struct AuthFeature: Reducer {
                 return .none
             }
         }
+    }
+    
+    func isValidEmail(_ email: String) -> Bool {
+        let pattern =
+            #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"#
+        return NSPredicate(format: "SELF MATCHES %@", pattern).evaluate(with: email)
     }
 }

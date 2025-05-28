@@ -30,23 +30,23 @@ struct AuthView: View {
                         .frame(width: 200)
                         .padding(.top, 32)
                     
-                    Text(viewStore.isSignUpMode ? "회원가입" : "로그인")
+                    Text(viewStore.isSignUpMode ? "join_title" : "login_title")
                         .font(.title.bold())
                         .foregroundColor(.white)
                         .padding(.top, 24)
                     
                     Group {
-                        Text("이메일 아이디")
+                        Text("login_id_hint")
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.top, 16)
                         
                         VStack(alignment: .leading, spacing: 4) {
-                            TextField("이메일 주소", text: viewStore.$email)
+                            TextField("login_id_hint", text: viewStore.$email)
                                 .textFieldStyleCustom()
                                 .focused($focusedField, equals: .email)
-                                .foregroundColor(.black)
+                                .foregroundColor(.white)
                                 .onChange(of: viewStore.email) { newValue in
                                     if newValue.count > 50 {
                                         viewStore.send(.setEmail(String(newValue.prefix(50))))
@@ -63,17 +63,17 @@ struct AuthView: View {
                             }
                         }
                         
-                        Text("비밀번호")
+                        Text("login_pw_hint")
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.top, 16)
                         
                         VStack(alignment: .leading, spacing: 4) {
-                            SecureField("비밀번호", text: viewStore.$password)
+                            SecureField("login_pw_hint", text: viewStore.$password)
                                 .textFieldStyleCustom()
                                 .focused($focusedField, equals: .password)
-                                .foregroundColor(.black)
+                                .foregroundColor(.white)
                                 .onChange(of: viewStore.password) { newValue in
                                     if newValue.count > 20 {
                                         viewStore.send(.setPassword(String(newValue.prefix(20))))
@@ -82,6 +82,10 @@ struct AuthView: View {
                             
                             if viewStore.isSignUpMode {
                                 HStack {
+                                    Text("login_pw_helper")
+                                        .font(.footnote)
+                                        .foregroundColor(.white)
+                                        .padding(.trailing, 16)
                                     Spacer()
                                     Text("\(viewStore.password.count)/20")
                                         .font(.footnote)
@@ -92,16 +96,16 @@ struct AuthView: View {
                         }
                         
                         if viewStore.isSignUpMode {
-                            Text("비밀번호 확인")
+                            Text("join_pw_hint2")
                                 .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.top, 16)
                             
-                            SecureField("비밀번호 확인", text: viewStore.$confirmPassword)
+                            SecureField("join_pw_hint2", text: viewStore.$confirmPassword)
                                 .textFieldStyleCustom()
                                 .focused($focusedField, equals: .confirmPassword)
-                                .foregroundColor(.black)
+                                .foregroundColor(.white)
                                 .onChange(of: viewStore.confirmPassword) { newValue in
                                     if newValue.count > 20 {
                                         viewStore.send(.setConfirmPassword(String(newValue.prefix(20))))
@@ -117,16 +121,16 @@ struct AuthView: View {
                             }
                             
                             
-                            Text("이름")
+                            Text("join_name_hint")
                                 .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.top, 16)
                             
-                            TextField("이름", text: viewStore.$name)
+                            TextField("join_name_hint", text: viewStore.$name)
                                 .textFieldStyleCustom()
                                 .focused($focusedField, equals: .name)
-                                .foregroundColor(.black)
+                                .foregroundColor(.white)
                                 .onChange(of: viewStore.name) { newValue in
                                     if newValue.count > 20 {
                                         viewStore.send(.setName(String(newValue.prefix(20))))
@@ -141,21 +145,18 @@ struct AuthView: View {
                                     .padding(.trailing, 16)
                             }
                             
-                            DatePicker("생년월일", selection: viewStore.$birthdate, displayedComponents: .date)
-                                .padding(.top, 16)
                             
-                            
-                            Text("전화번호")
+                            Text("join_phone_hint")
                                 .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.top, 16)
                             
-                            TextField("휴대전화번호", text: viewStore.$phone)
+                            TextField("join_phone_hint", text: viewStore.$phone)
                                 .keyboardType(.phonePad)
                                 .textFieldStyleCustom()
                                 .focused($focusedField, equals: .phone)
-                                .foregroundColor(.black)
+                                .foregroundColor(.white)
                                 .onChange(of: viewStore.phone) { newValue in
                                     if newValue.count > 11 {
                                         viewStore.send(.setPhone(String(newValue.prefix(11))))
@@ -163,6 +164,10 @@ struct AuthView: View {
                                 }
                             
                             HStack {
+                                Text("join_phone_helper")
+                                    .font(.footnote)
+                                    .foregroundColor(.white)
+                                    .padding(.trailing, 16)
                                 Spacer()
                                 Text("\(viewStore.phone.count)/11")
                                     .font(.footnote)
@@ -170,17 +175,20 @@ struct AuthView: View {
                                     .padding(.trailing, 16)
                             }
                             
+                            DatePicker("join_birthday_title", selection: viewStore.$birthdate, displayedComponents: .date)
+                                .padding(.top, 16)
+                            
                             HStack {
                                 Button(action: {
                                     showPrivacyPolicy = true
                                 }) {
-                                    Label("개인정보 처리방침", systemImage: "doc.text")
+                                    Label("join_policy", systemImage: "doc.text")
                                 }
                                 
                                 Spacer()
                                 
-                                Toggle("동의여부", isOn: viewStore.binding(get: \.agreeToTerms, send: AuthFeature.Action.setAgreeToTerms))
-                                    .disabled(true)
+                                Toggle("", isOn: viewStore.binding(get: \.agreeToTerms, send: AuthFeature.Action.setAgreeToTerms))
+                                    .labelsHidden()
                             }
                             .font(.headline)
                             .foregroundColor(.white)
@@ -193,7 +201,7 @@ struct AuthView: View {
                     Button(action: {
                         viewStore.send(viewStore.isSignUpMode ? .signUpTapped : .loginTapped)
                     }) {
-                        Text(viewStore.isSignUpMode ? "회원가입 완료" : "로그인")
+                        Text(viewStore.isSignUpMode ? "join_button" : "login_button")
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -203,7 +211,7 @@ struct AuthView: View {
                     }
                     .padding(.top, 24)
                     
-                    Button(viewStore.isSignUpMode ? "이미 계정이 있어요" : "회원가입하기") {
+                    Button(viewStore.isSignUpMode ? "join_already" : "login_button_join") {
                         viewStore.send(.setEmail(""))
                         viewStore.send(.setPassword(""))
                         viewStore.send(.setConfirmPassword(""))
@@ -227,7 +235,7 @@ struct AuthView: View {
 //                                .font(.headline)
 //                                .foregroundColor(.white)
                             
-                            Button("비밀번호를 잃어 버리셨나요?") {
+                            Button("login_button_pw_search") {
                                 isPresentingResetPasswordSheet.toggle()
                             }
                             .font(.headline)
@@ -244,7 +252,7 @@ struct AuthView: View {
                 .padding(.horizontal, 24)
                 .sheet(isPresented: $showPrivacyPolicy) {
                     SafariWebView(
-                        url: URL(string: "https://logixkjy.github.io/privacy.html")!,
+                        url: URL(string: "https://logixkjy.github.io/coak-privacy-policy")!,
                         onAgree: {
                             viewStore.send(.setAgreeToTerms(true))
                         }
@@ -273,7 +281,7 @@ struct AuthView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("완료") {
+                    Button("common_close") {
                         focusedField = nil
                     }
                 }
@@ -310,9 +318,12 @@ extension View {
     func textFieldStyleCustom() -> some View {
         self
             .padding(12)
-            .background(Color.white)
+            .background(Color.clear)
             .cornerRadius(8)
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.4), lineWidth: 1))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.white, lineWidth: 1)
+            )
             .textInputAutocapitalization(.never)
     }
 }

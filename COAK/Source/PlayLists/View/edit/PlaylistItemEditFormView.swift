@@ -12,6 +12,9 @@ struct PlaylistItemEditFormView: View {
     @State var playlistId: String
     @State var isPremium: Bool
     
+    @State var isShowErrorPopup: Bool = false
+    @State var errorMessage: String = ""
+    
     @FocusState private var focusedField: Field?
     enum Field: Hashable {
         case title
@@ -24,26 +27,37 @@ struct PlaylistItemEditFormView: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField("제목", text: $title)
+                TextField("play_list_sub_edit_popup_title_hint", text: $title)
                     .focused($focusedField, equals: .title)
-                TextField("YouTube 재생목록 ID", text: $playlistId)
+                TextField("play_list_sub_edit_popup_youtube_hint", text: $playlistId)
                     .focused($focusedField, equals: .id)
-                Toggle("유료 전용", isOn: $isPremium)
+                Toggle("play_list_sub_edit_popup_paid", isOn: $isPremium)
             }
-            .navigationTitle("재생목록 항목")
+            .navigationTitle("play_list_sub_edit_popup_title")
+            .alert(errorMessage, isPresented: $isShowErrorPopup) {
+                Button("common_ok", role: .cancel) {}
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("취소", action: onCancel)
+                    Button("common_cancel", action: onCancel)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("저장") {
-                        onSave(title, playlistId, isPremium)
+                    Button("common_save") {
+                        if title.isEmpty {
+                            isShowErrorPopup.toggle()
+                            errorMessage = NSLocalizedString("play_list_sub_edit_popup_title_error", comment: "")
+                        } else if playlistId.isEmpty {
+                            isShowErrorPopup.toggle()
+                            errorMessage = NSLocalizedString("play_list_sub_edit_popup_youtube_error", comment: "")
+                        } else {
+                            onSave(title, playlistId, isPremium)
+                        }
                     }
                     .disabled(title.isEmpty || playlistId.isEmpty)
                 }
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("완료") {
+                    Button("common_close") {
                         focusedField = nil
                     }
                 }

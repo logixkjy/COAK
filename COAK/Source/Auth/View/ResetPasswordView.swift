@@ -27,22 +27,22 @@ struct ResetPasswordView: View {
                     .frame(width: 200)
                     .padding(.top, 32)
                 
-                Text("비밀번호 재설정")
+                Text("pw_search_title")
                     .font(.title.bold())
                     .foregroundColor(.white)
                     .padding(.top, 24)
                 
-                Text("이메일")
+                Text("pw_search_email_title")
                     .font(.headline)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.top, 16)
                     .padding(.bottom, 6)
                 
-                TextField("이메일을 입력하세요", text: viewStore.$findEmail)
+                TextField("pw_search_email_title", text: viewStore.$findEmail)
                     .textFieldStyleCustom()
                     .focused($focusedField, equals: .email)
-                    .foregroundColor(.black)
+                    .foregroundColor(.white)
 
                 Button(action: {
                     viewStore.send(.resetPasswordButtonTapped)
@@ -52,7 +52,7 @@ struct ResetPasswordView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                     } else {
-                        Text("재설정 메일 보내기")
+                        Text("pw_search_button")
                             .fontWeight(.bold)
                             .padding()
                             .frame(maxWidth: .infinity)
@@ -70,7 +70,7 @@ struct ResetPasswordView: View {
                         .foregroundColor(.green)
                         .padding()
 
-                    Button("닫기") {
+                    Button("common_close") {
                         dismiss()
                     }
                     .padding()
@@ -89,7 +89,7 @@ struct ResetPasswordView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("완료") {
+                    Button("common_close") {
                         focusedField = nil
                     }
                 }

@@ -57,7 +57,7 @@ struct PlaylistEditItemsView: View {
                 }
             }
             .listStyle(.plain)
-            .navigationTitle("\(selectedGroup?.title ?? "알 수 없음")")
+            .navigationTitle("\(selectedGroup?.title ?? "common_notthing")")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
@@ -66,7 +66,7 @@ struct PlaylistEditItemsView: View {
                     Button(action: {
                         isPresentingAddSheet = true
                     }) {
-                        Label("추가", systemImage: "plus")
+                        Label("common_add", systemImage: "plus")
                     }
                 }
             }

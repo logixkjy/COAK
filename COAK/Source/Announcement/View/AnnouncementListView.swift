@@ -21,7 +21,7 @@ struct AnnouncementListView: View {
             NavigationStack {
                 VStack(alignment: .leading, spacing: 0) {
                     if viewStore.announcements.isEmpty {
-                        Text("등록된 공지사항이 없습니다.")
+                        Text("notice_list_empty")
                             .foregroundColor(.gray)
                             .padding()
                     } else {
@@ -42,7 +42,7 @@ struct AnnouncementListView: View {
                         }
                     }
                 }
-                .navigationTitle("공지사항")
+                .navigationTitle("main_notice")
                 .onAppear {
                     viewStore.send(.loadAnnouncements)
                 }
@@ -50,12 +50,12 @@ struct AnnouncementListView: View {
                     item: $deleteAnnouncement
                 ) { announcement in
                     Alert(
-                        title: Text("공지 삭제"),
-                        message: Text("공지사항을 삭제하시겠습니까?"),
-                        primaryButton: .destructive(Text("삭제")) {
+                        title: Text("notice_popup_title"),
+                        message: Text("notice_popup_message"),
+                        primaryButton: .destructive(Text("common_delete")) {
                             viewStore.send(.delete(announcement.id))
                         },
-                        secondaryButton: .cancel(Text("취소"))
+                        secondaryButton: .cancel(Text("common_cancel"))
                     )
                 }
                 .fullScreenCover(item: $selectedAnnouncement,

@@ -129,7 +129,7 @@ struct AnnouncementDetailView: View {
                                 Divider()
                                 
                                 VStack(alignment: .leading, spacing: 12) {
-                                    Text("댓글")
+                                    Text("common_comment")
                                         .font(.headline)
                                     ForEach(viewStore.comments) { comment in
                                         let commentVisivle = comment.isVisible(for: appViewStore.userProfile?.uid ?? "", isAdmin: appViewStore.userProfile?.isAdmin ?? false)
@@ -149,14 +149,14 @@ struct AnnouncementDetailView: View {
                                                 if comment.userId == appViewStore.userProfile?.uid || isAdmin {
                                                     Menu {
                                                         if comment.userId == appViewStore.userProfile?.uid {
-                                                            Button("수정") {
+                                                            Button("common_edit") {
                                                                 localText = comment.content
                                                                 commentStore.send(.startEdit(comment))
                                                                 isCommenting = true
                                                                 isEdit = true
                                                             }
                                                         }
-                                                        Button("삭제", role: .destructive) {
+                                                        Button("common_delete", role: .destructive) {
                                                             commentStore.send(.deleteComment(comment.id))
                                                         }
                                                     } label: {
@@ -165,7 +165,7 @@ struct AnnouncementDetailView: View {
                                                     }
                                                 }
                                             }
-                                            Text(commentVisivle ? comment.content : "비밀 댓글 입니다.")
+                                            Text(commentVisivle ? comment.content : "common_comment_secret")
                                                 .font(.body)
                                                 .foregroundColor(.gray)
                                             
@@ -175,11 +175,11 @@ struct AnnouncementDetailView: View {
                                                     isCommenting = true
                                                     isReply = true
                                                 } label: {
-                                                    Label("답글", systemImage: "arrow.turn.down.right")
+                                                    Label("common_reply", systemImage: "arrow.turn.down.right")
                                                 }.font(.caption).foregroundColor(.white)
                                                 
                                                 if comment.replyCount > 0, viewStore.replyMap[comment.id] == nil {
-                                                    Button("답글 \(comment.replyCount)개 보기") {
+                                                    Button(String(format: NSLocalizedString("common_reply_conut", comment: ""), comment.replyCount)) {
                                                         commentStore.send(.loadReplies(parentId: comment.id))
                                                     }.font(.caption2)
                                                 }
@@ -199,7 +199,7 @@ struct AnnouncementDetailView: View {
                                                             if reply.userId == appViewStore.userProfile?.uid || isAdmin {
                                                                 Menu {
                                                                     if reply.userId == appViewStore.userProfile?.uid {
-                                                                        Button("수정") {
+                                                                        Button("common_edit") {
                                                                             localText = reply.content
                                                                             commentStore.send(.startEditReply(parentId: comment.id, reply: reply))
                                                                             isCommenting = true
@@ -207,7 +207,7 @@ struct AnnouncementDetailView: View {
                                                                             isEdit = true
                                                                         }
                                                                     }
-                                                                    Button("삭제", role: .destructive) {
+                                                                    Button("삭common_delete", role: .destructive) {
                                                                         commentStore.send(.deleteReply(parentId: comment.id, replyId: reply.id))
                                                                     }
                                                                 } label: {
@@ -215,7 +215,7 @@ struct AnnouncementDetailView: View {
                                                                 }
                                                             }
                                                         }
-                                                        Text(replayVisible ? reply.content : "비밀 답글 입니다,").font(.body).foregroundColor(.gray)
+                                                        Text(replayVisible ? reply.content : "common_reply_secret").font(.body).foregroundColor(.gray)
                                                     }
                                                     .padding(.leading, 16)
                                                 }
@@ -224,7 +224,7 @@ struct AnnouncementDetailView: View {
                                     }
                                     
                                     if viewStore.hasMore {
-                                        Button("더 보기") {
+                                        Button("common_comment_more") {
                                             commentStore.send(.loadMoreComments)
                                         }.font(.caption)
                                     }

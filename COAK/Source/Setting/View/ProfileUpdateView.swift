@@ -14,6 +14,7 @@ struct ProfileUpdateView: View {
     @State private var birthdate: Date = Calendar.current.date(byAdding: .year, value: -20, to: Date()) ?? Date()
     @State private var isSaving = false
     @State private var errorMessage: String? = nil
+    @State private var showDeleteConfirm = false
 
     @FocusState private var focusedField: Field?
 
@@ -24,24 +25,56 @@ struct ProfileUpdateView: View {
     
     var body: some View {
         NavigationStack {
-            Form {
-                Section(header: Text("이름")) {
-                    TextField("이름을 입력하세요", text: $name)
-                        .focused($focusedField, equals: .name)
+            VStack(spacing: 16) {
+                Text("join_name_hint")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding([.leading, .trailing], 8)
+                
+                TextField("join_name_hint", text: $name)
+                    .textFieldStyleCustom()
+                    .focused($focusedField, equals: .name)
+                    .foregroundColor(.white)
+                    .padding([.leading, .trailing], 8)
+                
+                HStack {
+                    Spacer()
+                    Text("\(name.count)/20")
+                        .font(.footnote)
+                        .foregroundColor(.white)
+                        .padding(.trailing, 16)
                 }
-
-                Section(header: Text("전화번호")) {
-                    TextField("01012345678", text: $phone)
-                        .keyboardType(.numberPad)
-                        .onChange(of: phone) { newValue in
-                            self.phone = formatPhoneNumber(newValue)
-                        }
-                        .focused($focusedField, equals: .phone)
+                .padding([.leading, .trailing], 8)
+                
+                Text("join_phone_hint")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding([.leading, .trailing], 8)
+                
+                TextField("join_phone_hint", text: $phone)
+                    .textFieldStyleCustom()
+                    .focused($focusedField, equals: .phone)
+                    .foregroundColor(.white)
+                    .padding([.leading, .trailing], 8)
+                
+                HStack {
+                    Text("join_phone_helper")
+                        .font(.footnote)
+                        .foregroundColor(.white)
+                        .padding(.trailing, 16)
+                    Spacer()
+                    Text("\(phone.count)/11")
+                        .font(.footnote)
+                        .foregroundColor(.white)
+                        .padding(.trailing, 16)
                 }
-
-                Section(header: Text("생년월일")) {
-                    DatePicker("", selection: $birthdate, displayedComponents: .date)
-                }
+                .padding([.leading, .trailing], 8)
+                
+                DatePicker("join_birthday_title", selection: $birthdate, displayedComponents: .date)
+                    .padding(.top, 16)
+                    .padding([.leading, .trailing], 8)
 
                 if let errorMessage {
                     Text(errorMessage)
@@ -52,22 +85,39 @@ struct ProfileUpdateView: View {
                     if isSaving {
                         ProgressView()
                     } else {
-                        Text("저장")
+                        Text("user_edit_button")
                             .frame(maxWidth: .infinity)
                     }
                 }
+                .padding(.top, 16)
+                
+                Button("setting_secession_popup_title") {
+                    showDeleteConfirm = true
+                }
+                .foregroundColor(.red)
+                .padding(.top, 16)
+                
+                Spacer()
             }
-            .navigationTitle("내 정보 입력")
+            .navigationTitle("user_edit_title")
             .onAppear {
                 loadUserProfile()
             }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("완료") {
+                    Button("common_close") {
                         focusedField = nil
                     }
                 }
+            }
+            .alert("setting_secession_popup_message", isPresented: $showDeleteConfirm) {
+                Button("setting_secession_popup_title", role: .destructive) {
+                    deleteAccount()
+                }
+                Button("common_cancel", role: .cancel) {}
+            } message: {
+                Text("setting_secession_popup_desc")
             }
         }
     }
@@ -141,6 +191,25 @@ struct ProfileUpdateView: View {
                     viewStore.send(.userProfileLoaded(updateUserProfile))
                 }
                 dismiss()
+            }
+        }
+    }
+    
+    func deleteAccount() {
+        guard let user = Auth.auth().currentUser else { return }
+        let uid = user.uid
+
+        user.delete { error in
+            if let error = error {
+                print("회원탈퇴 실패: \(error.localizedDescription)")
+                return
+            }
+            Firestore.firestore().collection("users").document(uid).delete { err in
+                if let err = err {
+                    print("유저 문서 삭제 실패: \(err.localizedDescription)")
+                } else {
+                    print("회원 탈퇴 및 유저 문서 삭제 완료")
+                }
             }
         }
     }

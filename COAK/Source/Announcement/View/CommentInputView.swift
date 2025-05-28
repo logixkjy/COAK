@@ -53,7 +53,8 @@ struct CommentInputView: View {
                             .frame(width: 24, height: 24)
                             .foregroundColor(isSecret ? .green : .gray)
                     }
-                    TextField("\(isReply ? "답글" : "댓글") \(isEdit ? "수정" : "추가")...", text: $text)
+                    let hint = (isReply ? NSLocalizedString("common_reply", comment: "") : NSLocalizedString("common_comment", comment: "")) + " " + (isEdit ? NSLocalizedString("common_edit", comment: "") : NSLocalizedString("common_add", comment: "")) + "..."
+                    TextField(hint, text: $text)
                         .textFieldStyle(PlainTextFieldStyle())
                         .padding(10)
                         .background(Color(.secondarySystemBackground))
@@ -76,9 +77,9 @@ struct CommentInputView: View {
                 .animation(.easeInOut, value: isFocused)
             }
         }
-        .alert("수정사항을 삭제할까요?", isPresented: $showDiscardAlert) {
-            Button("계속 작성", role: .cancel) {}
-            Button("삭제", role: .destructive) {
+        .alert("common_comment_edit_message", isPresented: $showDiscardAlert) {
+            Button("common_comment_edit_next", role: .cancel) {}
+            Button("common_delete", role: .destructive) {
                 text = ""
                 isSecret = false
                 dismissKeyboard()

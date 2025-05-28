@@ -36,7 +36,7 @@ struct AnnouncementEditView: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("내용")
+                    Text("notice_edit_contents_hint")
                         .font(.headline)
                     
                     TextEditor(text: $content)
@@ -45,7 +45,7 @@ struct AnnouncementEditView: View {
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.3)))
                         .focused($focusedField, equals: .content)
                     
-                    Text("사진")
+                    Text("notice_edit_image_select")
                         .font(.headline)
                     if announcement.imageURLs.count - deleteImageIndexes.count + selectedImages.count < 1 {
                         PhotosPicker(selection: $selectedItems,
@@ -53,7 +53,7 @@ struct AnnouncementEditView: View {
                                      matching: .images) {
                             HStack {
                                 Image(systemName: "photo.on.rectangle")
-                                Text("사진 1장 선택")
+                                Text("notice_edit_image_select_count")
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -129,7 +129,7 @@ struct AnnouncementEditView: View {
                                 ProgressView()
                             } else {
                                 Image(systemName: "paperplane")
-                                Text("공지 수정")
+                                Text("notice_edit_title2")
                             }
                         }
                         .frame(maxWidth: .infinity)
@@ -142,14 +142,14 @@ struct AnnouncementEditView: View {
                 }
                 .padding()
             }
-            .navigationTitle("공지 수정")
+            .navigationTitle("notice_edit_title2")
             .onAppear {
                 self.content = announcement.content
             }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("완료") {
+                    Button("common_close") {
                         focusedField = nil
                     }
                 }

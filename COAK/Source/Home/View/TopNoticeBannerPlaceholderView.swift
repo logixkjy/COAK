@@ -54,7 +54,7 @@ struct TopNoticeBannerPlaceholderView: View {
                         .cornerRadius(10)
                         .foregroundColor(.white)
                 } else if isLoading {
-                    Text("📢 최신 공지사항을 불러오는 중...")
+                    Text("Loading...")
                         .font(.headline)
                         .padding(16)
                         .frame(maxWidth: .infinity, maxHeight: .infinity) // 이미지와 동일 크기
@@ -62,7 +62,7 @@ struct TopNoticeBannerPlaceholderView: View {
                         .cornerRadius(10)
                         .foregroundColor(.white)
                 } else {
-                    Text("📢 공지사항이 없습니다.")
+                    Text("notice_list_empty")
                         .font(.headline)
                         .padding(16)
                         .frame(maxWidth: .infinity, maxHeight: .infinity) // 이미지와 동일 크기

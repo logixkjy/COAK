@@ -99,10 +99,6 @@ struct SettingsView: View {
                             Button("개인정보 처리방침 보기") {
                                 isShowingPolicy = true
                             }
-                            Button("회원 탈퇴") {
-                                showDeleteConfirm = true
-                            }
-                            .foregroundColor(.red)
                         }
 
                         Section {
@@ -185,14 +181,6 @@ struct SettingsView: View {
                             }
                             showImagePicker = false
                         }
-                    }
-                    .alert("정말 탈퇴하시겠습니까?", isPresented: $showDeleteConfirm) {
-                        Button("탈퇴", role: .destructive) {
-                            deleteAccount()
-                        }
-                        Button("취소", role: .cancel) {}
-                    } message: {
-                        Text("이 작업은 되돌릴 수 없습니다.")
                     }
                     .alert("저장 완료", isPresented: $showSavedAlert) {
                         Button("확인", role: .cancel) {}

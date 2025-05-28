@@ -91,7 +91,8 @@ struct PlaylistView: View {
                                             if playlist.isPremiumRequired == true &&
                                                 (appStore.userProfile?.isPremium ?? false) == false &&
                                                 (appStore.userProfile?.isAdmin ?? false) == false {
-                                                showToast(message: "유료 컨텐츠 입니다.")
+                                                let message = NSLocalizedString("common_paid_toast", comment: "") + "/n facebook.com/sonjinbagsh\n 010-2145-4221"
+                                                showToast(message: message)
                                             } else {
                                                 viewStore.send(.selectPlaylist(playlist))
                                                 isPresented.toggle()
@@ -153,7 +154,8 @@ struct PlaylistView: View {
                                     if playlist.isPremiumRequired == true &&
                                         (appStore.userProfile?.isPremium ?? false) == false &&
                                         (appStore.userProfile?.isAdmin ?? false) == false {
-                                        showToast(message: "유료 컨텐츠 입니다.")
+                                        let message = NSLocalizedString("common_paid_toast", comment: "") + "/n facebook.com/sonjinbagsh\n 010-2145-4221"
+                                        showToast(message: message)
                                     } else {
                                         viewStore.send(.selectPlaylist(playlist))
                                         isPresented.toggle()
@@ -166,7 +168,7 @@ struct PlaylistView: View {
                         
                     }
                 }
-                .navigationTitle(selectedGroup?.title ?? "재생록록")
+                .navigationTitle(selectedGroup?.title ?? "")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button(action: {

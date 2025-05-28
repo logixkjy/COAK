@@ -16,25 +16,29 @@ struct FavoritesView: View {
     var body: some View {
         WithViewStore(appStore, observe: { $0 }) { appViewStore in
             NavigationStack {
-                VStack(alignment: .leading, spacing: 0) {
-                    if appViewStore.favoriteVideos.isEmpty {
-                        Text("즐겨찾기한 영상이 없습니다.")
-                            .foregroundColor(.gray)
-                            .padding()
-                    } else {
-                        List(appViewStore.favoriteVideos, id: \ .id) { video in
-                            FavoriteVideoRow(video: video)
-                                .onTapGesture {
-                                    selectedVideoId = StringID(id: video.id)
-                                }
-                                .onLongPressGesture(perform: {
-                                    appViewStore.send(.removeFromFavorites(video.id))
-                                })
+                ZStack {
+                    Color.black01.ignoresSafeArea() // 원하는 색상으로 설정하세요
+                    
+                    VStack(alignment: .leading, spacing: 0) {
+                        if appViewStore.favoriteVideos.isEmpty {
+                            Text("favorites_list_empty")
+                                .foregroundColor(.gray)
+                                .padding()
+                        } else {
+                            List(appViewStore.favoriteVideos, id: \ .id) { video in
+                                FavoriteVideoRow(video: video)
+                                    .onTapGesture {
+                                        selectedVideoId = StringID(id: video.id)
+                                    }
+                                    .onLongPressGesture(perform: {
+                                        appViewStore.send(.removeFromFavorites(video.id))
+                                    })
+                            }
+                            .listStyle(.plain)
                         }
-                        .listStyle(.plain)
                     }
                 }
-                .navigationTitle("즐겨찾기")
+                .navigationTitle("main_favorites")
 //                .onChange(of: selectedYouTubeVideoItem) { newValue in
 //                    if let _ = newValue {
 //                        isPresented.toggle()

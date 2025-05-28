@@ -22,7 +22,7 @@ struct MainTabView: View {
                     annoucementStore: store.scope(state: \.announcementState, action: MainTabFeature.Action.announcementAction)
                 )
                 .tabItem {
-                    Label("홈", systemImage: "house")
+                    Label("main_home", systemImage: "house")
                 }
                 .tag(Tab.playlist)
 
@@ -30,7 +30,7 @@ struct MainTabView: View {
                     appStore: appStore
                 )
                 .tabItem {
-                    Label("즐겨찾기", systemImage: "star")
+                    Label("main_favorites", systemImage: "star")
                 }
                 .tag(Tab.favorites)
                 
@@ -38,7 +38,7 @@ struct MainTabView: View {
                                      appStore: appStore
                 )
                 .tabItem {
-                    Label("공지사항", systemImage: "megaphone")
+                    Label("main_notice", systemImage: "megaphone")
                 }
                 .tag(Tab.notices)
 
@@ -48,7 +48,7 @@ struct MainTabView: View {
                     announcementStore: store.scope(state: \.announcementState, action: MainTabFeature.Action.announcementAction)
                 )
                 .tabItem {
-                    Label("설정", systemImage: "gear")
+                    Label("main_setting", systemImage: "gear")
                 }
                 .tag(Tab.settings)
             }

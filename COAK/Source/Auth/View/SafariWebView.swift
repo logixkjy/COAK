@@ -22,17 +22,17 @@ struct SafariWebView: View {
     var body: some View {
         NavigationStack {
             WebView(url: url)
-                .navigationTitle("개인정보 처리방침")
+//                .navigationTitle("join_policy_title")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("닫기") {
+                        Button("common_close") {
                             dismiss()
                         }
                     }
                     if let onAgree = onAgree {
                         ToolbarItem(placement: .confirmationAction) {
-                            Button("동의") {
+                            Button("join_policy_agree") {
                                 dismiss()
                                 onAgree()
                             }

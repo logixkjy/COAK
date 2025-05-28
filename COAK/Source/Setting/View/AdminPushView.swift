@@ -23,27 +23,31 @@ struct AdminPushView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationStack {
                 VStack(spacing: 16) {
-                    Text("공지 제목")
+                    Text("push_send_notice_title")
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding([.leading, .trailing], 8)
                     
-                    TextField("푸시 제목", text: $title)
+                    TextField("push_send_notice_title", text: $title)
                         .textFieldStyleCustom()
                         .focused($focusedField, equals: .title)
-                        .foregroundColor(.black)
+                        .foregroundColor(.white)
+                        .padding([.leading, .trailing], 8)
                     
-                    Text("푸시 내용")
+                    Text("push_send_notice_message")
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding([.leading, .trailing], 8)
                     
-                    TextField("푸시 내용", text: $content)
+                    TextField("push_send_notice_message", text: $content)
                         .textFieldStyleCustom()
                         .focused($focusedField, equals: .content)
-                        .foregroundColor(.black)
+                        .foregroundColor(.white)
+                        .padding([.leading, .trailing], 8)
                     
-                    Button("Send Push") {
+                    Button("push_send_btn") {
                         viewStore.send(.sendPush(title, content))
                     }
                     
@@ -53,11 +57,11 @@ struct AdminPushView: View {
                     
                     Spacer()
                 }
-                .navigationTitle("푸시 발송")
+                .navigationTitle("push_send_title")
                 .toolbar {
                     ToolbarItemGroup(placement: .keyboard) {
                         Spacer()
-                        Button("완료") {
+                        Button("common_close") {
                             focusedField = nil
                         }
                     }
