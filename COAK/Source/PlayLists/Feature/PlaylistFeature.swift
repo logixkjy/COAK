@@ -46,20 +46,21 @@ struct PlaylistFeature: Reducer {
         case let .playlistsLoaded(.success(groups)):
             let allIds = groups.flatMap { $0.playlists.map(\.id) }
             return .run { send in
-                let meta = try await youTubeClient.fetchPlaylistMetadata(allIds)
+//                let meta = try await youTubeClient.fetchPlaylistMetadata(allIds)
                 let enriched = groups.map { group in
                     var newGroup = group
                     newGroup.playlists = group.playlists.map { item in
-                        if let m = meta[item.id] {
+//                        if let m = meta[item.id] {
                             return PlaylistItem(
                                 id: item.id,
-                                title: m.title,
-                                description: m.description,
-                                thumbnailURL: m.thumbnailURL,
+                                title: item.title,
+                                description: item.description,
+                                thumbnailURL: "https://i.ytimg.com/vi/\(item.videoId)/hqdefault.jpg",
                                 order: item.order,
+                                videoId: item.videoId,
                                 isPremiumRequired: item.isPremiumRequired
                             )
-                        } else { return item }
+//                        } else { return item }
                     }
                     return newGroup
                 }

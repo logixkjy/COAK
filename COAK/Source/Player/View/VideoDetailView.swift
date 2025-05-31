@@ -33,229 +33,233 @@ struct VideoDetailView: View {
         WithViewStore(store, observe: { $0 }) { appViewStore in
             WithViewStore(commentStore, observe: { $0 }) { viewStore in
                 NavigationStack {
-                    ZStack(alignment: .bottom) {
-                        VStack(spacing: 0) {
-                            YouTubePlayerView(videoId: video.id)
-                                .aspectRatio(16/9, contentMode: .fit)
-                                .overlay(alignment: .topLeading) {
-                                    Button(action: { dismiss() }) {
-                                        Image(systemName: "chevron.down")
-                                            .font(.system(size: 20, weight: .semibold))
-                                            .padding(8)
-                                            .foregroundColor(.primary)
-                                            .background(.ultraThinMaterial)
-                                            .clipShape(Circle())
-                                    }
-                                    .padding(.top, 12)
-                                    .padding(.leading, 12)
-                                }
-                            
-                            Divider()
-                            
-                            ScrollViewReader { proxy in
-                                ScrollView {
-                                    VStack(alignment: .leading, spacing: 16) {
-                                        Text(video.title)
-                                            .font(.title2)
-                                            .bold()
-                                        
-                                        Text(video.description)
-                                            .font(.body)
-                                            .foregroundColor(.gray)
-                                            .lineLimit(isDescriptionExpanded ? nil : 3)
-                                        
-                                        HStack {
-                                            if video.description.count > 0 {
-                                                Button(isDescriptionExpanded ? NSLocalizedString("play_detail_description_unexpanded", comment: "") : NSLocalizedString("play_detail_description_expanded", comment: "")) {
-                                                    withAnimation {
-                                                        isDescriptionExpanded.toggle()
-                                                    }
-                                                }
-                                                .font(.subheadline)
-                                                .foregroundColor(.blue)
-                                            }
-                                            
-                                            Spacer()
-                                            
-                                            Button(action: {
-                                                if appViewStore.favoriteVideoIDs.contains(video.id) {
-                                                    appViewStore.send(.removeFromFavorites(video.id))
-                                                } else {
-                                                    appViewStore.send(.addToFavorites(video))
-                                                }
-                                            }) {
-                                                Label(
-                                                    appViewStore.favoriteVideoIDs.contains(video.id) ? NSLocalizedString("play_detail_favorites_remove" , comment: "") : NSLocalizedString("play_detail_favorites_add", comment: ""),
-                                                    systemImage: appViewStore.favoriteVideoIDs.contains(video.id) ? "star.fill" : "star"
-                                                )
-                                            }
-                                            .buttonStyle(.borderedProminent)
-                                            .tint(appViewStore.favoriteVideoIDs.contains(video.id) ? .gray : .blue)
+                    ZStack {
+                        Color.black01.ignoresSafeArea()
+                        
+                        ZStack(alignment: .bottom) {
+                            VStack(spacing: 0) {
+                                YouTubePlayerView(videoId: video.id)
+                                    .aspectRatio(16/9, contentMode: .fit)
+                                    .overlay(alignment: .topLeading) {
+                                        Button(action: { dismiss() }) {
+                                            Image(systemName: "chevron.down")
+                                                .font(.system(size: 20, weight: .semibold))
+                                                .padding(8)
+                                                .foregroundColor(.primary)
+                                                .background(.ultraThinMaterial)
+                                                .clipShape(Circle())
                                         }
-                                        
-                                        Divider()
-                                        
-                                        VStack(alignment: .leading, spacing: 12) {
-                                            Text("common_comment")
-                                                .font(.headline)
-                                            ForEach(viewStore.comments) { comment in
-                                                let commentVisivle = comment.isVisible(for: appViewStore.userProfile?.uid ?? "", isAdmin: appViewStore.userProfile?.isAdmin ?? false)
-                                                VStack(alignment: .leading, spacing: 6) {
-                                                    HStack {
-                                                        if commentVisivle {
-                                                            Text(comment.email)
-                                                                .font(.caption)
-                                                                .foregroundColor(.white)
+                                        .padding(.top, 12)
+                                        .padding(.leading, 12)
+                                    }
+                                
+                                Divider()
+                                
+                                ScrollViewReader { proxy in
+                                    ScrollView {
+                                        VStack(alignment: .leading, spacing: 16) {
+                                            Text(video.title)
+                                                .font(.title2)
+                                                .bold()
+                                            
+                                            Text(video.description)
+                                                .font(.body)
+                                                .foregroundColor(.gray)
+                                                .lineLimit(isDescriptionExpanded ? nil : 3)
+                                            
+                                            HStack {
+                                                if video.description.count > 0 {
+                                                    Button(isDescriptionExpanded ? NSLocalizedString("play_detail_description_unexpanded", comment: "") : NSLocalizedString("play_detail_description_expanded", comment: "")) {
+                                                        withAnimation {
+                                                            isDescriptionExpanded.toggle()
                                                         }
-                                                        Text(comment.createdAt.formatted(date: .numeric, time: .shortened))
-                                                            .font(.caption2)
-                                                            .foregroundColor(.gray)
-                                                        
-                                                        Spacer()
-                                                        
-                                                        if comment.userId == appViewStore.userProfile?.uid || (appViewStore.userProfile?.isAdmin ?? false) {
-                                                            Menu {
-                                                                if comment.userId == appViewStore.userProfile?.uid {
-                                                                    Button("common_edit") {
-                                                                        localText = comment.content
-                                                                        isSecret = comment.isSecret ?? false
-                                                                        commentStore.send(.startEdit(comment))
-                                                                        isCommenting = true
-                                                                        isEdit = true
-                                                                    }
-                                                                }
-                                                                Button("common_delete", role: .destructive) {
-                                                                    commentStore.send(.deleteComment(comment.id))
-                                                                }
-                                                            } label: {
-                                                                Text("      ⋮")
+                                                    }
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.blue)
+                                                }
+                                                
+                                                Spacer()
+                                                
+                                                Button(action: {
+                                                    if appViewStore.favoriteVideoIDs.contains(video.id) {
+                                                        appViewStore.send(.removeFromFavorites(video.id))
+                                                    } else {
+                                                        appViewStore.send(.addToFavorites(video))
+                                                    }
+                                                }) {
+                                                    Label(
+                                                        appViewStore.favoriteVideoIDs.contains(video.id) ? NSLocalizedString("play_detail_favorites_remove" , comment: "") : NSLocalizedString("play_detail_favorites_add", comment: ""),
+                                                        systemImage: appViewStore.favoriteVideoIDs.contains(video.id) ? "star.fill" : "star"
+                                                    )
+                                                }
+                                                .buttonStyle(.borderedProminent)
+                                                .tint(appViewStore.favoriteVideoIDs.contains(video.id) ? .gray : .blue)
+                                            }
+                                            
+                                            Divider()
+                                            
+                                            VStack(alignment: .leading, spacing: 12) {
+                                                Text("common_comment")
+                                                    .font(.headline)
+                                                ForEach(viewStore.comments) { comment in
+                                                    let commentVisivle = comment.isVisible(for: appViewStore.userProfile?.uid ?? "", isAdmin: appViewStore.userProfile?.isAdmin ?? false)
+                                                    VStack(alignment: .leading, spacing: 6) {
+                                                        HStack {
+                                                            if commentVisivle {
+                                                                Text(comment.email)
+                                                                    .font(.caption)
                                                                     .foregroundColor(.white)
                                                             }
-                                                        }
-                                                    }
-                                                    Text(commentVisivle ? comment.content : "common_comment_secret")
-                                                        .font(.body)
-                                                        .foregroundColor(.gray)
-                                                    
-                                                    HStack {
-                                                        Button {
-                                                            commentStore.send(.setReplyTarget(comment.id))
-                                                            isCommenting = true
-                                                            isReply = true
-                                                            isSecret = comment.isSecret ?? false
-                                                        } label: {
-                                                            Label("common_reply", systemImage: "arrow.turn.down.right")
-                                                        }.font(.caption).foregroundColor(.white)
-                                                        
-                                                        if comment.replyCount > 0, viewStore.replyMap[comment.id] == nil {
-                                                            Button(String(format: NSLocalizedString("common_reply_conut", comment: ""), comment.replyCount)) {
-                                                                commentStore.send(.loadReplies(parentId: comment.id))
-                                                            }.font(.caption2)
-                                                        }
-                                                    }
-                                                    // 답글이 비밀댓글인경우 댓글 작성자와 관리자만 볼수 있다.
-                                                    if let replies = viewStore.replyMap[comment.id] {
-                                                        ForEach(replies) { reply in
-                                                            let replayVisible = (reply.isSecret ?? false) ? commentVisivle : true
-                                                            VStack(alignment: .leading, spacing: 4) {
-                                                                HStack {
-                                                                    if replayVisible {
-                                                                        Text(reply.email).font(.caption2).foregroundColor(.white)
-                                                                    }
-                                                                    Text(reply.createdAt.formatted(date: .numeric, time: .shortened))
-                                                                        .font(.caption2).foregroundColor(.gray)
-                                                                    
-                                                                    Spacer()
-                                                                    
-                                                                    if reply.userId == appViewStore.userProfile?.uid || (appViewStore.userProfile?.isAdmin ?? false) {
-                                                                        Menu {
-                                                                            if reply.userId == appViewStore.userProfile?.uid {
-                                                                                Button("common_edit") {
-                                                                                    localText = reply.content
-                                                                                    isSecret = reply.isSecret ?? false
-                                                                                    commentStore.send(.startEditReply(parentId: comment.id, reply: reply))
-                                                                                    isCommenting = true
-                                                                                    isReply = true
-                                                                                    isEdit = true
-                                                                                }
-                                                                            }
-                                                                            Button("common_delete", role: .destructive) {
-                                                                                commentStore.send(.deleteReply(parentId: comment.id, replyId: reply.id))
-                                                                            }
-                                                                        } label: {
-                                                                            Text("⋮").foregroundColor(.white)
+                                                            Text(comment.createdAt.formatted(date: .numeric, time: .shortened))
+                                                                .font(.caption2)
+                                                                .foregroundColor(.gray)
+                                                            
+                                                            Spacer()
+                                                            
+                                                            if comment.userId == appViewStore.userProfile?.uid || (appViewStore.userProfile?.isAdmin ?? false) {
+                                                                Menu {
+                                                                    if comment.userId == appViewStore.userProfile?.uid {
+                                                                        Button("common_edit") {
+                                                                            localText = comment.content
+                                                                            isSecret = comment.isSecret ?? false
+                                                                            commentStore.send(.startEdit(comment))
+                                                                            isCommenting = true
+                                                                            isEdit = true
                                                                         }
                                                                     }
+                                                                    Button("common_delete", role: .destructive) {
+                                                                        commentStore.send(.deleteComment(comment.id))
+                                                                    }
+                                                                } label: {
+                                                                    Text("      ⋮")
+                                                                        .foregroundColor(.white)
                                                                 }
-                                                                Text(replayVisible ? reply.content : "common_reply_secret").font(.body).foregroundColor(.gray)
                                                             }
-                                                            .padding(.leading, 16)
+                                                        }
+                                                        Text(commentVisivle ? comment.content : "common_comment_secret")
+                                                            .font(.body)
+                                                            .foregroundColor(.gray)
+                                                        
+                                                        HStack {
+                                                            Button {
+                                                                commentStore.send(.setReplyTarget(comment.id))
+                                                                isCommenting = true
+                                                                isReply = true
+                                                                isSecret = comment.isSecret ?? false
+                                                            } label: {
+                                                                Label("common_reply", systemImage: "arrow.turn.down.right")
+                                                            }.font(.caption).foregroundColor(.white)
+                                                            
+                                                            if comment.replyCount > 0, viewStore.replyMap[comment.id] == nil {
+                                                                Button(String(format: NSLocalizedString("common_reply_conut", comment: ""), comment.replyCount)) {
+                                                                    commentStore.send(.loadReplies(parentId: comment.id))
+                                                                }.font(.caption2)
+                                                            }
+                                                        }
+                                                        // 답글이 비밀댓글인경우 댓글 작성자와 관리자만 볼수 있다.
+                                                        if let replies = viewStore.replyMap[comment.id] {
+                                                            ForEach(replies) { reply in
+                                                                let replayVisible = (reply.isSecret ?? false) ? commentVisivle : true
+                                                                VStack(alignment: .leading, spacing: 4) {
+                                                                    HStack {
+                                                                        if replayVisible {
+                                                                            Text(reply.email).font(.caption2).foregroundColor(.white)
+                                                                        }
+                                                                        Text(reply.createdAt.formatted(date: .numeric, time: .shortened))
+                                                                            .font(.caption2).foregroundColor(.gray)
+                                                                        
+                                                                        Spacer()
+                                                                        
+                                                                        if reply.userId == appViewStore.userProfile?.uid || (appViewStore.userProfile?.isAdmin ?? false) {
+                                                                            Menu {
+                                                                                if reply.userId == appViewStore.userProfile?.uid {
+                                                                                    Button("common_edit") {
+                                                                                        localText = reply.content
+                                                                                        isSecret = reply.isSecret ?? false
+                                                                                        commentStore.send(.startEditReply(parentId: comment.id, reply: reply))
+                                                                                        isCommenting = true
+                                                                                        isReply = true
+                                                                                        isEdit = true
+                                                                                    }
+                                                                                }
+                                                                                Button("common_delete", role: .destructive) {
+                                                                                    commentStore.send(.deleteReply(parentId: comment.id, replyId: reply.id))
+                                                                                }
+                                                                            } label: {
+                                                                                Text("⋮").foregroundColor(.white)
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    Text(replayVisible ? reply.content : "common_reply_secret").font(.body).foregroundColor(.gray)
+                                                                }
+                                                                .padding(.leading, 16)
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            }
-                                            
-                                            if viewStore.hasMore {
-                                                Button("common_comment_more") {
-                                                    commentStore.send(.loadMoreComments)
-                                                }.font(.caption)
+                                                
+                                                if viewStore.hasMore {
+                                                    Button("common_comment_more") {
+                                                        commentStore.send(.loadMoreComments)
+                                                    }.font(.caption)
+                                                }
                                             }
                                         }
-                                    }
-                                    .padding()
-                                    .onChange(of: isCommenting) { field in
-                                        if field {
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                                withAnimation {
-                                                    proxy.scrollTo("댓글입력영역", anchor: .bottom)
+                                        .padding()
+                                        .onChange(of: isCommenting) { field in
+                                            if field {
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                                    withAnimation {
+                                                        proxy.scrollTo("댓글입력영역", anchor: .bottom)
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
+                                Divider()
+                                // 키보드 높이만큼 빈 공간 추가
+                                Spacer(minLength: 70)
                             }
-                            Divider()
-                            // 키보드 높이만큼 빈 공간 추가
-                            Spacer(minLength: 70)
+                            
+                            CommentInputView(
+                                text: $localText,  // 수정된 부분
+                                isSecret: $isSecret,
+                                isReply: $isReply,
+                                isEdit: $isEdit,
+                                isFocusedExternal: $isCommenting,
+                                onSubmit: { text, secret in
+                                    if text.count > 0 {
+                                        viewStore.send(.setNewCommentText(text, secret))
+                                    }
+                                    if viewStore.isEditing {
+                                        commentStore.send(.confirmEdit)
+                                    } else if viewStore.isEditingReply {
+                                        commentStore.send(.confirmEditReply)
+                                    } else if let parentId = viewStore.replyTarget {
+                                        commentStore.send(.postReply(parentId: parentId))
+                                    } else {
+                                        commentStore.send(.postComment)
+                                    }
+                                    viewStore.send(.setNewCommentText("", false))
+                                    localText = ""
+                                    isCommenting = false
+                                },
+                                onCancel: {
+                                    if isReply && isEdit {
+                                        commentStore.send(.cancelEditReply)
+                                    } else if !isReply && isEdit {
+                                        commentStore.send(.cancelEdit)
+                                    } else if isReply && !isEdit {
+                                        commentStore.send(.clearReplyTarget)
+                                    }
+                                    isReply = false
+                                    isEdit = false
+                                }
+                            )
+                            .id("댓글입력영역")
+                            
                         }
-                        
-                        CommentInputView(
-                            text: $localText,  // 수정된 부분
-                            isSecret: $isSecret,
-                            isReply: $isReply,
-                            isEdit: $isEdit,
-                            isFocusedExternal: $isCommenting,
-                            onSubmit: { text, secret in
-                                if text.count > 0 {
-                                    viewStore.send(.setNewCommentText(text, secret))
-                                }
-                                if viewStore.isEditing {
-                                    commentStore.send(.confirmEdit)
-                                } else if viewStore.isEditingReply {
-                                    commentStore.send(.confirmEditReply)
-                                } else if let parentId = viewStore.replyTarget {
-                                    commentStore.send(.postReply(parentId: parentId))
-                                } else {
-                                    commentStore.send(.postComment)
-                                }
-                                viewStore.send(.setNewCommentText("", false))
-                                localText = ""
-                                isCommenting = false
-                            },
-                            onCancel: {
-                                if isReply && isEdit {
-                                    commentStore.send(.cancelEditReply)
-                                } else if !isReply && isEdit {
-                                    commentStore.send(.cancelEdit)
-                                } else if isReply && !isEdit {
-                                    commentStore.send(.clearReplyTarget)
-                                }
-                                isReply = false
-                                isEdit = false
-                            }
-                        )
-                        .id("댓글입력영역")
-                        
                     }
                     .onAppear {
                         commentStore.send(.onAppear)

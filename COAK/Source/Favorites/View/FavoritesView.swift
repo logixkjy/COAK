@@ -17,7 +17,7 @@ struct FavoritesView: View {
         WithViewStore(appStore, observe: { $0 }) { appViewStore in
             NavigationStack {
                 ZStack {
-                    Color.black01.ignoresSafeArea() // 원하는 색상으로 설정하세요
+                    Color.black01.ignoresSafeArea()
                     
                     VStack(alignment: .leading, spacing: 0) {
                         if appViewStore.favoriteVideos.isEmpty {

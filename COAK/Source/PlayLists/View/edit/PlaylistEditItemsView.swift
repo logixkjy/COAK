@@ -18,42 +18,46 @@ struct PlaylistEditItemsView: View {
             let selectedGroup = viewStore.groups.first(where: { $0.id == viewStore.selectedGroupId })
             let items = selectedGroup?.playlists.sorted(by: { $0.order < $1.order }) ?? []
             
-            List {
-                ForEach(items) { item in
-                    HStack {
-                        Image(systemName: item.isPremiumRequired ? "lock.fill" : "lock.open")
-                            .foregroundColor(item.isPremiumRequired ? .green : .gray)
-                        
-                        Spacer()
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(item.title)
-                                .font(.headline)
-                            Text("ID: \(item.id)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+            ZStack {
+                Color.black01.ignoresSafeArea()
+                
+                List {
+                    ForEach(items) { item in
+                        HStack {
+                            Image(systemName: item.isPremiumRequired ? "lock.fill" : "lock.open")
+                                .foregroundColor(item.isPremiumRequired ? .green : .gray)
+                            
+                            Spacer()
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(item.title)
+                                    .font(.headline)
+                                Text("ID: \(item.id)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            Button(action: {
+                                editingItem = item
+                            }) {
+                                Image(systemName: "pencil")
+                            }
+                            .buttonStyle(.plain)
                         }
-                        
-                        Spacer()
-                        Button(action: {
+                        .padding()
+                        .background(Color(.systemBackground))
+                        .cornerRadius(8)
+                        .onTapGesture {
                             editingItem = item
-                        }) {
-                            Image(systemName: "pencil")
                         }
-                        .buttonStyle(.plain)
                     }
-                    .padding()
-                    .background(Color(.systemBackground))
-                    .cornerRadius(8)
-                    .onTapGesture {
-                        editingItem = item
+                    .onDelete { indexSet in
+                        viewStore.send(.deleteItem(indexSet))
                     }
-                }
-                .onDelete { indexSet in
-                    viewStore.send(.deleteItem(indexSet))
-                }
-                .onMove { indices, destination in
-                    viewStore.send(.moveItem(indices, destination))
+                    .onMove { indices, destination in
+                        viewStore.send(.moveItem(indices, destination))
+                    }
                 }
             }
             .listStyle(.plain)
@@ -74,8 +78,9 @@ struct PlaylistEditItemsView: View {
                 PlaylistItemEditFormView(
                     title: "",
                     playlistId: "",
+                    videoId: "",
                     isPremium: false,
-                    onSave: { title, playlistIdUrl, isPremium in
+                    onSave: { title, playlistIdUrl, videoId, isPremium in
                         let playlistId: String = {
                             if playlistIdUrl.hasPrefix("http") {
                                 guard let playlistId = extractPlaylistId(from: playlistIdUrl) else {
@@ -85,7 +90,7 @@ struct PlaylistEditItemsView: View {
                             }
                             return playlistIdUrl
                         }()
-                        viewStore.send(.addItem(title, playlistId, isPremium))
+                        viewStore.send(.addItem(title, playlistId, videoId, isPremium))
                         isPresentingAddSheet = false
                     },
                     onCancel: { isPresentingAddSheet = false }
@@ -95,8 +100,9 @@ struct PlaylistEditItemsView: View {
                 PlaylistItemEditFormView(
                     title: item.title,
                     playlistId: item.id,
+                    videoId: item.videoId,
                     isPremium: item.isPremiumRequired,
-                    onSave: { newTitle, newId, newIsPremium in
+                    onSave: { newTitle, newId, videoId, newIsPremium in
                         let playlistId: String = {
                             if newId.hasPrefix("http") {
                                 guard let playlistId = extractPlaylistId(from: newId) else {
@@ -106,7 +112,7 @@ struct PlaylistEditItemsView: View {
                             }
                             return newId
                         }()
-                        viewStore.send(.editItem(item.id, newTitle, playlistId, newIsPremium))
+                        viewStore.send(.editItem(item.id, newTitle, playlistId, videoId, newIsPremium))
                         editingItem = nil
                     },
                     onCancel: { editingItem = nil }

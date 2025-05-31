@@ -1,5 +1,5 @@
 {
-  "sourceLanguage" : "ko",
+  "sourceLanguage" : "mn",
   "strings" : {
     "" : {
 
@@ -1269,6 +1269,12 @@
         }
       }
     },
+    "play_list_sub_edit_popup_videoid_error" : {
+
+    },
+    "play_list_sub_edit_popup_videoid_hint" : {
+
+    },
     "play_list_sub_edit_popup_youtube_error" : {
       "localizations" : {
         "ko" : {
@@ -1441,6 +1447,278 @@
         }
       }
     },
+    "setting_admin_info" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "관리자 기능"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Админ функц"
+          }
+        }
+      }
+    },
+    "setting_birth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "생년월일: "
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Төрсөн огноо: "
+          }
+        }
+      }
+    },
+    "setting_email" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이메일: "
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Имэйл: "
+          }
+        }
+      }
+    },
+    "setting_image_save" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장되었습니다."
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хадгалагдлаа"
+          }
+        }
+      }
+    },
+    "setting_logout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그아웃"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Гарах"
+          }
+        }
+      }
+    },
+    "setting_my_info" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 정보"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Миний мэдээлэл"
+          }
+        }
+      }
+    },
+    "setting_my_info_edit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 정보 수정하기"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мэдээлэл засварлах"
+          }
+        }
+      }
+    },
+    "setting_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이름: "
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нэр: "
+          }
+        }
+      }
+    },
+    "setting_notice_register" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공지 등록"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зар нийтлэх"
+          }
+        }
+      }
+    },
+    "setting_phone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전화번호: "
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Утасны дугаар: "
+          }
+        }
+      }
+    },
+    "setting_play_list_edit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "재생 목록 수정"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Жагсаалт засварлах"
+          }
+        }
+      }
+    },
+    "setting_policy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개인정보 처리방침 보기"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хувийн мэдээллийн бодлого харах"
+          }
+        }
+      }
+    },
+    "setting_profile_image_album" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앨범에서 선택"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цомгоос сонго"
+          }
+        }
+      }
+    },
+    "setting_profile_image_camera" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진 촬영"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Зураг авах"
+          }
+        }
+      }
+    },
+    "setting_profile_image_select" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로필 이미지 선택"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Профайл зураг сонгоно уу"
+          }
+        }
+      }
+    },
+    "setting_push_send" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "푸시 발송"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Push илгээх"
+          }
+        }
+      }
+    },
     "setting_secession_popup_desc" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1526,6 +1804,23 @@
         }
       }
     },
+    "setting_user_list" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전체 사용자 보기"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бүх хэрэглэгч харах"
+          }
+        }
+      }
+    },
     "Sonjin bagsh" : {
 
     },
@@ -1580,25 +1875,10 @@
         }
       }
     },
-    "개인정보 처리방침 보기" : {
-
-    },
-    "공지 등록" : {
-
-    },
-    "관리자 기능" : {
-
-    },
     "광고 영역" : {
 
     },
-    "내 정보" : {
-
-    },
     "레이아웃 전환" : {
-
-    },
-    "로그아웃" : {
 
     },
     "로그인하러 가기" : {
@@ -1610,19 +1890,10 @@
     "모두 보기" : {
 
     },
-    "사진 촬영" : {
-
-    },
     "삭common_delete" : {
 
     },
-    "설정" : {
-
-    },
     "아이디(이메일) 찾기" : {
-
-    },
-    "앨범에서 선택" : {
 
     },
     "완료" : {
@@ -1631,31 +1902,16 @@
     "이름" : {
 
     },
-    "이름:" : {
-
-    },
     "이름을 입력하세요" : {
 
     },
     "이메일 찾기" : {
 
     },
-    "이메일:" : {
-
-    },
-    "재생목록 등록" : {
-
-    },
     "재생목록 불러오는 중..." : {
 
     },
-    "저장 완료" : {
-
-    },
     "전체 사용자" : {
-
-    },
-    "전체 사용자 보기" : {
 
     },
     "전화번호" : {
@@ -1667,19 +1923,7 @@
     "찾은 이메일: %@" : {
 
     },
-    "취소" : {
-
-    },
-    "푸시 발송" : {
-
-    },
-    "프로필 이미지 선택" : {
-
-    },
     "홈" : {
-
-    },
-    "확인" : {
 
     }
   },

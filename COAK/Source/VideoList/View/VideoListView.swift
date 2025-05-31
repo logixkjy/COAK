@@ -44,35 +44,39 @@ struct VideoListView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationStack {
-                VStack(spacing: 8) {
-                    if viewStore.isLoading {
-                        ProgressView("재생목록 불러오는 중...")
-                    } else if let error = viewStore.errorMessage {
-                        Text(error).foregroundColor(.red)
-                    } else {
-                        if isGridLayout {
-                            ScrollView {
-                                LazyVGrid(columns: columns, spacing: 16) {
+                ZStack {
+                    Color.black01.ignoresSafeArea()
+                    
+                    VStack(spacing: 8) {
+                        if viewStore.isLoading {
+                            ProgressView("재생목록 불러오는 중...")
+                        } else if let error = viewStore.errorMessage {
+                            Text(error).foregroundColor(.red)
+                        } else {
+                            if isGridLayout {
+                                ScrollView {
+                                    LazyVGrid(columns: columns, spacing: 16) {
+                                        ForEach(viewStore.videos) { video in
+                                            VideoGridCard(video: video)
+                                                .onTapGesture {
+                                                    selectedVideoId = StringID(id: video.id)
+                                                }
+                                        }
+                                    }
+                                    .padding()
+                                    .transition(.opacity.combined(with: .scale))
+                                }
+                            } else {
+                                List {
                                     ForEach(viewStore.videos) { video in
-                                        VideoGridCard(video: video)
+                                        VideoRowView(video: video)
                                             .onTapGesture {
                                                 selectedVideoId = StringID(id: video.id)
                                             }
                                     }
                                 }
-                                .padding()
-                                .transition(.opacity.combined(with: .scale))
+                                .listStyle(.plain)
                             }
-                        } else {
-                            List {
-                                ForEach(viewStore.videos) { video in
-                                    VideoRowView(video: video)
-                                        .onTapGesture {
-                                            selectedVideoId = StringID(id: video.id)
-                                        }
-                                }
-                            }
-                            .listStyle(.plain)
                         }
                     }
                 }

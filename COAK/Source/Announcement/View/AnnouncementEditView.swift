@@ -34,60 +34,86 @@ struct AnnouncementEditView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("notice_edit_contents_hint")
-                        .font(.headline)
-                    
-                    TextEditor(text: $content)
-                        .frame(height: 150)
-                        .padding(8)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.3)))
-                        .focused($focusedField, equals: .content)
-                    
-                    Text("notice_edit_image_select")
-                        .font(.headline)
-                    if announcement.imageURLs.count - deleteImageIndexes.count + selectedImages.count < 1 {
-                        PhotosPicker(selection: $selectedItems,
-                                     maxSelectionCount: 1,
-                                     matching: .images) {
-                            HStack {
-                                Image(systemName: "photo.on.rectangle")
-                                Text("notice_edit_image_select_count")
+            ZStack {
+                Color.black01.ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("notice_edit_contents_hint")
+                            .font(.headline)
+                        
+                        TextEditor(text: $content)
+                            .frame(height: 150)
+                            .padding(8)
+                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.3)))
+                            .focused($focusedField, equals: .content)
+                        
+                        Text("notice_edit_image_select")
+                            .font(.headline)
+                        if announcement.imageURLs.count - deleteImageIndexes.count + selectedImages.count < 1 {
+                            PhotosPicker(selection: $selectedItems,
+                                         maxSelectionCount: 1,
+                                         matching: .images) {
+                                HStack {
+                                    Image(systemName: "photo.on.rectangle")
+                                    Text("notice_edit_image_select_count")
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color(.secondarySystemBackground))
+                                .cornerRadius(8)
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(.secondarySystemBackground))
-                            .cornerRadius(8)
-                        }
-                                     .onChange(of: selectedItems) { newItems in
-                                         Task {
-                                             selectedImages = []
-                                             for item in newItems.prefix(3) {
-                                                 if let data = try? await item.loadTransferable(type: Data.self),
-                                                    let uiImage = UIImage(data: data) {
-                                                     selectedImages.append(uiImage)
+                                         .onChange(of: selectedItems) { newItems in
+                                             Task {
+                                                 selectedImages = []
+                                                 for item in newItems.prefix(3) {
+                                                     if let data = try? await item.loadTransferable(type: Data.self),
+                                                        let uiImage = UIImage(data: data) {
+                                                         selectedImages.append(uiImage)
+                                                     }
                                                  }
+                                                 focusedField = nil
                                              }
-                                             focusedField = nil
                                          }
-                                     }
-                    }
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            ForEach(Array(announcement.imageURLs.enumerated()), id: \.offset) { index, urlString in
-                                if !deleteImageIndexes.contains(index) {
-                                    ZStack(alignment: .topTrailing) {
-                                        AsyncImage(url: URL(string: urlString)) { image in
-                                            image.resizable().scaledToFill().frame(width: 100, height: 100).clipped().cornerRadius(8)
-                                        } placeholder: {
-                                            Color.gray.frame(width: 100, height: 100)
+                        }
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 12) {
+                                ForEach(Array(announcement.imageURLs.enumerated()), id: \.offset) { index, urlString in
+                                    if !deleteImageIndexes.contains(index) {
+                                        ZStack(alignment: .topTrailing) {
+                                            AsyncImage(url: URL(string: urlString)) { image in
+                                                image.resizable().scaledToFill().frame(width: 100, height: 100).clipped().cornerRadius(8)
+                                            } placeholder: {
+                                                Color.gray.frame(width: 100, height: 100)
+                                            }
+                                            
+                                            Button(action: {
+                                                deleteImageIndexes.append(index)
+                                                focusedField = nil
+                                            }) {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundColor(.red)
+                                                    .background(Color.white)
+                                                    .clipShape(Circle())
+                                                    .padding(4)
+                                            }
                                         }
-
+                                    }
+                                }
+                                // 이미지를 삭제하고 추가하는 경우에도 정상 표시
+                                ForEach(selectedImages, id: \.self) { image in
+                                    ZStack(alignment: .topTrailing) {
+                                        Image(uiImage: image)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 100, height: 100)
+                                            .clipped()
+                                            .cornerRadius(8)
                                         Button(action: {
-                                            deleteImageIndexes.append(index)
-                                            focusedField = nil
+                                            if let index = selectedImages.firstIndex(of: image) {
+                                                selectedImages.remove(at: index)
+                                            }
                                         }) {
                                             Image(systemName: "xmark.circle.fill")
                                                 .foregroundColor(.red)
@@ -98,49 +124,27 @@ struct AnnouncementEditView: View {
                                     }
                                 }
                             }
-                            // 이미지를 삭제하고 추가하는 경우에도 정상 표시
-                            ForEach(selectedImages, id: \.self) { image in
-                                ZStack(alignment: .topTrailing) {
-                                    Image(uiImage: image)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 100, height: 100)
-                                        .clipped()
-                                        .cornerRadius(8)
-                                    Button(action: {
-                                        if let index = selectedImages.firstIndex(of: image) {
-                                            selectedImages.remove(at: index)
-                                        }
-                                    }) {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundColor(.red)
-                                            .background(Color.white)
-                                            .clipShape(Circle())
-                                            .padding(4)
-                                    }
+                        }
+                        
+                        Button(action: updateAnnouncement) {
+                            HStack {
+                                if isUploading {
+                                    ProgressView()
+                                } else {
+                                    Image(systemName: "paperplane")
+                                    Text("notice_edit_title2")
                                 }
                             }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.accentColor)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
                         }
+                        .disabled(content.isEmpty || isUploading)
                     }
-                    
-                    Button(action: updateAnnouncement) {
-                        HStack {
-                            if isUploading {
-                                ProgressView()
-                            } else {
-                                Image(systemName: "paperplane")
-                                Text("notice_edit_title2")
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.accentColor)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                    }
-                    .disabled(content.isEmpty || isUploading)
+                    .padding()
                 }
-                .padding()
             }
             .navigationTitle("notice_edit_title2")
             .onAppear {

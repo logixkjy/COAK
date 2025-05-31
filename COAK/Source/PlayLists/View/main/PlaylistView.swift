@@ -38,134 +38,138 @@ struct PlaylistView: View {
             let items = selectedGroup?.playlists.sorted(by: { $0.order < $1.order }) ?? []
             
             NavigationStack {
-                VStack(spacing: 8) {
-                    if viewStore.isLoading {
-                        ProgressView("재생목록 불러오는 중...")
-                    } else if let error = viewStore.error {
-                        Text(error).foregroundColor(.red)
-                    } else {
-                        if isGridLayout {
-                            ScrollView {
-                                LazyVGrid(columns: columns, spacing: 16) {
-                                    ForEach(items) { playlist in
-                                        VStack(alignment: .leading, spacing: 6) {
-                                            ZStack {
-                                                if let url = playlist.thumbnailURL {
-                                                    AsyncImage(url: URL(string: url)) { image in
-                                                        image
-                                                            .resizable()
-                                                            .aspectRatio(contentMode: .fill)
-                                                            .frame(height: 100)
-                                                            .clipped()
-                                                            .cornerRadius(6)
-                                                    } placeholder: {
-                                                        ProgressView()
-                                                            .frame(height: 100)
-                                                    }
-                                                    
-                                                    // 프리미엄 여부에 따른 딤 처리와 자물쇠 아이콘
-                                                    if playlist.isPremiumRequired == true &&
-                                                        (appStore.userProfile?.isPremium ?? false) == false &&
-                                                        (appStore.userProfile?.isAdmin ?? false) == false {
-                                                        Color.black.opacity(0.4) // 딤 처리
-                                                            .cornerRadius(8)
-                                                        
-                                                        VStack {
-                                                            Image(systemName: "lock.fill")
+                ZStack {
+                    Color.black01.ignoresSafeArea()
+                    
+                    VStack(spacing: 8) {
+                        if viewStore.isLoading {
+                            ProgressView("재생목록 불러오는 중...")
+                        } else if let error = viewStore.error {
+                            Text(error).foregroundColor(.red)
+                        } else {
+                            if isGridLayout {
+                                ScrollView {
+                                    LazyVGrid(columns: columns, spacing: 16) {
+                                        ForEach(items) { playlist in
+                                            VStack(alignment: .leading, spacing: 6) {
+                                                ZStack {
+                                                    if let url = playlist.thumbnailURL {
+                                                        AsyncImage(url: URL(string: url)) { image in
+                                                            image
                                                                 .resizable()
-                                                                .frame(width: 20, height: 20)
-                                                                .foregroundColor(.white)
-                                                                .padding(8)
-                                                                .background(Color.black.opacity(0.6))
-                                                                .clipShape(Circle())
+                                                                .aspectRatio(contentMode: .fill)
+                                                                .frame(height: 100)
+                                                                .clipped()
+                                                                .cornerRadius(6)
+                                                        } placeholder: {
+                                                            ProgressView()
+                                                                .frame(height: 100)
+                                                        }
+                                                        
+                                                        // 프리미엄 여부에 따른 딤 처리와 자물쇠 아이콘
+                                                        if playlist.isPremiumRequired == true &&
+                                                            (appStore.userProfile?.isPremium ?? false) == false &&
+                                                            (appStore.userProfile?.isAdmin ?? false) == false {
+                                                            Color.black.opacity(0.4) // 딤 처리
+                                                                .cornerRadius(8)
+                                                            
+                                                            VStack {
+                                                                Image(systemName: "lock.fill")
+                                                                    .resizable()
+                                                                    .frame(width: 20, height: 20)
+                                                                    .foregroundColor(.white)
+                                                                    .padding(8)
+                                                                    .background(Color.black.opacity(0.6))
+                                                                    .clipShape(Circle())
+                                                            }
                                                         }
                                                     }
                                                 }
+                                                Text(playlist.title)
+                                                    .font(.headline)
+                                                    .lineLimit(2)
+                                                    .foregroundColor(.white)
                                             }
+                                            .onTapGesture {
+                                                if playlist.isPremiumRequired == true &&
+                                                    (appStore.userProfile?.isPremium ?? false) == false &&
+                                                    (appStore.userProfile?.isAdmin ?? false) == false {
+                                                    let message = NSLocalizedString("common_paid_toast", comment: "") + "/n facebook.com/sonjinbagsh\n 010-2145-4221"
+                                                    showToast(message: message)
+                                                } else {
+                                                    viewStore.send(.selectPlaylist(playlist))
+                                                    isPresented.toggle()
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .padding()
+                                    .transition(.opacity.combined(with: .scale))
+                                }
+                            } else {
+                                List(items) { playlist in
+                                    HStack(alignment: .top, spacing: 12) {
+                                        if let url = playlist.thumbnailURL {
+                                            ZStack {
+                                                AsyncImage(url: URL(string: url)) { image in
+                                                    image
+                                                        .resizable()
+                                                        .aspectRatio(16/9, contentMode: .fill)
+                                                } placeholder: {
+                                                    Rectangle()
+                                                        .fill(Color.gray.opacity(0.2))
+                                                }
+                                                .frame(width: 160, height: 90)
+                                                .clipped()
+                                                .cornerRadius(8)
+                                                
+                                                // 프리미엄 여부에 따른 딤 처리와 자물쇠 아이콘
+                                                if playlist.isPremiumRequired == true &&
+                                                    (appStore.userProfile?.isPremium ?? false) == false &&
+                                                    (appStore.userProfile?.isAdmin ?? false) == false {
+                                                    Color.black.opacity(0.4) // 딤 처리
+                                                        .cornerRadius(8)
+                                                    
+                                                    VStack {
+                                                        Image(systemName: "lock.fill")
+                                                            .resizable()
+                                                            .frame(width: 20, height: 20)
+                                                            .foregroundColor(.white)
+                                                            .padding(8)
+                                                            .background(Color.black.opacity(0.6))
+                                                            .clipShape(Circle())
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        VStack(alignment: .leading, spacing: 6) {
                                             Text(playlist.title)
                                                 .font(.headline)
                                                 .lineLimit(2)
                                                 .foregroundColor(.white)
                                         }
-                                        .onTapGesture {
-                                            if playlist.isPremiumRequired == true &&
-                                                (appStore.userProfile?.isPremium ?? false) == false &&
-                                                (appStore.userProfile?.isAdmin ?? false) == false {
-                                                let message = NSLocalizedString("common_paid_toast", comment: "") + "/n facebook.com/sonjinbagsh\n 010-2145-4221"
-                                                showToast(message: message)
-                                            } else {
-                                                viewStore.send(.selectPlaylist(playlist))
-                                                isPresented.toggle()
-                                            }
+                                        
+                                        Spacer()
+                                    }
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        if playlist.isPremiumRequired == true &&
+                                            (appStore.userProfile?.isPremium ?? false) == false &&
+                                            (appStore.userProfile?.isAdmin ?? false) == false {
+                                            let message = NSLocalizedString("common_paid_toast", comment: "") + "/n facebook.com/sonjinbagsh\n 010-2145-4221"
+                                            showToast(message: message)
+                                        } else {
+                                            viewStore.send(.selectPlaylist(playlist))
+                                            isPresented.toggle()
                                         }
                                     }
                                 }
-                                .padding()
+                                .listStyle(.plain)
                                 .transition(.opacity.combined(with: .scale))
                             }
-                        } else {
-                            List(items) { playlist in
-                                HStack(alignment: .top, spacing: 12) {
-                                    if let url = playlist.thumbnailURL {
-                                        ZStack {
-                                            AsyncImage(url: URL(string: url)) { image in
-                                                image
-                                                    .resizable()
-                                                    .aspectRatio(16/9, contentMode: .fill)
-                                            } placeholder: {
-                                                Rectangle()
-                                                    .fill(Color.gray.opacity(0.2))
-                                            }
-                                            .frame(width: 160, height: 90)
-                                            .clipped()
-                                            .cornerRadius(8)
-                                            
-                                            // 프리미엄 여부에 따른 딤 처리와 자물쇠 아이콘
-                                            if playlist.isPremiumRequired == true &&
-                                                (appStore.userProfile?.isPremium ?? false) == false &&
-                                                (appStore.userProfile?.isAdmin ?? false) == false {
-                                                Color.black.opacity(0.4) // 딤 처리
-                                                    .cornerRadius(8)
-                                                
-                                                VStack {
-                                                    Image(systemName: "lock.fill")
-                                                        .resizable()
-                                                        .frame(width: 20, height: 20)
-                                                        .foregroundColor(.white)
-                                                        .padding(8)
-                                                        .background(Color.black.opacity(0.6))
-                                                        .clipShape(Circle())
-                                                }
-                                            }
-                                        }
-                                    }
-                                    
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        Text(playlist.title)
-                                            .font(.headline)
-                                            .lineLimit(2)
-                                            .foregroundColor(.white)
-                                    }
-                                    
-                                    Spacer()
-                                }
-                                .contentShape(Rectangle())
-                                .onTapGesture {
-                                    if playlist.isPremiumRequired == true &&
-                                        (appStore.userProfile?.isPremium ?? false) == false &&
-                                        (appStore.userProfile?.isAdmin ?? false) == false {
-                                        let message = NSLocalizedString("common_paid_toast", comment: "") + "/n facebook.com/sonjinbagsh\n 010-2145-4221"
-                                        showToast(message: message)
-                                    } else {
-                                        viewStore.send(.selectPlaylist(playlist))
-                                        isPresented.toggle()
-                                    }
-                                }
-                            }
-                            .listStyle(.plain)
-                            .transition(.opacity.combined(with: .scale))
+                            
                         }
-                        
                     }
                 }
                 .navigationTitle(selectedGroup?.title ?? "")

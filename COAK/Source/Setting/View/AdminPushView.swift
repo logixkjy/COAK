@@ -22,40 +22,44 @@ struct AdminPushView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationStack {
-                VStack(spacing: 16) {
-                    Text("push_send_notice_title")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding([.leading, .trailing], 8)
+                ZStack {
+                    Color.black01.ignoresSafeArea()
                     
-                    TextField("push_send_notice_title", text: $title)
-                        .textFieldStyleCustom()
-                        .focused($focusedField, equals: .title)
-                        .foregroundColor(.white)
-                        .padding([.leading, .trailing], 8)
-                    
-                    Text("push_send_notice_message")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding([.leading, .trailing], 8)
-                    
-                    TextField("push_send_notice_message", text: $content)
-                        .textFieldStyleCustom()
-                        .focused($focusedField, equals: .content)
-                        .foregroundColor(.white)
-                        .padding([.leading, .trailing], 8)
-                    
-                    Button("push_send_btn") {
-                        viewStore.send(.sendPush(title, content))
+                    VStack(spacing: 16) {
+                        Text("push_send_notice_title")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding([.leading, .trailing], 8)
+                        
+                        TextField("push_send_notice_title", text: $title)
+                            .textFieldStyleCustom()
+                            .focused($focusedField, equals: .title)
+                            .foregroundColor(.white)
+                            .padding([.leading, .trailing], 8)
+                        
+                        Text("push_send_notice_message")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding([.leading, .trailing], 8)
+                        
+                        TextField("push_send_notice_message", text: $content)
+                            .textFieldStyleCustom()
+                            .focused($focusedField, equals: .content)
+                            .foregroundColor(.white)
+                            .padding([.leading, .trailing], 8)
+                        
+                        Button("push_send_btn") {
+                            viewStore.send(.sendPush(title, content))
+                        }
+                        
+                        Text(viewStore.pushResult)
+                            .padding()
+                            .foregroundColor(.green)
+                        
+                        Spacer()
                     }
-                    
-                    Text(viewStore.pushResult)
-                        .padding()
-                        .foregroundColor(.green)
-                    
-                    Spacer()
                 }
                 .navigationTitle("push_send_title")
                 .toolbar {

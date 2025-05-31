@@ -19,24 +19,28 @@ struct AnnouncementListView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationStack {
-                VStack(alignment: .leading, spacing: 0) {
-                    if viewStore.announcements.isEmpty {
-                        Text("notice_list_empty")
-                            .foregroundColor(.gray)
-                            .padding()
-                    } else {
-                        ScrollView {
-                            LazyVStack(spacing: 0) {
-                                ForEach(viewStore.announcements) { item in
-                                    AnnouncementCardView(announcement: item)
-                                        .onTapGesture {
-                                            selectedAnnouncement = item
-                                        }
-                                        .onLongPressGesture {
-                                            if (appStore.userProfile?.isAdmin ?? false) {
-                                                deleteAnnouncement = item
+                ZStack {
+                    Color.black01.ignoresSafeArea()
+                    
+                    VStack(alignment: .leading, spacing: 0) {
+                        if viewStore.announcements.isEmpty {
+                            Text("notice_list_empty")
+                                .foregroundColor(.gray)
+                                .padding()
+                        } else {
+                            ScrollView {
+                                LazyVStack(spacing: 0) {
+                                    ForEach(viewStore.announcements) { item in
+                                        AnnouncementCardView(announcement: item)
+                                            .onTapGesture {
+                                                selectedAnnouncement = item
                                             }
-                                        }
+                                            .onLongPressGesture {
+                                                if (appStore.userProfile?.isAdmin ?? false) {
+                                                    deleteAnnouncement = item
+                                                }
+                                            }
+                                    }
                                 }
                             }
                         }

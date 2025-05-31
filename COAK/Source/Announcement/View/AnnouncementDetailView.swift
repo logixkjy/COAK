@@ -46,6 +46,8 @@ struct AnnouncementDetailView: View {
         WithViewStore(appStore, observe: { $0 }) { appViewStore in
             WithViewStore(commentStore, observe: { $0 }) { viewStore in
                 ZStack(alignment: .bottom) {
+                    Color.black01.ignoresSafeArea()
+                    
                     VStack(spacing: 0) {
                         VStack {
                             HStack {

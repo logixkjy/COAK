@@ -11,5 +11,6 @@ struct PlaylistItemEdit: Identifiable, Codable, Equatable, Hashable {
     var id: String         // YouTube Playlist ID
     var title: String
     var order: Int
+    var videoId: String
     var isPremiumRequired: Bool
 }

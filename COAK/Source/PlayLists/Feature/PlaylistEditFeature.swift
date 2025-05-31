@@ -26,8 +26,8 @@ struct PlaylistEditFeature: Reducer {
         case deleteGroup(IndexSet)
         
         case selectGroup(String)
-        case addItem(String, String, Bool)
-        case editItem(String, String, String, Bool)
+        case addItem(String, String, String, Bool)
+        case editItem(String, String, String, String, Bool)
         case deleteItem(IndexSet)
         case moveItem(IndexSet, Int)
         case setPremium(String, Bool)
@@ -94,19 +94,20 @@ struct PlaylistEditFeature: Reducer {
             state.selectedGroupId = id
             return .none
             
-        case let .addItem(title, playlistId, isPremium):
+        case let .addItem(title, playlistId, videoId, isPremium):
             guard let groupIdx = state.groups.firstIndex(where: { $0.id == state.selectedGroupId }) else { return .none }
             let maxOrder = state.groups[groupIdx].playlists.map(\.order).max() ?? 0
             state.groups[groupIdx].playlists.append(
-                PlaylistItemEdit(id: playlistId, title: title, order: maxOrder + 1, isPremiumRequired: isPremium)
+                PlaylistItemEdit(id: playlistId, title: title, order: maxOrder + 1, videoId: videoId, isPremiumRequired: isPremium)
             )
             return .none
 
-        case let .editItem(id, title, playlistId, isPremium):
+        case let .editItem(id, title, playlistId, videoId, isPremium):
             guard let groupIdx = state.groups.firstIndex(where: { $0.id == state.selectedGroupId }) else { return .none }
             if let index = state.groups[groupIdx].playlists.firstIndex(where: { $0.id == id }) {
                 state.groups[groupIdx].playlists[index].id = playlistId
                 state.groups[groupIdx].playlists[index].title = title
+                state.groups[groupIdx].playlists[index].videoId = videoId
                 state.groups[groupIdx].playlists[index].isPremiumRequired = isPremium
             }
             return .none

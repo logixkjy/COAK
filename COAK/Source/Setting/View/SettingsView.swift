@@ -5,8 +5,6 @@
 //  Created by JooYoung Kim on 4/5/25.
 //
 
-// SettingsView.swift - 프로필 이미지 ActionSheet & Viewer 완성형
-
 import SwiftUI
 import ComposableArchitecture
 import FirebaseAuth
@@ -19,136 +17,154 @@ struct SettingsView: View {
     let store: StoreOf<SettingsFeature>
     let appStore: StoreOf<AppFeature>
     let announcementStore: StoreOf<AnnouncementFeature>
-
+    
     @State private var isShowingAnnouncementPost = false
     @State private var isShowingPlaylistEditor = false
     @State private var isShowingAdminPush = false
     @State private var isShowingUserList = false
-//    @State private var announcement: Announcement = Announcement(id: "", content: "", imageURLs: [], authorName: "", authorProfileImageURL: nil, createdAt: Date())
+    //    @State private var announcement: Announcement = Announcement(id: "", content: "", imageURLs: [], authorName: "", authorProfileImageURL: nil, createdAt: Date())
     @State private var showDeleteConfirm = false
     @State private var isShowingPolicy = false
-
+    
     @State private var name: String = ""
     @State private var email: String = ""
+    @State private var phone: String = ""
+    @State private var birthDay: String = ""
     @State private var profileImage: UIImage? = nil
     @State private var showSavedAlert = false
     @State private var showProfileEditor = false
     @State private var showImageViewer = false
     @State private var isPremium = false
-
+    
     @State private var showImagePicker = false
     @State private var imagePickerSource: UIImagePickerController.SourceType = .photoLibrary
     @State private var showImageSourceSheet = false
-
+    
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             WithViewStore(appStore, observe: { $0 }) { appViewStore in
                 NavigationView {
-                    Form {
-                        Section(header: Text("내 정보")) {
-                            HStack(alignment: .top) {
-                                ZStack(alignment: .bottomTrailing) {
-                                    Button {
-                                        showImageViewer = true
-                                    } label: {
-                                        if let image = profileImage {
-                                            Image(uiImage: image)
-                                                .resizable()
-                                                .frame(width: 80, height: 80)
-                                                .clipShape(Circle())
-                                        } else {
-                                            Image(systemName: "person.crop.circle")
-                                                .resizable()
-                                                .frame(width: 80, height: 80)
-                                                .foregroundColor(.gray)
+                    ZStack {
+                        Color.black01.ignoresSafeArea()
+                        
+                        Form {
+                            Section(header: Text("setting_my_info")
+                                .font(.headline)) {
+                                    HStack(alignment: .top) {
+                                        ZStack(alignment: .bottomTrailing) {
+                                            Button {
+                                                showImageViewer = true
+                                            } label: {
+                                                if let image = profileImage {
+                                                    Image(uiImage: image)
+                                                        .resizable()
+                                                        .frame(width: 60, height: 60)
+                                                        .clipShape(Circle())
+                                                } else {
+                                                    Image(systemName: "person.crop.circle")
+                                                        .resizable()
+                                                        .frame(width: 60, height: 60)
+                                                        .foregroundColor(.gray)
+                                                }
+                                            }
+                                            .buttonStyle(.plain)
+                                            .contentShape(Circle())
+                                            
+                                            Button {
+                                                showImageSourceSheet = true
+                                            } label: {
+                                                Image(systemName: "camera.circle.fill")
+                                                    .font(.system(size: 18))
+                                                    .foregroundColor(.blue)
+                                                    .background(Color.white.clipShape(Circle()))
+                                                    .padding(4)
+                                            }
+                                            .contentShape(Rectangle())
+                                        }
+                                        .padding(.trailing)
+                                        
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            HStack {
+                                                Text("setting_email").bold()
+                                                Text(email).foregroundColor(.gray)
+                                            }
+                                            HStack {
+                                                Text("setting_name").bold()
+                                                Text(name).foregroundColor(.gray)
+                                            }
+                                            HStack {
+                                                Text("setting_phone").bold()
+                                                Text(phone).foregroundColor(.gray)
+                                            }
+                                            HStack {
+                                                Text("setting_birth").bold()
+                                                Text(birthDay).foregroundColor(.gray)
+                                            }
                                         }
                                     }
-                                    .buttonStyle(.plain)
-                                    .contentShape(Circle()) // ✅ 이미지 영역만 터치로 인식
-                                    
-                                    Button {
-                                        showImageSourceSheet = true
-                                    } label: {
-                                        Image(systemName: "camera.circle.fill")
-                                            .font(.system(size: 24))
-                                            .foregroundColor(.blue)
-                                            .background(Color.white.clipShape(Circle()))
-                                            .padding(4)
-                                    }
-                                    .contentShape(Rectangle()) // ✅ 버튼 내부 터치만 반응
                                 }
-                                .padding(.trailing)
-
-                                VStack(alignment: .leading, spacing: 8) {
-                                    HStack {
-                                        Text("이메일:").bold()
-                                        Text(email).foregroundColor(.gray)
-                                    }
-                                    HStack {
-                                        Text("이름:").bold()
-                                        Text(name).foregroundColor(.gray)
-                                    }
-                                }
-                                .onTapGesture {
+                            
+                            
+                            Section {
+                                Button("setting_my_info_edit") {
                                     showProfileEditor = true
                                 }
+                                Button("setting_policy") {
+                                    isShowingPolicy = true
+                                }
+                            }
+                            
+                            Section {
+                                Button("setting_logout") {
+                                    appViewStore.send(.logoutTapped)
+                                }
+                                .foregroundColor(.red)
+                            }
+                            
+                            if let isAdmin = appViewStore.userProfile?.isAdmin, isAdmin == true {
+                                Section(header: Text("setting_admin_info")) {
+                                    Button("setting_notice_register") {
+                                        isShowingAnnouncementPost = true
+                                    }
+                                    .foregroundColor(.white)
+                                    
+                                    Button("setting_user_list") {
+                                        isShowingUserList = true
+                                    }
+                                    .foregroundColor(.white)
+                                    
+                                    Button("setting_play_list_edit") {
+                                        isShowingPlaylistEditor = true
+                                    }
+                                    .foregroundColor(.white)
+                                    
+                                    Button("setting_push_send") {
+                                        isShowingAdminPush = true
+                                    }
+                                    .foregroundColor(.white)
+                                }
                             }
                         }
-
-                        Section {
-                            Button("개인정보 처리방침 보기") {
-                                isShowingPolicy = true
-                            }
-                        }
-
-                        Section {
-                            Button("로그아웃") {
-                                appViewStore.send(.logoutTapped)
-                            }
-                            .foregroundColor(.red)
-                        }
-
-                        if let isAdmin = appViewStore.userProfile?.isAdmin, isAdmin == true {
-                            Section(header: Text("관리자 기능")) {
-                                Button("공지 등록") {
-                                    isShowingAnnouncementPost = true
-                                }
-                                .foregroundColor(.white)
-                                
-                                Button("전체 사용자 보기") {
-                                    isShowingUserList = true
-                                }
-                                .foregroundColor(.white)
-                                
-                                Button("재생목록 등록") {
-                                    isShowingPlaylistEditor = true
-                                }
-                                .foregroundColor(.white)
-                                
-                                Button("푸시 발송") {
-                                    isShowingAdminPush = true
-                                }
-                                .foregroundColor(.white)
-                            }
-                        }
+                        .scrollContentBackground(.hidden)
+                        .background(Color.clear)
                     }
-                    .navigationTitle("설정")
+                    .navigationTitle("main_setting")
                     .onAppear {
                         viewStore.send(.onAppear)
                         loadUserProfile(userProfile: appViewStore.userProfile)
                     }
-                    .confirmationDialog("프로필 이미지 선택", isPresented: $showImageSourceSheet) {
+                    .confirmationDialog("setting_profile_image_select", isPresented: $showImageSourceSheet) {
                         if UIImagePickerController.isSourceTypeAvailable(.camera) {
-                            Button("사진 촬영") {
+                            Button("setting_profile_image_camera") {
                                 imagePickerSource = .camera
                                 showImagePicker = true
                             }
                         }
-                        Button("앨범에서 선택") {
+                        Button("setting_profile_image_album") {
                             imagePickerSource = .photoLibrary
                             showImagePicker = true
                         }
-                        Button("취소", role: .cancel) {}
+                        Button("common_cancel", role: .cancel) {}
                     }
                     .sheet(isPresented: $isShowingAnnouncementPost) {
                         AnnouncementPostView(store: announcementStore, appStore: appStore)
@@ -163,7 +179,7 @@ struct SettingsView: View {
                         UserListView()
                     }
                     .sheet(isPresented: $isShowingPolicy) {
-                        SafariWebView(url: URL(string: "https://logixkjy.github.io/privacy.html")!)
+                        SafariWebView(url: URL(string: "https://logixkjy.github.io/coak-privacy-policy")!)
                     }
                     .sheet(isPresented: $showProfileEditor, onDismiss: {
                         loadUserProfile(userProfile: appViewStore.userProfile)
@@ -182,14 +198,14 @@ struct SettingsView: View {
                             showImagePicker = false
                         }
                     }
-                    .alert("저장 완료", isPresented: $showSavedAlert) {
-                        Button("확인", role: .cancel) {}
+                    .alert("setting_image_save", isPresented: $showSavedAlert) {
+                        Button("common_ok", role: .cancel) {}
                     }
                 }
             }
         }
     }
-
+    
     func loadUserProfile(userProfile: UserProfile?) {
         if let userProfile = userProfile {
             if let urlString = userProfile.profileImageURL {
@@ -204,16 +220,18 @@ struct SettingsView: View {
             }
             self.name = userProfile.name ?? ""
             self.email = userProfile.email ?? ""
+            self.phone = userProfile.phone ?? ""
+            self.birthDay = userProfile.birthdate?.formatted(date: .numeric, time: .omitted) ?? ""
             self.isPremium = userProfile.isPremium ?? false
         }
     }
-
+    
     func saveUserProfile() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-
+        
         Task {
             var imageURL: URL? = nil
-
+            
             if let image = profileImage,
                let data = image.jpegData(compressionQuality: 0.8) {
                 let ref = Storage.storage().reference().child("users/\(uid)/profile.jpg")
@@ -224,11 +242,11 @@ struct SettingsView: View {
                     print("이미지 업로드 실패: \(error.localizedDescription)")
                 }
             }
-
+            
             var userData: [String: Any] = [:]
             if let imageURL {
                 userData["profileImageURL"] = imageURL.absoluteString
-//                self.appStore.userProfile?.profileImageURL = imageURL.absoluteString
+                //                self.appStore.userProfile?.profileImageURL = imageURL.absoluteString
             }
             
             do {
@@ -242,11 +260,11 @@ struct SettingsView: View {
             }
         }
     }
-
+    
     func deleteAccount() {
         guard let user = Auth.auth().currentUser else { return }
         let uid = user.uid
-
+        
         user.delete { error in
             if let error = error {
                 print("회원탈퇴 실패: \(error.localizedDescription)")

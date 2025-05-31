@@ -24,47 +24,51 @@ struct PlaylistEditGroupsView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationStack(path: $path) {
-                List {
-                    ForEach(viewStore.groups.sorted(by: { $0.order < $1.order })) { group in
-                        Button {
-                            // 선택된 그룹 ID 설정
-                            viewStore.send(.selectGroup(group.id))
-                            path.append(group)
-                        } label: {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Text(group.title)
-                                        .font(.title2)
-                                        .foregroundColor(.primary)
-                                    Spacer()
-                                    Button(action: {
-                                        editingGroup = group
-                                        editedGroupTitle = group.title
-                                    }) {
-                                        Image(systemName: "pencil")
+                ZStack {
+                    Color.black01.ignoresSafeArea()
+                    
+                    List {
+                        ForEach(viewStore.groups.sorted(by: { $0.order < $1.order })) { group in
+                            Button {
+                                // 선택된 그룹 ID 설정
+                                viewStore.send(.selectGroup(group.id))
+                                path.append(group)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack {
+                                        Text(group.title)
+                                            .font(.title2)
+                                            .foregroundColor(.primary)
+                                        Spacer()
+                                        Button(action: {
+                                            editingGroup = group
+                                            editedGroupTitle = group.title
+                                        }) {
+                                            Image(systemName: "pencil")
+                                        }
+                                        .buttonStyle(.plain)
                                     }
-                                    .buttonStyle(.plain)
+                                    
+                                    Divider()
+                                    
+                                    Text("playlit Count: \(group.playlists.count)")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
                                 }
-                                
-                                Divider()
-                                
-                                Text("playlit Count: \(group.playlists.count)")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color(.systemBackground))
+                                        .shadow(color: .gray.opacity(0.2), radius: 4, x: 0, y: 2)
+                                )
                             }
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color(.systemBackground))
-                                    .shadow(color: .gray.opacity(0.2), radius: 4, x: 0, y: 2)
-                            )
                         }
-                    }
-                    .onDelete { indexSet in
-                        viewStore.send(.deleteGroup(indexSet))
-                    }
-                    .onMove { indices, destination in
-                        viewStore.send(.moveGroup(indices, destination))
+                        .onDelete { indexSet in
+                            viewStore.send(.deleteGroup(indexSet))
+                        }
+                        .onMove { indices, destination in
+                            viewStore.send(.moveGroup(indices, destination))
+                        }
                     }
                 }
                 .listStyle(.plain)

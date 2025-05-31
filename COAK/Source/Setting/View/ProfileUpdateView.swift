@@ -25,79 +25,83 @@ struct ProfileUpdateView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                Text("join_name_hint")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding([.leading, .trailing], 8)
+            ZStack {
+                Color.black01.ignoresSafeArea()
                 
-                TextField("join_name_hint", text: $name)
-                    .textFieldStyleCustom()
-                    .focused($focusedField, equals: .name)
-                    .foregroundColor(.white)
-                    .padding([.leading, .trailing], 8)
-                
-                HStack {
-                    Spacer()
-                    Text("\(name.count)/20")
-                        .font(.footnote)
+                VStack(spacing: 16) {
+                    Text("join_name_hint")
+                        .font(.headline)
                         .foregroundColor(.white)
-                        .padding(.trailing, 16)
-                }
-                .padding([.leading, .trailing], 8)
-                
-                Text("join_phone_hint")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding([.leading, .trailing], 8)
-                
-                TextField("join_phone_hint", text: $phone)
-                    .textFieldStyleCustom()
-                    .focused($focusedField, equals: .phone)
-                    .foregroundColor(.white)
-                    .padding([.leading, .trailing], 8)
-                
-                HStack {
-                    Text("join_phone_helper")
-                        .font(.footnote)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding([.leading, .trailing], 8)
+                    
+                    TextField("join_name_hint", text: $name)
+                        .textFieldStyleCustom()
+                        .focused($focusedField, equals: .name)
                         .foregroundColor(.white)
-                        .padding(.trailing, 16)
-                    Spacer()
-                    Text("\(phone.count)/11")
-                        .font(.footnote)
-                        .foregroundColor(.white)
-                        .padding(.trailing, 16)
-                }
-                .padding([.leading, .trailing], 8)
-                
-                DatePicker("join_birthday_title", selection: $birthdate, displayedComponents: .date)
-                    .padding(.top, 16)
-                    .padding([.leading, .trailing], 8)
-
-                if let errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                }
-
-                Button(action: saveProfile) {
-                    if isSaving {
-                        ProgressView()
-                    } else {
-                        Text("user_edit_button")
-                            .frame(maxWidth: .infinity)
+                        .padding([.leading, .trailing], 8)
+                    
+                    HStack {
+                        Spacer()
+                        Text("\(name.count)/20")
+                            .font(.footnote)
+                            .foregroundColor(.white)
+                            .padding(.trailing, 16)
                     }
+                    .padding([.leading, .trailing], 8)
+                    
+                    Text("join_phone_hint")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding([.leading, .trailing], 8)
+                    
+                    TextField("join_phone_hint", text: $phone)
+                        .textFieldStyleCustom()
+                        .focused($focusedField, equals: .phone)
+                        .foregroundColor(.white)
+                        .padding([.leading, .trailing], 8)
+                    
+                    HStack {
+                        Text("join_phone_helper")
+                            .font(.footnote)
+                            .foregroundColor(.white)
+                            .padding(.trailing, 16)
+                        Spacer()
+                        Text("\(phone.count)/11")
+                            .font(.footnote)
+                            .foregroundColor(.white)
+                            .padding(.trailing, 16)
+                    }
+                    .padding([.leading, .trailing], 8)
+                    
+                    DatePicker("join_birthday_title", selection: $birthdate, displayedComponents: .date)
+                        .padding(.top, 16)
+                        .padding([.leading, .trailing], 8)
+                    
+                    if let errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                    }
+                    
+                    Button(action: saveProfile) {
+                        if isSaving {
+                            ProgressView()
+                        } else {
+                            Text("user_edit_button")
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+                    .padding(.top, 16)
+                    
+                    Button("setting_secession_popup_title") {
+                        showDeleteConfirm = true
+                    }
+                    .foregroundColor(.red)
+                    .padding(.top, 16)
+                    
+                    Spacer()
                 }
-                .padding(.top, 16)
-                
-                Button("setting_secession_popup_title") {
-                    showDeleteConfirm = true
-                }
-                .foregroundColor(.red)
-                .padding(.top, 16)
-                
-                Spacer()
             }
             .navigationTitle("user_edit_title")
             .onAppear {
