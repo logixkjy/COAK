@@ -1,0 +1,3 @@
+"NSCameraUsageDescription" = "프로필 이미지 촬영을 위해 카메라를 사용합니다.";
+"NSPhotoLibraryUsageDescription" = "사진을 선택하거나 저장하기 위해 사진 라이브러리 접근이 필요합니다.";
+"NSUserNotificationsUsageDescription" = "공자 사항 알림을 위해 푸시서비스를 사용합니다.";

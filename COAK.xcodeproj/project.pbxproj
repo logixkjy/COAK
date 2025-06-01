@@ -120,12 +120,11 @@
 				};
 			};
 			buildConfigurationList = 7C79E2612DB29847007828BC /* Build configuration list for PBXProject "COAK" */;
-			developmentRegion = ko;
+			developmentRegion = mn;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				ko,
 				mn,
-				Base,
 			);
 			mainGroup = 7C79E25D2DB29847007828BC;
 			minimizedProjectReferenceProxies = 1;
@@ -298,7 +297,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = COAK/COAK.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_ASSET_PATHS = "\"COAK/Preview Content\"";
 				DEVELOPMENT_TEAM = E9X7ZUYDPK;
 				ENABLE_PREVIEWS = YES;
@@ -341,7 +340,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = COAK/COAK.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_ASSET_PATHS = "\"COAK/Preview Content\"";
 				DEVELOPMENT_TEAM = E9X7ZUYDPK;
 				ENABLE_PREVIEWS = YES;
