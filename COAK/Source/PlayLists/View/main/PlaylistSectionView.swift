@@ -59,7 +59,7 @@ struct PlaylistSectionView: View {
                             viewStore.send(.selectGroup(group.id))
                             self.isPresented.toggle()
                         }) {
-                            Text("모두 보기")
+                            Text("play_all_view")
                                 .font(.subheadline)
                                 .foregroundColor(.accentColor)
                         }
