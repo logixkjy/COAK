@@ -1583,6 +1583,23 @@
         }
       }
     },
+    "setting_not_profile_image" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "등록된 프로필 이미지가 없습니다. 이미지를 등록해주세요."
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бүртгэгдсэн профайл зураг байхгүй байна. Зургийг бүртгүүлнэ үү."
+          }
+        }
+      }
+    },
     "setting_notice_register" : {
       "extractionState" : "manual",
       "localizations" : {

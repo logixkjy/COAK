@@ -34,6 +34,7 @@ struct SettingsView: View {
     @State private var showSavedAlert = false
     @State private var showProfileEditor = false
     @State private var showImageViewer = false
+    @State private var isNotshowImageViewer = false
     @State private var isPremium = false
     
     @State private var showImagePicker = false
@@ -201,6 +202,8 @@ struct SettingsView: View {
                     .alert("setting_image_save", isPresented: $showSavedAlert) {
                         Button("common_ok", role: .cancel) {}
                     }
+                    
+                    
                 }
             }
         }
@@ -290,6 +293,11 @@ struct ImageViewerView: View {
             Color.black.ignoresSafeArea()
             if let img = image {
                 Image(uiImage: img)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                Image(systemName: "person.crop.circle")
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -146,7 +146,7 @@ struct AuthView: View {
                             }
                             
                             
-                            Text("join_phone_hint")
+                            /*Text("join_phone_hint")
                                 .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -177,7 +177,7 @@ struct AuthView: View {
                             
                             DatePicker("join_birthday_title", selection: viewStore.$birthdate, displayedComponents: .date)
                                 .padding(.top, 16)
-                            
+                            */
                             HStack {
                                 Button(action: {
                                     showPrivacyPolicy = true
@@ -193,7 +193,7 @@ struct AuthView: View {
                             .font(.headline)
                             .foregroundColor(.white)
                             .padding(.top, 16)
-                            
+                        
                         }
                     }
                     .padding(.bottom, 6)
@@ -216,7 +216,7 @@ struct AuthView: View {
                         viewStore.send(.setPassword(""))
                         viewStore.send(.setConfirmPassword(""))
                         viewStore.send(.setName(""))
-                        viewStore.send(.setPhone(""))
+//                        viewStore.send(.setPhone(""))
                         viewStore.send(.toggleSignUpMode)
                     }
                     .font(.headline)

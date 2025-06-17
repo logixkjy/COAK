@@ -165,19 +165,19 @@ struct AuthFeature: Reducer {
                     state.errorMessage = NSLocalizedString("join_name_error", comment: "")
                     return .none
                 }
-                guard state.phone.count >= 8, state.phone.count <= 11 else {
-                    state.errorMessage = NSLocalizedString("join_phone_error", comment: "")
-                    return .none
-                }
+//                guard state.phone.count >= 8, state.phone.count <= 11 else {
+//                    state.errorMessage = NSLocalizedString("join_phone_error", comment: "")
+//                    return .none
+//                }
                 
                 state.isLoading = true
                 state.errorMessage = nil
                 return .run { [
                     email = state.email,
                     password = state.password,
-                    name = state.name,
-                    birthdate = state.birthdate,
-                    phone = state.phone
+                    name = state.name
+//                    birthdate = state.birthdate,
+//                    phone = state.phone
                 ] send in
                     do {
                         let result = try await Auth.auth().createUser(withEmail: email, password: password)
@@ -187,8 +187,8 @@ struct AuthFeature: Reducer {
                             uid: uid,
                             name: name,
                             email: email,
-                            birthdate: birthdate,
-                            phone: phone,
+                            birthdate: nil,
+                            phone: "",
                             profileImageURL: "",
                             createdAt: Date(),
                             allowNotifications: true,
@@ -288,8 +288,7 @@ struct AuthFeature: Reducer {
     }
     
     func isValidEmail(_ email: String) -> Bool {
-        let pattern =
-            #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"#
+        let pattern = #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"#
         return NSPredicate(format: "SELF MATCHES %@", pattern).evaluate(with: email)
     }
 }
