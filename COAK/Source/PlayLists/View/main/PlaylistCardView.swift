@@ -19,13 +19,13 @@ struct PlaylistCardView: View {
                     image
                         .resizable()
                         .aspectRatio(16/9, contentMode: .fill)
-                        .frame(width: 260, height: 146)
+                        .frame(width: 260, height: 195)
                         .clipped()
                         .cornerRadius(8)
                 } placeholder: {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
-                        .frame(width: 260, height: 146)
+                        .frame(width: 260, height: 195)
                         .cornerRadius(8)
                 }
 

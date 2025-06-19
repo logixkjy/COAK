@@ -95,7 +95,14 @@ struct TopNoticeBannerPlaceholderView: View {
                 }
             )
             
-            AnnouncementDetailView(store: self.store, appStore: self.appStore, commentStore: commentStore, announcement: announcement, isEdited: $isEdited, isAdmin: false)
+            let commentReportStore = Store(
+                initialState: CommentReportFeature.State(),
+                reducer: {
+                    CommentReportFeature()
+                }
+            )
+            
+            AnnouncementDetailView(store: self.store, appStore: self.appStore, commentStore: commentStore, commentReportStore: commentReportStore, announcement: announcement, isEdited: $isEdited, isAdmin: false)
         }
     }
 

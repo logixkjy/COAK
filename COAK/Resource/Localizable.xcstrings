@@ -19,8 +19,22 @@
     "%lld/50" : {
 
     },
-    "⋮" : {
-
+    "comment_BannedWord" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "부적절한 단어가 포함되어 있습니다."
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тохиромжгүй үгс агуулсан."
+          }
+        }
+      }
     },
     "common_add" : {
       "extractionState" : "manual",
@@ -35,6 +49,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нэмэх"
+          }
+        }
+      }
+    },
+    "common_alert_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "알림"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мэдэгдэл"
           }
         }
       }
@@ -307,6 +338,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Энэ бол нууц хариулт юм."
+          }
+        }
+      }
+    },
+    "common_report" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "тунхаглал"
           }
         }
       }
@@ -1443,6 +1491,125 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Нууц үг сэргээх"
+          }
+        }
+      }
+    },
+    "report_reason_abuse" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "욕설 또는 비방"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Хараалын үг эсвэл гүтгэлэг"
+          }
+        }
+      }
+    },
+    "report_reason_inappropriate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "부적절한 콘텐츠"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зохисгүй контент"
+          }
+        }
+      }
+    },
+    "report_reason_offTopic" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "주제와 무관함"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сэдэвтэй хамааралгүй"
+          }
+        }
+      }
+    },
+    "report_reason_select" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "신고 사유를 선택해주세요"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мэдээлэх шалтгааныг сонгоно уу"
+          }
+        }
+      }
+    },
+    "report_reason_spam" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "스팸 또는 광고"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Спам эсвэл сурталчилгаа"
+          }
+        }
+      }
+    },
+    "report_response_failure" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고 처리 중 오류가 발생했습니다."
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "тайланг боловсруулах явцад алдаа гарлаа."
+          }
+        }
+      }
+    },
+    "report_response_success" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "신고가 접수되었습니다. 감사합니다."
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Таны тайланг хүлээн авлаа. Баярлалаа. Таны"
           }
         }
       }

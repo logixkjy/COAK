@@ -81,7 +81,14 @@ struct AnnouncementListView: View {
                         }
                     )
                     
-                    AnnouncementDetailView(store: self.store, appStore: self.appStore, commentStore: commentStore, announcement: announcement, isEdited: $isEdited, isAdmin: self.appStore.userProfile?.isAdmin ?? false)
+                    let commentReportStore = Store(
+                        initialState: CommentReportFeature.State(),
+                        reducer: {
+                            CommentReportFeature()
+                        }
+                    )
+                    
+                    AnnouncementDetailView(store: self.store, appStore: self.appStore, commentStore: commentStore, commentReportStore: commentReportStore, announcement: announcement, isEdited: $isEdited, isAdmin: self.appStore.userProfile?.isAdmin ?? false)
                 })
             }
         }

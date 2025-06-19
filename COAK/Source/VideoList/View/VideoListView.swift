@@ -128,10 +128,18 @@ struct VideoListView: View {
                             }
                         )
                         
+                        let commentReportStore = Store(
+                            initialState: CommentReportFeature.State(),
+                            reducer: {
+                                CommentReportFeature()
+                            }
+                        )
+                        
                         VideoDetailView(
                             video: selected,
                             store: appStore,
-                            commentStore: commentStore
+                            commentStore: commentStore,
+                            commentReportStore: commentReportStore
                         )
                             .presentationDetents([.fraction(1.0)])
                             .presentationDragIndicator(.visible) // 위쪽 드래그바 표시

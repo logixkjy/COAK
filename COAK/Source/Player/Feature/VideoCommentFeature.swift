@@ -35,6 +35,10 @@ struct VideoCommentFeature {
 
         var replyMap: [String: [Reply]] = [:] // commentId -> replies
         var isReplyLoadingMap: [String: Bool] = [:]
+        
+        
+        var bannedWords: [String] = []
+        var alertMessage: String? = nil
     }
 
     enum Action: Equatable {
@@ -68,15 +72,23 @@ struct VideoCommentFeature {
         case cancelEditReply
         case confirmEditReply
         case deleteReply(parentId: String, replyId: String)
+        
+        case setBannedWords([String])
+        case commentSubmissionBlockedByBannedWord
     }
 
     @Dependency(\.commentClient) var commentClient
+    @Dependency(\.bannedWordProvider) var bannedWordProvider
 
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
 
         case .onAppear:
-            return .send(.loadInitialComments)
+            return .run { send in
+                let words = try await bannedWordProvider.load()
+                await send(.setBannedWords(words))
+                await send(.loadInitialComments)
+            }
 
         case .loadInitialComments:
             state.isLoading = true
@@ -127,6 +139,10 @@ struct VideoCommentFeature {
 
             let text = state.newCommentText
             let isSecret = state.isSecret
+            
+            if containsBannedWords(text, bannedWords: state.bannedWords) {
+                return .send(.commentSubmissionBlockedByBannedWord)
+            }
             return .run { [videoId = state.videoId, userId = state.userId, email = state.email] send in
                 let comment = try await commentClient.postComment(videoId, text, userId, email, isSecret)
                 await send(.postCommentResponse(.success(comment)))
@@ -158,6 +174,10 @@ struct VideoCommentFeature {
             let isSecret = state.isSecret
             state.isEditing = false
             state.editingCommentId = nil
+            
+            if containsBannedWords(newText, bannedWords: state.bannedWords) {
+                return .send(.commentSubmissionBlockedByBannedWord)
+            }
             return .run { [videoId = state.videoId] send in
                 try await commentClient.editComment(videoId, editingId, newText, isSecret)
                 await send(.loadInitialComments)
@@ -185,6 +205,10 @@ struct VideoCommentFeature {
             let text = state.newCommentText
             let isSecret = state.isSecret
             state.replyTarget = nil
+            
+            if containsBannedWords(text, bannedWords: state.bannedWords) {
+                return .send(.commentSubmissionBlockedByBannedWord)
+            }
             return .run { [videoId = state.videoId, userId = state.userId, email = state.email] send in
                 let reply = try await commentClient.postReply(videoId, parentId, text, userId, email, isSecret)
                 await send(.postReplyResponse(.success(reply)))
@@ -232,6 +256,10 @@ struct VideoCommentFeature {
             let isSecret = state.isSecret
             state.isEditingReply = false
             state.editingReplyId = nil
+            
+            if containsBannedWords(text, bannedWords: state.bannedWords) {
+                return .send(.commentSubmissionBlockedByBannedWord)
+            }
             return .run { [videoId = state.videoId] send in
                 try await commentClient.editReply(videoId, parentId, replyId, text, isSecret)
                 await send(.loadReplies(parentId: parentId))
@@ -242,9 +270,26 @@ struct VideoCommentFeature {
                 try await commentClient.deleteReply(videoId, parentId, replyId)
                 await send(.loadReplies(parentId: parentId))
             } catch: { _, send in }
+            
+        case let .setBannedWords(words):
+            state.bannedWords = words
+            return .none
+            
+        case .commentSubmissionBlockedByBannedWord:
+            state.alertMessage = NSLocalizedString("comment_BannedWord", comment: "")//"부적절한 단어가 포함되어 있습니다."
+            return .none
 
         default:
             return .none
         }
+    }
+    
+    func containsBannedWords(_ text: String, bannedWords: [String]) -> Bool {
+        let normalizedText = text
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+            .folding(options: [.diacriticInsensitive, .widthInsensitive, .caseInsensitive], locale: .current)
+
+        return bannedWords.contains(where: { normalizedText.contains($0.lowercased()) })
     }
 }
