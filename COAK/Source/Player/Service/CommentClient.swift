@@ -19,6 +19,9 @@ struct CommentClient {
     var postReply: @Sendable (_ videoId: String, _ commentId: String, _ content: String, _ userId: String, _ email: String, _ isSecret: Bool) async throws -> Reply
     var editReply: @Sendable (_ videoId: String, _ commentId: String, _ replyId: String, _ newContent: String, _ isSecret: Bool) async throws -> Void
     var deleteReply: @Sendable (_ videoId: String, _ commentId: String, _ replyId: String) async throws -> Void
+    
+    public var setCommentHidden: @Sendable (String, String, Bool) async throws -> Void
+    public var setReplyHidden: @Sendable (String, String, String, Bool) async throws -> Void
 }
 
 extension CommentClient: DependencyKey {
@@ -119,6 +122,21 @@ extension CommentClient: DependencyKey {
                 .collection("videos").document(videoId)
                 .collection("comments").document(parentId)
             try await parentRef.updateData(["replyCount": FieldValue.increment(Int64(-1))])
+        },
+        
+        setCommentHidden: { videoId, commentId, hidden in
+            let doc = Firestore.firestore()
+                .collection("videos").document(videoId)
+                .collection("comments").document(commentId)
+            try await doc.updateData(["isHidden": hidden])
+        },
+        
+        setReplyHidden: { videoId, parentId, replyId, hidden in
+            let doc = Firestore.firestore()
+                .collection("videos").document(videoId)
+                .collection("comments").document(parentId)
+                .collection("replies").document(replyId)
+            try await doc.updateData(["isHidden": hidden])
         }
     )
 }
@@ -140,6 +158,7 @@ struct Comment: Identifiable, Codable, Equatable {
     var email: String
     var replyCount: Int
     var isSecret: Bool?
+    var isHidden: Bool?
     
     func isVisible(for uid: String, isAdmin: Bool) -> Bool {
         return !(isSecret ?? false) || userId == uid || isAdmin
@@ -154,4 +173,5 @@ struct Reply: Identifiable, Codable, Equatable {
     var email: String
     var parentId: String
     var isSecret: Bool?
+    var isHidden: Bool?
 }

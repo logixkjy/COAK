@@ -107,9 +107,10 @@ struct VideoDetailView: View {
                                                         .font(.headline)
                                                     ForEach(viewStore.comments) { comment in
                                                         let commentVisivle = comment.isVisible(for: appViewStore.userProfile?.uid ?? "", isAdmin: appViewStore.userProfile?.isAdmin ?? false)
+                                                        let isHidden = comment.isHidden ?? false
                                                         VStack(alignment: .leading, spacing: 6) {
                                                             HStack {
-                                                                if commentVisivle {
+                                                                if commentVisivle && !isHidden {
                                                                     Text(comment.email)
                                                                         .font(.caption)
                                                                         .foregroundColor(.white)
@@ -121,14 +122,18 @@ struct VideoDetailView: View {
                                                                 Spacer()
                                                                 
                                                                 Menu {
-                                                                    Button("common_report") {
-                                                                        reportStore.send(.reportButtonTapped(
-                                                                            comment.id,
-                                                                            comment.content,
-                                                                            .comment,
-                                                                            nil,
-                                                                            .video)
-                                                                        )
+                                                                    if !isHidden {
+                                                                        Button("common_report") {
+                                                                            reportStore.send(.reportButtonTapped(
+                                                                                comment.id,
+                                                                                comment.content,
+                                                                                .comment,
+                                                                                nil,
+                                                                                .video,
+                                                                                appViewStore.userProfile?.email ?? "",
+                                                                                viewStore.videoId)
+                                                                            )
+                                                                        }
                                                                     }
                                                                     
                                                                     if comment.userId == appViewStore.userProfile?.uid || (appViewStore.userProfile?.isAdmin ?? false) {
@@ -150,7 +155,7 @@ struct VideoDetailView: View {
                                                                         .foregroundColor(.white)
                                                                 }
                                                             }
-                                                            Text(commentVisivle ? comment.content : "common_comment_secret")
+                                                            Text(isHidden ? NSLocalizedString("common_comment_hidden", comment: "") : (commentVisivle ? comment.content : NSLocalizedString("common_comment_secret", comment: "")))
                                                                 .font(.body)
                                                                 .foregroundColor(.gray)
                                                             
@@ -174,9 +179,10 @@ struct VideoDetailView: View {
                                                             if let replies = viewStore.replyMap[comment.id] {
                                                                 ForEach(replies) { reply in
                                                                     let replayVisible = (reply.isSecret ?? false) ? commentVisivle : true
+                                                                    let isHidden = reply.isHidden ?? false
                                                                     VStack(alignment: .leading, spacing: 4) {
                                                                         HStack {
-                                                                            if replayVisible {
+                                                                            if replayVisible && !isHidden {
                                                                                 Text(reply.email).font(.caption2).foregroundColor(.white)
                                                                             }
                                                                             Text(reply.createdAt.formatted(date: .numeric, time: .shortened))
@@ -185,14 +191,18 @@ struct VideoDetailView: View {
                                                                             Spacer()
                                                                             
                                                                             Menu {
-                                                                                Button("common_report") {
-                                                                                    reportStore.send(.reportButtonTapped(
-                                                                                        reply.id,
-                                                                                        reply.content,
-                                                                                        .reply,
-                                                                                        reply.parentId,
-                                                                                        .video)
-                                                                                    )
+                                                                                if !isHidden {
+                                                                                    Button("common_report") {
+                                                                                        reportStore.send(.reportButtonTapped(
+                                                                                            reply.id,
+                                                                                            reply.content,
+                                                                                            .reply,
+                                                                                            reply.parentId,
+                                                                                            .video,
+                                                                                            appViewStore.userProfile?.email ?? "",
+                                                                                            viewStore.videoId)
+                                                                                        )
+                                                                                    }
                                                                                 }
                                                                                 if reply.userId == appViewStore.userProfile?.uid || (appViewStore.userProfile?.isAdmin ?? false) {
                                                                                     if reply.userId == appViewStore.userProfile?.uid {
@@ -213,7 +223,7 @@ struct VideoDetailView: View {
                                                                                 Text("      ⋮").foregroundColor(.white)
                                                                             }
                                                                         }
-                                                                        Text(replayVisible ? reply.content : "common_reply_secret").font(.body).foregroundColor(.gray)
+                                                                        Text(isHidden ? NSLocalizedString("common_comment_hidden", comment: "") : (replayVisible ? reply.content :NSLocalizedString("common_reply_secret", comment: "") )).font(.body).foregroundColor(.gray)
                                                                     }
                                                                     .padding(.leading, 16)
                                                                 }

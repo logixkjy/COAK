@@ -19,6 +19,9 @@ struct AnnouncementCommentClient {
     var postReply: @Sendable (_ videoId: String, _ commentId: String, _ content: String, _ userId: String, _ email: String, _ isSecret: Bool) async throws -> Reply
     var editReply: @Sendable (_ videoId: String, _ commentId: String, _ replyId: String, _ newContent: String, _ isSecret: Bool) async throws -> Void
     var deleteReply: @Sendable (_ videoId: String, _ commentId: String, _ replyId: String) async throws -> Void
+    
+    public var setCommentHidden: @Sendable (String, String, Bool) async throws -> Void
+    public var setReplyHidden: @Sendable (String, String, String, Bool) async throws -> Void
 }
 
 extension AnnouncementCommentClient: DependencyKey {
@@ -126,6 +129,21 @@ extension AnnouncementCommentClient: DependencyKey {
                 .document(announcementId)
                 .collection("comments").document(parentId)
             try await parentRef.updateData(["replyCount": FieldValue.increment(Int64(-1))])
+        },
+        
+        setCommentHidden: { announcementId, commentId, hidden in
+            let doc = Firestore.firestore().collection("notices_comments")
+                .document(announcementId).collection("comments").document(commentId)
+            try await doc.updateData(["isHidden": hidden])
+        },
+        
+        setReplyHidden: { announcementId, parentId, replyId, hidden in
+            let doc = Firestore.firestore()
+                .collection("notices_comments")
+                .document(announcementId)
+                .collection("comments").document(parentId)
+                .collection("replies").document(replyId)
+            try await doc.updateData(["isHidden": hidden])
         }
     )
 }

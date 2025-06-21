@@ -21,6 +21,7 @@ struct SettingsView: View {
     @State private var isShowingAnnouncementPost = false
     @State private var isShowingPlaylistEditor = false
     @State private var isShowingAdminPush = false
+    @State private var isShowingAdminReport = false
     @State private var isShowingUserList = false
     //    @State private var announcement: Announcement = Announcement(id: "", content: "", imageURLs: [], authorName: "", authorProfileImageURL: nil, createdAt: Date())
     @State private var showDeleteConfirm = false
@@ -143,6 +144,11 @@ struct SettingsView: View {
                                         isShowingAdminPush = true
                                     }
                                     .foregroundColor(.white)
+                                    
+                                    Button("setting_report_list") {
+                                        isShowingAdminReport = true
+                                    }
+                                    .foregroundColor(.white)
                                 }
                             }
                         }
@@ -178,6 +184,14 @@ struct SettingsView: View {
                     }
                     .sheet(isPresented: $isShowingUserList) {
                         UserListView()
+                    }
+                    .sheet(isPresented: $isShowingAdminReport) {
+                        ReportListView(store: Store(
+                            initialState: ReportAdminFeature.State(),
+                            reducer: {
+                                ReportAdminFeature()
+                            }
+                        ))
                     }
                     .sheet(isPresented: $isShowingPolicy) {
                         SafariWebView(url: URL(string: "https://logixkjy.github.io/coak-privacy-policy")!)

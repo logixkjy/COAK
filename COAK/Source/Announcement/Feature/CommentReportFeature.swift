@@ -19,12 +19,14 @@ struct CommentReportFeature {
         var pendingContent: String?
         var pendingType: ReportType?
         var pendingParentId: String?
+        var pendingEmail: String?
+        var pendingDocumentId: String?
         var pendingSource: ReportSource?
         var alertMessage: String? = nil
     }
     
     enum Action: Equatable {
-        case reportButtonTapped(String, String, ReportType, String?, ReportSource)
+        case reportButtonTapped(String, String, ReportType, String?, ReportSource, String, String)
         case showReasonDialog
         case selectReason(ReportReason)
         case confirmReport
@@ -32,6 +34,11 @@ struct CommentReportFeature {
         case reportResponseFailure
         case dismissAlert
         case dismissReasonDialog
+        
+        case onAppear
+        case fetchReports
+        case fetchReportsResponseSuccess([Report])
+        case fetchReportsResponseFailure(CustomError)
     }
     
     @Dependency(\.reportClient) var reportClient
@@ -39,12 +46,14 @@ struct CommentReportFeature {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case let .reportButtonTapped(targetId, content, type, parentId, source):
+            case let .reportButtonTapped(targetId, content, type, parentId, source, email, documentId):
                 state.pendingTargetId = targetId
                 state.pendingContent = content
                 state.pendingType = type
                 state.pendingParentId = parentId
                 state.pendingSource = source
+                state.pendingEmail = email
+                state.pendingDocumentId = documentId
                 state.isShowingReasonDialog = true
                 return .none
                 
@@ -57,11 +66,14 @@ struct CommentReportFeature {
                       let content = state.pendingContent,
                       let type = state.pendingType,
                       let source = state.pendingSource,
-                      let reason = state.selectedReason
+                      let reason = state.selectedReason,
+                      let email = state.pendingEmail,
+                      let documentId = state.pendingDocumentId
                 else { return .none }
 
                 let report = Report(
                     id: "",
+                    documentId: documentId,
                     type: type,
                     targetId: targetId,
                     content: content,
@@ -69,6 +81,7 @@ struct CommentReportFeature {
                     source: source,
                     reason: reason.id,
                     reportedBy: Auth.auth().currentUser?.uid ?? "unknown",
+                    reportedByEmail: email,
                     timestamp: Date.now,
                     completed: false
                 )

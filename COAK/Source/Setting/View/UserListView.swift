@@ -53,10 +53,10 @@ struct UserListView: View {
                         // 사용자 정보와 프리미엄 여부 체크박스
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
-                                Text(user.name.isEmpty ? "이름 없음" : user.name)
+                                Text(user.name.isEmpty ? "-" : user.name)
                                     .font(.headline)
                                 
-                                Text(user.birthdate?.formatted(date: .numeric, time: .omitted) ?? "생일 없음")
+                                Text(user.birthdate?.formatted(date: .numeric, time: .omitted) ?? "-")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                                 
@@ -76,9 +76,9 @@ struct UserListView: View {
                                 .toggleStyle(.switch)
                             }
                             
-                            Text(user.phone.isEmpty ? "연락처 없음" : user.phone)
+                            Text(user.phone.isEmpty ? "-" : user.phone)
                                 .font(.caption)
-                            Text(user.email.isEmpty ? "이메일 없음" : user.email)
+                            Text(user.email.isEmpty ? "-" : user.email)
                                 .font(.caption)
                                 .foregroundColor(.gray)
                         }
@@ -86,14 +86,14 @@ struct UserListView: View {
                     .padding(.vertical, 6)
                 }
             }
-            .navigationTitle("전체 사용자")
+            .navigationTitle("setting_user_list")
             .onAppear {
                 loadUsers()
             }
         }
         .overlay {
             if isLoading {
-                ProgressView("로딩 중...")
+                ProgressView("loading...")
                     .progressViewStyle(CircularProgressViewStyle())
             }
         }
