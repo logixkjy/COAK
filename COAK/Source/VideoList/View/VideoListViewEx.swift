@@ -87,6 +87,7 @@ extension VideoListView {
                 Text(video.title)
                     .font(.headline)
                     .lineLimit(2)
+                    .frame(minHeight: UIFont.preferredFont(forTextStyle: .headline).lineHeight * 2.2)
                     .foregroundColor(.white)
             }
         }

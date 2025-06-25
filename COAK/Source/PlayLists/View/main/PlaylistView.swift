@@ -59,7 +59,7 @@ struct PlaylistView: View {
                                                                 .resizable()
 //                                                                .aspectRatio(16/9, contentMode: .fill)
                                                                 .aspectRatio(contentMode: .fill)
-                                                                .frame(height: 120)
+                                                                .frame(height: 100)
                                                                 .clipped()
                                                                 .cornerRadius(6)
                                                         } placeholder: {
