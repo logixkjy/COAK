@@ -59,14 +59,14 @@ struct PlaylistView: View {
                                                                 .resizable()
 //                                                                .aspectRatio(16/9, contentMode: .fill)
                                                                 .aspectRatio(contentMode: .fill)
-                                                                .frame(height: 100)
+                                                                .frame(height: 120)
                                                                 .clipped()
                                                                 .cornerRadius(6)
                                                         } placeholder: {
                                                             ProgressView()
-                                                                .frame(height: 90)
+//                                                                .frame(height: 90)
                                                         }
-//                                                        .frame(width: 120, height: 90)
+//                                                        .frame(width: 133, height: 100)
                                                         
                                                         // 프리미엄 여부에 따른 딤 처리와 자물쇠 아이콘
                                                         if playlist.isPremiumRequired == true &&
@@ -90,6 +90,7 @@ struct PlaylistView: View {
                                                 Text(playlist.title)
                                                     .font(.headline)
                                                     .lineLimit(2)
+                                                    .frame(minHeight: UIFont.preferredFont(forTextStyle: .headline).lineHeight * 2.2)
                                                     .foregroundColor(.white)
                                             }
                                             .onTapGesture {
@@ -116,12 +117,12 @@ struct PlaylistView: View {
                                                 AsyncImage(url: URL(string: url)) { image in
                                                     image
                                                         .resizable()
-                                                        .aspectRatio(contentMode: .fill)
+                                                        .aspectRatio(16/9, contentMode: .fill)
                                                 } placeholder: {
                                                     Rectangle()
                                                         .fill(Color.gray.opacity(0.2))
                                                 }
-                                                .frame(height: 90)
+                                                .frame(width: 133, height: 100)
                                                 .clipped()
                                                 .cornerRadius(8)
                                                 
