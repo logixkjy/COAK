@@ -113,7 +113,7 @@ struct PlaylistView: View {
                                 List(items) { playlist in
                                     HStack(alignment: .top, spacing: 12) {
                                         if let url = playlist.thumbnailURL {
-                                            ZStack {
+                                            ZStack(alignment: .center) {
                                                 AsyncImage(url: URL(string: url)) { image in
                                                     image
                                                         .resizable()
@@ -122,28 +122,24 @@ struct PlaylistView: View {
                                                     Rectangle()
                                                         .fill(Color.gray.opacity(0.2))
                                                 }
-                                                .frame(width: 133, height: 100)
-                                                .clipped()
-                                                .cornerRadius(8)
-                                                
-                                                // 프리미엄 여부에 따른 딤 처리와 자물쇠 아이콘
+
                                                 if playlist.isPremiumRequired == true &&
-                                                    (appStore.userProfile?.isPremium ?? false) == false &&
-                                                    (appStore.userProfile?.isAdmin ?? false) == false {
-                                                    Color.black.opacity(0.4) // 딤 처리
-                                                        .cornerRadius(8)
-                                                    
-                                                    VStack {
-                                                        Image(systemName: "lock.fill")
-                                                            .resizable()
-                                                            .frame(width: 20, height: 20)
-                                                            .foregroundColor(.white)
-                                                            .padding(8)
-                                                            .background(Color.black.opacity(0.6))
-                                                            .clipShape(Circle())
-                                                    }
+                                                    !(appStore.userProfile?.isPremium ?? false) &&
+                                                    !(appStore.userProfile?.isAdmin ?? false) {
+                                                    Color.black.opacity(0.4)
+
+                                                    Image(systemName: "lock.fill")
+                                                        .resizable()
+                                                        .frame(width: 20, height: 20)
+                                                        .foregroundColor(.white)
+                                                        .padding(8)
+                                                        .background(Color.black.opacity(0.6))
+                                                        .clipShape(Circle())
                                                 }
                                             }
+                                            .frame(width: 133, height: 100) // ✅ 고정
+                                            .clipped()
+                                            .cornerRadius(8)
                                         }
                                         
                                         VStack(alignment: .leading, spacing: 6) {

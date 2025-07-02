@@ -1705,6 +1705,23 @@
         }
       }
     },
+    "setting_find_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이름 검색"
+          }
+        },
+        "mn" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нэр хайх"
+          }
+        }
+      }
+    },
     "setting_image_save" : {
       "extractionState" : "manual",
       "localizations" : {

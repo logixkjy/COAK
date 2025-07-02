@@ -45,6 +45,7 @@ struct AuthView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             TextField("login_id_hint", text: viewStore.$email)
                                 .textFieldStyleCustom()
+                                .keyboardType(.emailAddress)
                                 .focused($focusedField, equals: .email)
                                 .foregroundColor(.white)
                                 .onChange(of: viewStore.email) { newValue in

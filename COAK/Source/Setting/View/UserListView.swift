@@ -23,67 +23,74 @@ struct UserInfo: Identifiable, Decodable {
 struct UserListView: View {
     @State private var users: [UserInfo] = []
     @State private var isLoading = false
+    @State private var searchText: String = ""
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.black01.ignoresSafeArea()
-                
-                List(users.indices, id: \.self) { index in
-                    let user = users[index]
+                VStack(spacing: 0) {
+                    // 검색창
+                    TextField("setting_find_name", text: $searchText)
+                        .textFieldStyle(.roundedBorder)
+                        .padding(.horizontal)
                     
-                    HStack(alignment: .top, spacing: 12) {
-                        // 프로필 이미지
-                        if let urlString = user.profileImageURL,
-                           let url = URL(string: urlString) {
-                            AsyncImage(url: url) { image in
-                                image.resizable()
-                            } placeholder: {
-                                ProgressView()
-                            }
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                        } else {
-                            Image(systemName: "person.crop.circle")
-                                .resizable()
-                                .frame(width: 40, height: 40)
-                                .foregroundColor(.gray)
-                        }
+                    List(filteredUsers.indices, id: \.self) { index in
+                        let user = filteredUsers[index]
                         
-                        // 사용자 정보와 프리미엄 여부 체크박스
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Text(user.name.isEmpty ? "-" : user.name)
-                                    .font(.headline)
-                                
-                                Text(user.birthdate?.formatted(date: .numeric, time: .omitted) ?? "-")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                
-                                Spacer()
-                                
-                                // 프리미엄 체크박스
-                                Toggle(isOn: Binding(
-                                    get: { user.isPremium },
-                                    set: { newValue in
-                                        updatePremiumStatus(for: user.uid, isPremium: newValue)
-                                        users[index].isPremium = newValue
-                                    }
-                                )) {
-                                    Image(systemName: user.isPremium ? "star.fill" : "star")
-                                        .foregroundColor(user.isPremium ? .yellow : .gray)
+                        HStack(alignment: .top, spacing: 12) {
+                            // 프로필 이미지
+                            if let urlString = user.profileImageURL,
+                               let url = URL(string: urlString) {
+                                AsyncImage(url: url) { image in
+                                    image.resizable()
+                                } placeholder: {
+                                    ProgressView()
                                 }
-                                .toggleStyle(.switch)
+                                .frame(width: 40, height: 40)
+                                .clipShape(Circle())
+                            } else {
+                                Image(systemName: "person.crop.circle")
+                                    .resizable()
+                                    .frame(width: 40, height: 40)
+                                    .foregroundColor(.gray)
                             }
                             
-                            Text(user.phone.isEmpty ? "-" : user.phone)
-                                .font(.caption)
-                            Text(user.email.isEmpty ? "-" : user.email)
-                                .font(.caption)
-                                .foregroundColor(.gray)
+                            // 사용자 정보와 프리미엄 여부 체크박스
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text(user.name.isEmpty ? "-" : user.name)
+                                        .font(.headline)
+                                    
+                                    Text(user.birthdate?.formatted(date: .numeric, time: .omitted) ?? "-")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                    
+                                    Spacer()
+                                    
+                                    // 프리미엄 체크박스
+                                    Toggle(isOn: Binding(
+                                        get: { user.isPremium },
+                                        set: { newValue in
+                                            updatePremiumStatus(for: user.uid, isPremium: newValue)
+                                            users[index].isPremium = newValue
+                                        }
+                                    )) {
+//                                        Image(systemName: user.isPremium ? "star.fill" : "star")
+//                                            .foregroundColor(user.isPremium ? .yellow : .gray)
+                                    }
+                                    .toggleStyle(.switch)
+                                }
+                                
+                                Text(user.phone.isEmpty ? "-" : user.phone)
+                                    .font(.caption)
+                                Text(user.email.isEmpty ? "-" : user.email)
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
                         }
+                        .padding(.vertical, 6)
                     }
-                    .padding(.vertical, 6)
                 }
             }
             .navigationTitle("setting_user_list")
@@ -146,5 +153,33 @@ struct UserListView: View {
                 print("Premium status updated for user: \(uid)")
             }
         }
+    }
+    
+    var filteredUsers: [UserInfo] {
+        let keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !keyword.isEmpty else { return users }
+
+        return users.filter { user in
+            let name = user.name.lowercased()
+            return name.contains(keyword)
+            || name.hangulInitials().contains(keyword)
+        }
+    }
+}
+
+extension String {
+    func hangulInitials() -> String {
+        let choSung = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ",
+                       "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ",
+                       "ㅌ", "ㅍ", "ㅎ"]
+
+        return self.compactMap { char in
+            guard let scalar = char.unicodeScalars.first else { return nil }
+            let base = scalar.value
+            guard (0xAC00...0xD7A3).contains(base) else { return nil }
+
+            let index = (base - 0xAC00) / 28 / 21
+            return choSung[Int(index)]
+        }.joined()
     }
 }
