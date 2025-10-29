@@ -54,19 +54,19 @@ struct PlaylistView: View {
                                             VStack(alignment: .leading, spacing: 6) {
                                                 ZStack {
                                                     if let url = playlist.thumbnailURL {
-                                                        AsyncImage(url: URL(string: url)) { image in
-                                                            image
-                                                                .resizable()
-//                                                                .aspectRatio(16/9, contentMode: .fill)
-                                                                .aspectRatio(contentMode: .fill)
-                                                                .frame(height: 100)
-                                                                .clipped()
-                                                                .cornerRadius(6)
-                                                        } placeholder: {
-                                                            ProgressView()
-//                                                                .frame(height: 90)
+                                                        AsyncImage(url: URL(string: url)) { phase in
+                                                            switch phase {
+                                                            case .success(let image):
+                                                                image
+                                                                    .resizable()
+                                                                    .scaledToFill()
+                                                            case .failure(_):
+                                                                Color.gray.opacity(0.25)
+                                                            default:
+                                                                Color.gray.opacity(0.15)
+                                                            }
                                                         }
-//                                                        .frame(width: 133, height: 100)
+                                                        .aspectRatio(16/9, contentMode: .fit)
                                                         
                                                         // 프리미엄 여부에 따른 딤 처리와 자물쇠 아이콘
                                                         if playlist.isPremiumRequired == true &&
@@ -88,10 +88,11 @@ struct PlaylistView: View {
                                                     }
                                                 }
                                                 Text(playlist.title)
-                                                    .font(.headline)
-                                                    .lineLimit(2)
-                                                    .frame(minHeight: UIFont.preferredFont(forTextStyle: .headline).lineHeight * 2.2)
-                                                    .foregroundColor(.white)
+                                                    .font(.subheadline)
+                                                    .lineLimit(1)
+                                                    .multilineTextAlignment(.leading)
+                                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                                    .fixedSize(horizontal: false, vertical: true)
                                             }
                                             .onTapGesture {
                                                 if playlist.isPremiumRequired == true &&
@@ -106,7 +107,8 @@ struct PlaylistView: View {
                                             }
                                         }
                                     }
-                                    .padding()
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 12)
                                     .transition(.opacity.combined(with: .scale))
                                 }
                             } else {

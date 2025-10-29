@@ -63,7 +63,8 @@ struct VideoListView: View {
                                                 }
                                         }
                                     }
-                                    .padding()
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 12)
                                     .transition(.opacity.combined(with: .scale))
                                 }
                             } else {

@@ -59,17 +59,19 @@ extension VideoListView {
             VStack(alignment: .leading, spacing: 6) {
                 ZStack(alignment: .bottomTrailing) {
                     let url = video.thumbnailURL
-                    AsyncImage(url: URL(string: url)) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(height: 100)
-                            .clipped()
-                            .cornerRadius(6)
-                    } placeholder: {
-                        ProgressView()
-                            .frame(height: 100)
+                    AsyncImage(url: URL(string: url)) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure(_):
+                            Color.gray.opacity(0.25)
+                        default:
+                            Color.gray.opacity(0.15)
+                        }
                     }
+                    .aspectRatio(16/9, contentMode: .fit)
                     
                     // ⏱ 재생 시간 오버레이
                     if let duration = video.duration {
@@ -79,16 +81,20 @@ extension VideoListView {
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Color.black.opacity(0.7))
-                            .cornerRadius(4)
+                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                             .padding(6)
                     }
                 }
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous)) // ZStack에 적용해야 테두리 일괄 클립
+                .contentShape(Rectangle())
                 
+                // 3) 제목: 고정 폭 제거, 가변 폭 + 줄바꿈
                 Text(video.title)
-                    .font(.headline)
-                    .lineLimit(2)
-                    .frame(minHeight: UIFont.preferredFont(forTextStyle: .headline).lineHeight * 2.2)
-                    .foregroundColor(.white)
+                    .font(.subheadline)
+                    .lineLimit(1)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

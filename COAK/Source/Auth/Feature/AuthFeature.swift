@@ -8,7 +8,7 @@
 import ComposableArchitecture
 import FirebaseAuth
 import FirebaseFirestore
-import SwiftUICore
+import SwiftUI
 
 struct UserProfile: Codable, Equatable {
     let uid: String
